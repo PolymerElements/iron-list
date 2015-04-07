@@ -1,0 +1,350 @@
+<link rel="import" href="../polymer/polymer.html">
+<dom-module id="iron-list">
+  <style>
+
+    :host {
+      display: block;
+      overflow: auto;
+      will-change: transform;
+    }
+
+    #items > ::content > * {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+  </style>
+  <template>
+    <div id="items" class="relative">
+      <content></content>
+    </div>
+  </template>
+</dom-module>
+
+<script>
+
+(function() {
+
+  var IOS = navigator.userAgent.match(/iP(?:hone|ad;(?: U;)? CPU) OS (\d+)/);
+  var IOS_TOUCH_SCROLLING = IOS && IOS[1] >= 8;
+
+  Polymer({
+
+    is: 'iron-list',
+
+    properties: {
+      items: {
+        type: Array
+      }
+    },
+
+    observers: {
+      'items.*': 'itemsChanged'
+    },
+
+    mixins: [
+      Polymer.Templatizer
+    ],
+
+    scrollPosition: 0,
+    physicalCount: 20,
+    physicalStart: 0,
+    physicalEnd: 0,
+    physicalSize: 0,
+    physicalAverage: 0,
+    physicalAverageCount: 0,
+    virtualCount: 0,
+    virtualStart: 0,
+
+    created: function() {
+      if (IOS_TOUCH_SCROLLING) {
+        this.style.webkitOverflowScrolling = 'touch';
+        this.addEventListener('scroll', function() {
+          requestAnimationFrame(function() { this.scrollHandler(); }.bind(this)); 
+        }.bind(this));      
+      } else {
+        this.addEventListener('scroll', this.scrollHandler.bind(this));
+      }
+      window.addEventListener('resize', this.resizeHandler.bind(this));
+    },
+
+    ensureTemplatized: function() {
+      if (!this.ctor) {
+        this._userTemplate = Polymer.dom(this).querySelector('template');
+        if (this._userTemplate) {
+          this.templatize(this._userTemplate);
+        } else {
+          console.warn('x-list requires a template to be provided in light-dom');
+        }        
+      }
+    },
+
+    // Implements extension point from Templatizer mixin
+    _getStampedChildren: function() {
+      return this.physicalItems;
+    },
+
+    // Implements extension point from Templatizer
+    // Called as a side effect of a template instance path change, responsible 
+    // for notifying items.<key-for-instance>.<path> change up to host
+    _forwardInstancePath: function(inst, root, subPath, value) {
+      if (root == 'item') {
+        this.notifyPath('items.' + inst.key + '.' + subPath, value);
+      }
+    },
+
+    // Implements extension point from Templatizer mixin
+    // Called as side-effect of a host property change, responsible for
+    // notifying parent.<prop> path change on each row
+    _forwardParentProp: function(prop, value) {
+      if (this.physicalItems) {
+        this.physicalItems.forEach(function(item) {
+          var inst = item._templateInstance;
+          inst.parent[prop] = value;
+          inst.notifyPath('parent.' + prop, value, true);
+        }, this);        
+      }
+    },
+
+    // Implements extension point from Templatizer
+    // Called as side-effect of a host path change, responsible for
+    // notifying parent.<path> path change on each row
+    _forwardParentPath: function(path, value) {
+      if (this.physicalItems) {
+        this.physicalItems.forEach(function(item) {
+          var inst = item._templateInstance;
+          inst.notifyPath('parent.' + path, value, true);
+        }, this);        
+      }
+    },
+
+    // Called as a side effect of a host items.<key>.<path> path change,
+    // responsible for notifying item.<path> changes to row for key
+    _notifyItemChanged: function(path, value) {
+      if (this._physicalIndexForKey) {
+        // 'items.'.length == 6
+        var dot = path.indexOf('.', 6);
+        var key = path.substring(6, dot < 0 ? path.length : dot);
+        var idx = this._physicalIndexForKey[key];
+        var row = this.physicalItems[idx];
+        if (row) {
+          var inst = row._templateInstance;
+          if (dot >= 0) {
+            path = 'item.' + path.substring(dot+1);
+            inst.notifyPath(path, value, true);
+          } else {
+            inst.item = value;
+          }
+        }
+      }
+    },
+
+    itemsChanged: function(items, old, path) {
+      if (path) {
+        this._notifyItemChanged(path, items);
+      } else {
+        this.collection = Polymer.Collection.get(this.items);
+        this.virtualCount = this.items ? this.items.length : 0;
+        this.virtualStart = 0;
+        this.physicalOffset = 0;
+        this.physicalItems = this.physicalItems || new Array(this.physicalCount);
+        this.physicalSizes = this.physicalSizes || new Array(this.physicalCount);
+        this.movingUp = [];
+        this.ensureTemplatized();
+        for (var i=0; i<this.physicalCount; i++) {
+          if (!this.physicalItems[i]) {
+            var inst = this.stamp(this.items[i]);
+            var item = this.physicalItems[i] = inst.root.children[0];
+            item._templateInstance = inst;
+            Polymer.dom(this).appendChild(inst.root);
+          }
+        }
+        this.debounce('refresh', this.refresh);
+      }
+    },
+
+    scrollHandler: function() {
+      this.refresh();
+    },
+
+    refresh: function() {
+
+      if (this.virtualCount) {
+        // Determine scroll delta
+        var lastScrollPos = this.scrollPosition;
+        this.scrollPosition = this.scrollTop;
+        var delta = this.scrollPosition - lastScrollPos;
+
+        // Adjust starting index & offset by flipping items from bottom<->top
+        if (Math.abs(delta) > Math.max(this.physicalSize, this.physicalAverage * this.physicalCount)) {
+          var deltaCount = Math.round(delta / this.physicalAverage);
+          this.virtualStart += deltaCount;
+          this.virtualStart = Math.min(Math.max(this.virtualStart, 0), this.virtualCount-1);
+          this.physicalOffset += delta;
+        } else {
+          var flipBoundary, flipSize;
+          var dir = delta < 0 ? -1 : (delta > 0 ? 1 : 0);
+          if (dir > 0) {
+            flipBoundary = this.physicalSizes[this.physicalStart];
+            flipSize = Math.max(this.scrollPosition - this.physicalOffset - flipBoundary, 0);
+            idx = this.physicalStart + this.physicalCount;
+          } else if (dir < 0) {
+            flipBoundary = this.physicalSize - this.viewportSize - this.physicalSizes[this.physicalEnd];
+            flipSize = Math.max(this.physicalOffset + flipBoundary - this.scrollPosition, 0);
+            idx = this.physicalEnd + this.physicalCount;
+          }
+          flipSize = Math.max(flipSize, this.viewportSize - this.physicalSize);
+          for (var i=0; i<this.physicalCount-1 && flipSize > 0 && 
+            (dir > 0 || this.virtualStart > 0) && 
+            (dir < 0 || this.virtualStart < (this.virtualCount - this.physicalCount)); i++) {
+            var pidx = idx % this.physicalCount;
+            var size = this.physicalSizes[pidx] || this.physicalAverage;
+            flipSize -= size;
+            if (dir > 0) {
+              this.physicalOffset += size;
+            } else {
+              // When moving up, offset adjusted after measuring
+              this.movingUp.push(pidx);
+            }
+            idx += dir;
+            this.virtualStart += dir;
+          }
+        }
+      }
+
+      // Note where the physical items start & stop based on virtual index
+      this.physicalStart = this.virtualStart % this.physicalCount;
+      this.physicalEnd = (this.physicalStart + this.physicalCount - 1) % this.physicalCount;
+
+      // Update
+      this.assignModels();
+      this.updateMetrics();
+      this.positionItems();
+      this.updateScrollerSize();
+    },
+
+    iterateItems: function(fn) {
+      var pidx, vidx, rtn;
+      for (pidx = this.physicalStart, vidx = this.virtualStart; pidx < this.physicalCount; pidx++, vidx++) {
+        if ((rtn = fn.call(this, pidx, vidx)) != null) {
+          return rtn;
+        }
+      }
+      for (pidx = 0; pidx < this.physicalStart; pidx++, vidx++) {                
+        if ((rtn = fn.call(this, pidx, vidx)) != null) {
+          return rtn;
+        }
+      }
+    },
+
+    assignModels: function() {
+      var pidxForKey = this._physicalIndexForKey = {};
+      this.iterateItems(function(pidx, vidx) {
+        var el = this.physicalItems[pidx];
+        var inst = el._templateInstance;
+        var item = this.items && this.items[vidx];
+        if (inst.item = item) {
+          inst.key = this.collection.getKey(item);
+          inst.index = vidx;
+          el.removeAttribute('hidden');
+          pidxForKey[inst.key] = pidx;
+        } else {
+          inst.key = null;
+          el.setAttribute('hidden', '');
+        }
+      });
+    },
+
+    updateMetrics: function() {
+      var total = 0;
+      var cnt = 0;
+      for (var i=0; i<this.physicalCount; i++) {
+        var size = this.physicalSizes[i] = this.physicalItems[i].offsetHeight;
+        total += size;
+        cnt += size ? 1 : 0;
+      }
+      this.physicalSize = total;
+      this.viewportSize = this.offsetHeight;
+      this.physicalAverage = Math.round(
+        ((this.physicalAverage * this.physicalAverageCount) + total) / 
+        (this.physicalAverageCount += cnt));
+    },
+
+    positionItems: function() {
+      while (this.movingUp.length) {
+        var idx = this.movingUp.pop()
+        this.physicalOffset -= this.physicalSizes[idx];
+      }
+      this.adjustScrollPosition();
+      var y = this.physicalOffset;
+      this.iterateItems(function(pidx) {
+        var item = this.physicalItems[pidx];
+        item.style.transform = item.style.webkitTransform = 
+          'translate3d(0,' + y + 'px,0)';
+        item._translateX = 0;
+        item._translateY = y;
+        y += this.physicalSizes[pidx];
+      });
+    },
+
+    adjustScrollPosition: function() {
+      if (this.virtualStart === 0 && this.physicalOffset) {
+        this.physicalOffset = 0;
+        // Juking scroll position during interial scrolling on iOS is no bueno
+        if (!IOS_TOUCH_SCROLLING) {
+          this.resetScrollPosition(this.scrollPosition + this.physicalOffset);
+        }
+      }
+    },
+
+    resetScrollPosition: function(pos) {
+      this.scrollTop = pos;
+      this.scrollPosition = this.scrollTop;
+    },
+
+    updateScrollerSize: function() {
+      this.scrollSize = (this.physicalOffset + this.physicalSize +
+        Math.max(this.virtualCount - this.physicalCount - this.virtualStart, 0) * this.physicalAverage);
+      this.$.items.style.height = this.scrollSize + 'px';
+    },
+
+    getFirstVisibleIndex: function() {
+      return this.iterateItems(function(pidx, vidx) {
+        var item = this.physicalItems[pidx];
+        if (item._translateY >= this.scrollPosition) {
+          return vidx;
+        }
+      });
+    },
+
+    scrollToIndex: function(idx) {
+      idx = Math.min(Math.max(idx, 0), this.virtualCount-1);
+      var firstVis = this.getFirstVisibleIndex();
+      if (idx < firstVis || this.scrollPosition < (this.scrollSize - this.viewportSize)) {
+        var deltaCount = idx - firstVis;
+        var deltaPos = deltaCount * this.physicalAverage;
+        this.virtualStart = idx;
+        this.resetScrollPosition(this.scrollPosition + deltaPos);
+        this.physicalOffset = this.scrollPosition;
+        this.refresh();
+      }
+    },
+
+    resetIndex: function(idx) {
+      this.virtualStart = idx;
+      this.physicalOffset = idx * this.physicalAverage;
+      this.resetScrollPosition(this.physicalOffset);
+    },
+
+    resizeHandler: function() {
+      this.resetIndex(this.getFirstVisibleIndex());
+      this.refresh();
+    }
+
+  });
+
+})();
+
+</script>
