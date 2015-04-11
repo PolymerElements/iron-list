@@ -40,7 +40,7 @@
       text-align: center;
       padding-top: 8px;
     }
-    #showToggle {
+    #options {
       background: white;
       border-radius: 10px;
       border: 1px solid gray;
@@ -56,7 +56,10 @@
 
   </style>
   <template>
-    <label id="showToggle"><input type="checkbox" checked="{{showing::change}}">Show friends</label>
+    <div id="options">
+      <input value="{{separator::input}}" style="width:20px;">
+      <label><input type="checkbox" checked="{{showing::change}}">Show friends</label>
+    </div>
 
     <div class="fit layout horizontal">
 
@@ -98,9 +101,9 @@
             </div>
             <div class="flex padded">
               <div>
-                <input placeholder="name.last" value="{{item.name.last::input}}">,
+                <input placeholder="name.last" value="{{item.name.last::input}}">
+                <span>{{parent.separator}}</span>
                 <input placeholder="name.first" value="{{item.name.first::input}}">
-                <span>{{parent.outer}}</span>
               </div>
               <div>{{item.about}}</div>
               <div id="friends">
