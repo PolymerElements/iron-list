@@ -41,7 +41,7 @@
     },
 
     observers: {
-      'items.*': 'itemsChanged'
+      'items.*': '_itemsChanged'
     },
 
     mixins: [
@@ -62,15 +62,15 @@
       if (IOS_TOUCH_SCROLLING) {
         this.style.webkitOverflowScrolling = 'touch';
         this.addEventListener('scroll', function() {
-          requestAnimationFrame(function() { this.scrollHandler(); }.bind(this)); 
+          requestAnimationFrame(function() { this._scrollHandler(); }.bind(this)); 
         }.bind(this));      
       } else {
-        this.addEventListener('scroll', this.scrollHandler.bind(this));
+        this.addEventListener('scroll', this._scrollHandler.bind(this));
       }
       window.addEventListener('resize', this.resizeHandler.bind(this));
     },
 
-    ensureTemplatized: function() {
+    _ensureTemplatized: function() {
       if (!this.ctor) {
         this._userTemplate = Polymer.dom(this).querySelector('template');
         if (this._userTemplate) {
@@ -141,7 +141,7 @@
       }
     },
 
-    itemsChanged: function(items, old, path) {
+    _itemsChanged: function(items, old, path) {
       if (path) {
         this._notifyItemChanged(path, items);
       } else {
@@ -152,11 +152,13 @@
         this.physicalItems = this.physicalItems || new Array(this.physicalCount);
         this.physicalSizes = this.physicalSizes || new Array(this.physicalCount);
         this.movingUp = [];
-        this.ensureTemplatized();
+        this._ensureTemplatized();
         for (var i=0; i<this.physicalCount; i++) {
           if (!this.physicalItems[i]) {
             var inst = this.stamp(this.items[i]);
-            var item = this.physicalItems[i] = inst.root.children[0];
+            // First element child is item; Safari doesn't support children[0]
+            // on a doc fragment
+            var item = this.physicalItems[i] = inst.root.querySelector('*');
             item._templateInstance = inst;
             Polymer.dom(this).appendChild(inst.root);
           }
@@ -165,7 +167,7 @@
       }
     },
 
-    scrollHandler: function() {
+    _scrollHandler: function() {
       this.refresh();
     },
 
@@ -219,13 +221,13 @@
       this.physicalEnd = (this.physicalStart + this.physicalCount - 1) % this.physicalCount;
 
       // Update
-      this.assignModels();
-      this.updateMetrics();
-      this.positionItems();
-      this.updateScrollerSize();
+      this._assignModels();
+      this._updateMetrics();
+      this._positionItems();
+      this._updateScrollerSize();
     },
 
-    iterateItems: function(fn) {
+    _iterateItems: function(fn) {
       var pidx, vidx, rtn;
       for (pidx = this.physicalStart, vidx = this.virtualStart; pidx < this.physicalCount; pidx++, vidx++) {
         if ((rtn = fn.call(this, pidx, vidx)) != null) {
@@ -239,9 +241,9 @@
       }
     },
 
-    assignModels: function() {
+    _assignModels: function() {
       var pidxForKey = this._physicalIndexForKey = {};
-      this.iterateItems(function(pidx, vidx) {
+      this._iterateItems(function(pidx, vidx) {
         var el = this.physicalItems[pidx];
         var inst = el._templateInstance;
         var item = this.items && this.items[vidx];
@@ -257,7 +259,7 @@
       });
     },
 
-    updateMetrics: function() {
+    _updateMetrics: function() {
       var total = 0;
       var cnt = 0;
       for (var i=0; i<this.physicalCount; i++) {
@@ -272,14 +274,14 @@
         (this.physicalAverageCount += cnt));
     },
 
-    positionItems: function() {
+    _positionItems: function() {
       while (this.movingUp.length) {
         var idx = this.movingUp.pop()
         this.physicalOffset -= this.physicalSizes[idx];
       }
-      this.adjustScrollPosition();
+      this._adjustScrollPosition();
       var y = this.physicalOffset;
-      this.iterateItems(function(pidx) {
+      this._iterateItems(function(pidx) {
         var item = this.physicalItems[pidx];
         item.style.transform = item.style.webkitTransform = 
           'translate3d(0,' + y + 'px,0)';
@@ -289,29 +291,29 @@
       });
     },
 
-    adjustScrollPosition: function() {
+    _adjustScrollPosition: function() {
       if (this.virtualStart === 0 && this.physicalOffset) {
         this.physicalOffset = 0;
         // Juking scroll position during interial scrolling on iOS is no bueno
         if (!IOS_TOUCH_SCROLLING) {
-          this.resetScrollPosition(this.scrollPosition + this.physicalOffset);
+          this._resetScrollPosition(this.scrollPosition + this.physicalOffset);
         }
       }
     },
 
-    resetScrollPosition: function(pos) {
+    _resetScrollPosition: function(pos) {
       this.scrollTop = pos;
       this.scrollPosition = this.scrollTop;
     },
 
-    updateScrollerSize: function() {
+    _updateScrollerSize: function() {
       this.scrollSize = (this.physicalOffset + this.physicalSize +
         Math.max(this.virtualCount - this.physicalCount - this.virtualStart, 0) * this.physicalAverage);
       this.$.items.style.height = this.scrollSize + 'px';
     },
 
-    getFirstVisibleIndex: function() {
-      return this.iterateItems(function(pidx, vidx) {
+    _getFirstVisibleIndex: function() {
+      return this._iterateItems(function(pidx, vidx) {
         var item = this.physicalItems[pidx];
         if (item._translateY >= this.scrollPosition) {
           return vidx;
@@ -321,12 +323,12 @@
 
     scrollToIndex: function(idx) {
       idx = Math.min(Math.max(idx, 0), this.virtualCount-1);
-      var firstVis = this.getFirstVisibleIndex();
+      var firstVis = this._getFirstVisibleIndex();
       if (idx < firstVis || this.scrollPosition < (this.scrollSize - this.viewportSize)) {
         var deltaCount = idx - firstVis;
         var deltaPos = deltaCount * this.physicalAverage;
         this.virtualStart = idx;
-        this.resetScrollPosition(this.scrollPosition + deltaPos);
+        this._resetScrollPosition(this.scrollPosition + deltaPos);
         this.physicalOffset = this.scrollPosition;
         this.refresh();
       }
@@ -335,11 +337,11 @@
     resetIndex: function(idx) {
       this.virtualStart = idx;
       this.physicalOffset = idx * this.physicalAverage;
-      this.resetScrollPosition(this.physicalOffset);
+      this._resetScrollPosition(this.physicalOffset);
     },
 
     resizeHandler: function() {
-      this.resetIndex(this.getFirstVisibleIndex());
+      this.resetIndex(this._getFirstVisibleIndex());
       this.refresh();
     }
 
