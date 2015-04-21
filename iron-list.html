@@ -40,9 +40,9 @@
       }
     },
 
-    observers: {
-      'items.*': '_itemsChanged'
-    },
+    observers: [
+      '_itemsChanged(items.*)'
+    ],
 
     mixins: [
       Polymer.Templatizer
@@ -62,8 +62,8 @@
       if (IOS_TOUCH_SCROLLING) {
         this.style.webkitOverflowScrolling = 'touch';
         this.addEventListener('scroll', function() {
-          requestAnimationFrame(function() { this._scrollHandler(); }.bind(this)); 
-        }.bind(this));      
+          requestAnimationFrame(function() { this._scrollHandler(); }.bind(this));
+        }.bind(this));
       } else {
         this.addEventListener('scroll', this._scrollHandler.bind(this));
       }
@@ -77,7 +77,7 @@
           this.templatize(this._userTemplate);
         } else {
           console.warn('x-list requires a template to be provided in light-dom');
-        }        
+        }
       }
     },
 
@@ -87,7 +87,7 @@
     },
 
     // Implements extension point from Templatizer
-    // Called as a side effect of a template instance path change, responsible 
+    // Called as a side effect of a template instance path change, responsible
     // for notifying items.<key-for-instance>.<path> change up to host
     _forwardInstancePath: function(inst, root, subPath, value) {
       if (root == 'item') {
@@ -104,7 +104,7 @@
           var inst = item._templateInstance;
           inst.parent[prop] = value;
           inst.notifyPath('parent.' + prop, value, true);
-        }, this);        
+        }, this);
       }
     },
 
@@ -116,7 +116,7 @@
         this.physicalItems.forEach(function(item) {
           var inst = item._templateInstance;
           inst.notifyPath('parent.' + path, value, true);
-        }, this);        
+        }, this);
       }
     },
 
@@ -141,10 +141,8 @@
       }
     },
 
-    _itemsChanged: function(items, old, path) {
-      if (path) {
-        this._notifyItemChanged(path, items);
-      } else {
+    _itemsChanged: function(change) {
+      if (change.path == 'items') {
         this.collection = Polymer.Collection.get(this.items);
         this.virtualCount = this.items ? this.items.length : 0;
         this.virtualStart = 0;
@@ -164,6 +162,8 @@
           }
         }
         this.debounce('refresh', this.refresh);
+      } else {
+        this._notifyItemChanged(change.path, change.value);
       }
     },
 
@@ -198,8 +198,8 @@
             idx = this.physicalEnd + this.physicalCount;
           }
           flipSize = Math.max(flipSize, this.viewportSize - this.physicalSize);
-          for (var i=0; i<this.physicalCount-1 && flipSize > 0 && 
-            (dir > 0 || this.virtualStart > 0) && 
+          for (var i=0; i<this.physicalCount-1 && flipSize > 0 &&
+            (dir > 0 || this.virtualStart > 0) &&
             (dir < 0 || this.virtualStart < (this.virtualCount - this.physicalCount)); i++) {
             var pidx = idx % this.physicalCount;
             var size = this.physicalSizes[pidx] || this.physicalAverage;
@@ -234,7 +234,7 @@
           return rtn;
         }
       }
-      for (pidx = 0; pidx < this.physicalStart; pidx++, vidx++) {                
+      for (pidx = 0; pidx < this.physicalStart; pidx++, vidx++) {
         if ((rtn = fn.call(this, pidx, vidx)) != null) {
           return rtn;
         }
@@ -270,7 +270,7 @@
       this.physicalSize = total;
       this.viewportSize = this.offsetHeight;
       this.physicalAverage = Math.round(
-        ((this.physicalAverage * this.physicalAverageCount) + total) / 
+        ((this.physicalAverage * this.physicalAverageCount) + total) /
         (this.physicalAverageCount += cnt));
     },
 
@@ -283,7 +283,7 @@
       var y = this.physicalOffset;
       this._iterateItems(function(pidx) {
         var item = this.physicalItems[pidx];
-        item.style.transform = item.style.webkitTransform = 
+        item.style.transform = item.style.webkitTransform =
           'translate3d(0,' + y + 'px,0)';
         item._translateX = 0;
         item._translateY = y;
