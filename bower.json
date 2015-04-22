@@ -8,14 +8,14 @@
   "main": "iron-list.html",
   "license": "MIT",
   "dependencies": {
-    "polymer": "polymer/polymer#0.8-nested-template"
+    "polymer": "polymer/polymer#0.8-preview"
   },
   "devDependencies": {
-    "webcomponentsjs": "webcomponents/webcomponentsjs#~0.6.0",
-    "web-component-tester": "~2.2.6",
-    "test-fixture": "polymer/test-fixture#~0.2.0",
-    "core-icon": "polymer/core-icon#0.8-preview",
-    "core-icons": "polymer/core-icons#0.8-preview",
-    "layout": "polymer/layout"
+    "iron-icon": "polymerelements/iron-icon#^0.8.0",
+    "iron-icons": "polymerelements/iron-icons#^0.8.0",
+    "paper-styles": "polymerelements/paper-styles#^0.8.0",
+    "test-fixture": "polymerelements/test-fixture#^0.8.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.6.0",
+    "web-component-tester": "~2.2.6"
   }
 }
