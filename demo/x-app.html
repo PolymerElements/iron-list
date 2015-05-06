@@ -79,9 +79,9 @@
               </div>
               <div>{{item.about}}</div>
               <div id="friends">
-                <template is="x-if" if="{{parent.showing}}">
+                <template is="dom-if" if="{{parent.showing}}">
                   <span><strong>Friends:</strong></span>
-                  <template is="x-repeat" items="{{parent.item.friends}}">
+                  <template is="dom-repeat" items="{{parent.item.friends}}">
                     <span>{{item.name}}</span>
                     <span>{{parent.parent.parent.separator}}</span>
                   </template>
@@ -108,9 +108,9 @@
               </div>
               <div>{{item.about}}</div>
               <div id="friends">
-                <template is="x-if" if="{{parent.showing}}">
+                <template is="dom-if" if="{{parent.showing}}">
                   <span><strong>Friends:</strong></span>
-                  <template is="x-repeat" items="{{parent.item.friends}}">
+                  <template is="dom-repeat" items="{{parent.item.friends}}">
                     <span>{{item.name}}</span>
                     <span>{{parent.parent.parent.separator}}</span>
                   </template>

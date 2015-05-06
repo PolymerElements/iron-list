@@ -1,6 +1,6 @@
 {
   "name": "iron-list",
-  "version": "0.0.1",
+  "version": "0.9.0",
   "homepage": "https://github.com/PolymerElements/iron-list",
   "authors": [
     "The Polymer Authors"
@@ -8,13 +8,13 @@
   "main": "iron-list.html",
   "license": "MIT",
   "dependencies": {
-    "polymer": "polymer/polymer#0.8-preview"
+    "polymer": "polymer/polymer#0.9.0-rc.1"
   },
   "devDependencies": {
-    "iron-icon": "polymerelements/iron-icon#^0.8.0",
-    "iron-icons": "polymerelements/iron-icons#^0.8.0",
-    "paper-styles": "polymerelements/paper-styles#^0.8.0",
-    "test-fixture": "polymerelements/test-fixture#^0.8.0",
+    "iron-icon": "polymerelements/iron-icon#^0.9.0",
+    "iron-icons": "polymerelements/iron-icons#^0.9.0",
+    "paper-styles": "polymerelements/paper-styles#^0.9.0",
+    "test-fixture": "polymerelements/test-fixture#^0.9.0",
     "webcomponentsjs": "webcomponents/webcomponentsjs#^0.6.0",
     "web-component-tester": "~2.2.6"
   }
