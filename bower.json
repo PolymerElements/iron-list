@@ -11,9 +11,11 @@
     "polymer": "polymer/polymer#0.9.0-rc.1"
   },
   "devDependencies": {
+    "iron-flex-layout": "polymerelements/iron-flex-layout#^0.9.0",
+    "iron-ajax": "polymerelements/iron-ajax#^0.9.0",
     "iron-icon": "polymerelements/iron-icon#^0.9.0",
     "iron-icons": "polymerelements/iron-icons#^0.9.0",
-    "paper-styles": "polymerelements/paper-styles#^0.9.0",
+    "paper-toolbar": "polymerelements/paper-toolbar#^0.9.0",
     "test-fixture": "polymerelements/test-fixture#^0.9.0",
     "webcomponentsjs": "webcomponents/webcomponentsjs#^0.6.0",
     "web-component-tester": "~2.2.6"
