@@ -108,7 +108,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="item">
               <img class="avatar" src="{{item.image}}">
               <div class="pad">
-                <div class="primary">{{item.name}}</div>
+                <div class="primary">
+                  <!-- <span>{{index}}</span> -->
+                  <span>{{item.name}}</span>
+                </div>
                 <div class="secondary">{{item.shortText}}</div>
                 <div class="secondary dim">{{item.longText}}</div>
               </div>
@@ -131,7 +134,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         is: 'x-app',
 
         iconForItem: function(item) {
-          return item.integer < 50 ? 'star' : 'star-outline';
+          return item ? (item.integer < 50 ? 'star' : 'star-outline') : '';
         }
 
       });
