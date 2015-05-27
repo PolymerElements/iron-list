@@ -1,4 +1,16 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html">
+
 <dom-module id="iron-list">
   <style>
 
@@ -8,16 +20,21 @@
       will-change: transform;
     }
 
+    #items {
+      position: relative;
+      opacity: 0;
+    }
+
     #items > ::content > * {
-      position: absolute;
-      top: 0;
       width: 100%;
       box-sizing: border-box;
+      position: absolute;
+      top: 0;
     }
 
   </style>
   <template>
-    <div id="items" class="relative">
+    <div id="items">
       <content></content>
     </div>
   </template>
@@ -35,18 +52,48 @@
     is: 'iron-list',
 
     properties: {
+
+      /**
+       * An array containing items determining how many instances of the template
+       * to stamp and that that each template instance should bind to.
+       */
       items: {
         type: Array
+      },
+
+      /**
+       * The name of the variable to add to the binding scope for the array
+       * element associated with a given template instance.
+       */
+      as: {
+        type: String,
+        value: 'item'
+      },
+
+      /**
+       * The name of the variable to add to the binding scope with the index
+       * for the row.  If `sort` is provided, the index will reflect the
+       * sorted order (rather than the original array order).
+       */
+      indexAs: {
+        type: String,
+        value: 'index'
       }
+
     },
 
     observers: [
       '_itemsChanged(items.*)'
     ],
 
-    mixins: [
-      Polymer.Templatizer
+    behaviors: [
+      Polymer.Templatizer,
+      Polymer.IronResizableBehavior
     ],
+
+    listeners: {
+      'iron-resize': 'resizeHandler'
+    },
 
     scrollPosition: 0,
     physicalCount: 20,
@@ -67,7 +114,6 @@
       } else {
         this.addEventListener('scroll', this._scrollHandler.bind(this));
       }
-      window.addEventListener('resize', this.resizeHandler.bind(this));
     },
 
     _ensureTemplatized: function() {
@@ -75,6 +121,7 @@
         this._userTemplate = Polymer.dom(this).querySelector('template');
         if (this._userTemplate) {
           this.templatize(this._userTemplate);
+          this._userTemplate.fire = this.fire;
         } else {
           console.warn('x-list requires a template to be provided in light-dom');
         }
@@ -89,9 +136,11 @@
     // Implements extension point from Templatizer
     // Called as a side effect of a template instance path change, responsible
     // for notifying items.<key-for-instance>.<path> change up to host
-    _forwardInstancePath: function(inst, root, subPath, value) {
-      if (root == 'item') {
-        this.notifyPath('items.' + inst.key + '.' + subPath, value);
+    _forwardInstancePath: function(inst, path, value) {
+      if (path.indexOf(this.as + '.') === 0) {
+        this.notifyPath('items.' + inst.__key__ + '.' +
+          path.slice(this.as.length + 1), value);
+        return true;
       }
     },
 
@@ -102,8 +151,7 @@
       if (this.physicalItems) {
         this.physicalItems.forEach(function(item) {
           var inst = item._templateInstance;
-          inst.parent[prop] = value;
-          inst.notifyPath('parent.' + prop, value, true);
+          inst[prop] = value;
         }, this);
       }
     },
@@ -114,28 +162,26 @@
     _forwardParentPath: function(path, value) {
       if (this.physicalItems) {
         this.physicalItems.forEach(function(item) {
-          var inst = item._templateInstance;
-          inst.notifyPath('parent.' + path, value, true);
+          item._templateInstance.notifyPath(path, value, true);
         }, this);
       }
     },
 
     // Called as a side effect of a host items.<key>.<path> path change,
     // responsible for notifying item.<path> changes to row for key
-    _notifyItemChanged: function(path, value) {
+    _forwardItemPath: function(path, value) {
       if (this._physicalIndexForKey) {
-        // 'items.'.length == 6
-        var dot = path.indexOf('.', 6);
-        var key = path.substring(6, dot < 0 ? path.length : dot);
+        var dot = path.indexOf('.');
+        var key = path.substring(0, dot < 0 ? path.length : dot);
         var idx = this._physicalIndexForKey[key];
         var row = this.physicalItems[idx];
         if (row) {
           var inst = row._templateInstance;
           if (dot >= 0) {
-            path = 'item.' + path.substring(dot+1);
+            path = this.as + '.' + path.substring(dot+1);
             inst.notifyPath(path, value, true);
           } else {
-            inst.item = value;
+            inst[this.as] = value;
           }
         }
       }
@@ -162,13 +208,33 @@
           }
         }
         this.debounce('refresh', this.refresh);
+      } else if (change.path == 'items.splices') {
+        this._adjustVirtualIndex(change.value.indexSplices);
+        this.debounce('refresh', this.refresh);
       } else {
-        this._notifyItemChanged(change.path, change.value);
+        var subpath = change.path.slice(6);
+        this._forwardItemPath(subpath, change.value);
       }
     },
 
     _scrollHandler: function() {
       this.refresh();
+    },
+
+    _adjustVirtualIndex: function(splices) {
+      var totalDelta = 0;
+      for (var i=0; i<splices.length; i++) {
+        var s = splices[i];
+        var idx = s.index;
+        // We only need to care about changes happening above the current position
+        if (idx >= this.virtualStart) {
+          break;
+        }
+        var delta = Math.max(s.addedCount - s.removed.length, idx - this.virtualStart);
+        totalDelta += delta;
+        this.physicalStart += delta;
+        this.virtualStart += delta;
+      }
     },
 
     refresh: function() {
@@ -222,9 +288,15 @@
 
       // Update
       this._assignModels();
-      this._updateMetrics();
-      this._positionItems();
-      this._updateScrollerSize();
+      // TODO(kschaaf): this rAF should not be needed, but without it Chrome
+      // measures incorrectly
+      requestAnimationFrame(function() {
+        this._updateMetrics();
+        this._positionItems();
+        this._updateScrollerSize();
+        // Prevent flash of unpositioned elements
+        this.$.items.style.opacity = 1;
+      }.bind(this));
     },
 
     _iterateItems: function(fn) {
@@ -247,13 +319,13 @@
         var el = this.physicalItems[pidx];
         var inst = el._templateInstance;
         var item = this.items && this.items[vidx];
-        if (inst.item = item) {
-          inst.key = this.collection.getKey(item);
-          inst.index = vidx;
+        if (inst[this.as] = item) {
+          inst.__key__ = this.collection.getKey(item);
+          inst[this.indexAs] = vidx;
           el.removeAttribute('hidden');
-          pidxForKey[inst.key] = pidx;
+          pidxForKey[inst.__key__] = pidx;
         } else {
-          inst.key = null;
+          inst.__key__ = null;
           el.setAttribute('hidden', '');
         }
       });
@@ -341,8 +413,10 @@
     },
 
     resizeHandler: function() {
-      this.resetIndex(this._getFirstVisibleIndex());
-      this.refresh();
+      if (this.physicalItems) {
+        this.resetIndex(this._getFirstVisibleIndex());
+        this.refresh();
+      }
     }
 
   });
