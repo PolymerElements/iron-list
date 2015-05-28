@@ -6,7 +6,7 @@
     "The Polymer Authors"
   ],
   "main": "iron-list.html",
-  "license": "MIT",
+  "license": "http://polymer.github.io/LICENSE.txt",
   "dependencies": {
     "polymer": "polymer/polymer#0.8-preview"
   },
