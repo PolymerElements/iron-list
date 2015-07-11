@@ -83,14 +83,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       border: 1px solid #ddd;
     }
 
-    .avatar {
-      height: 40px;
-      width: 40px;
-      border-radius: 20px;
-      box-sizing: border-box;
-      background-color: #DDD;
-    }
-
     .pad {
       padding: 0 16px;
       @apply(--layout-flex);
@@ -115,6 +107,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       paper-toolbar.tall .title {
         font-size: 20px;
       }
+    }
+    
+    .index {
+      width: 30px;
     }
 
   </style>
@@ -154,7 +150,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <template>
           <div>
             <div class="item">
-              <div class="secondary dim">[[item.index]]</div>
+              <div class="primary dim">[[item.index]]</div>
               <div class="pad">
                 <div class="primary"><span>[[item.fname]]</span> <span>[[item.lname]]</span></div>
                 <div class="secondary"><span>[[item.address]]</span> <span>[[item.city]]</span></div>
