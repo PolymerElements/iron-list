@@ -590,7 +590,7 @@ bound from the model object provided to the template scope):
         this._physicalTop = 0;
         this._virtualCount = this.items ? this.items.length : 0;
 
-        this._collection = Polymer.Collection.get(this.items);
+        this._collection = this.items ? Polymer.Collection.get(this.items) : null;
         this._physicalItems = this._physicalItems || new Array(this._physicalCount);
         this._physicalSizes = this._physicalSizes || new Array(this._physicalCount);
 
