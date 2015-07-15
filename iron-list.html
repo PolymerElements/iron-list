@@ -113,6 +113,7 @@ bound from the model object provided to the template scope):
   var IOS = navigator.userAgent.match(/iP(?:hone|ad;(?: U;)? CPU) OS (\d+)/);
   var IOS_TOUCH_SCROLLING = IOS && IOS[1] >= 8;
   var DEFAULT_PHYSICAL_COUNT = 20;
+  var MAX_PHYSICAL_COUNT = 500;
 
   Polymer({
 
@@ -265,43 +266,73 @@ bound from the model object provided to the template scope):
      */
     _collection: null,
 
+    /**
+     * The bottom of the physical content.
+     */
     get _physicalBottom() {
       return this._physicalTop + this._physicalSize;
     },
 
-    get _scrollBottom() {
-      return this._scrollPosition + this._viewportSize - this._scrollerPaddingTop;
-    },
-
+    /**
+     * The n-th item rendered in the last physical item.
+     */
     get _virtualEnd() {
       return this._virtualStartVal + this._physicalCount - 1;
     },
 
+    /**
+     * The lowest n-th value for an item such that it can be rendered in `_physicalStart`.
+     */
+    _minVirtualStart: 0,
+
+    /**
+     * The largest n-th value for an item such that it can be rendered in `_physicalStart`.
+     */
     get _maxVirtualStart() {
       return this._virtualCount < this._physicalCount ?
           this._virtualCount : this._virtualCount - this._physicalCount;
     },
 
+    /**
+     * The height of the physical content that isn't on the screen.
+     */
     get _hiddenContentSize() {
       return this._physicalSize - this._viewportSize;
     },
 
-    get _minVirtualStart() {
-      return 0;
-    },
-
+    /**
+     * The maximum scroll top value.
+     */
     get _maxScrollTop() {
       return this._scrollSize - this._viewportSize;
     },
 
+    /**
+     * Sets the n-th item rendered in `_physicalStart`
+     */
     set _virtualStart(val) {
+      // clamp the value so that _minVirtualStart <= val <= _maxVirtualStart
       this._virtualStartVal = Math.min(this._maxVirtualStart, Math.max(this._minVirtualStart, val));
       this._physicalStart = this._virtualStartVal % this._physicalCount;
       this._physicalEnd = (this._physicalStart + this._physicalCount - 1) % this._physicalCount;
     },
 
+    /**
+     * Gets the n-th item rendered in `_physicalStart`
+     */
     get _virtualStart() {
       return this._virtualStartVal;
+    },
+
+    /**
+     * An optimal physical size such that we will have enough physical items
+     * to fill up the viewport and recycle when the user scrolls.
+     *
+     * This default value assumes that we will at least have the equivalent 
+     * to a viewport of physical items above and below the user's viewport.
+     */
+    get _optPhysicalSize() {
+      return this._viewportSize * 3;
     },
 
     /**
@@ -395,7 +426,7 @@ bound from the model object provided to the template scope):
       this._firstVisibleIndexVal = null;
 
       // random access
-      if (this._scrollBottom > this._physicalBottom || scrollTop < this._physicalTop) {
+      if (Math.abs(delta) > this._physicalSize) {
         this._physicalTop += delta;
         direction = SCROLL_DIRECTION_NONE;
         recycledTiles =  Math.round(delta / this._physicalAverage);
@@ -471,9 +502,12 @@ bound from the model object provided to the template scope):
       }
     },
 
-    _update: function(recycledTileSet, movingUp) {
+    /**
+     * Updates the physical items.
+     */
+    _update: function(itemSet, movingUp) {
       // update models
-      this._assignModels(recycledTileSet);
+      this._assignModels(itemSet);
 
       // measure heights
       // TODO(blasten) pass `recycledTileSet`
@@ -486,13 +520,93 @@ bound from the model object provided to the template scope):
         }
       }
 
-     // update the position of the items
+      // update the position of the items
       this._positionItems();
 
       // set the scroller size
       this._updateScrollerSize();
+
+      // increase the pool of physical items if needed
+      var itemSet = this._increasePoolIfNeeded();
+
+      if (itemSet) {
+        // set models to the new items
+        this.async(this._update.bind(this, itemSet));
+      }
     },
 
+    /**
+     * Creates a pool of DOM elements and attaches them to the local dom.
+     */
+    _createPool: function(size) {
+      var physicalItems = new Array(size);
+
+      this._ensureTemplatized();
+
+      for (var i = 0; i < size; i++) {
+        var inst = this.stamp(null);
+
+        // First element child is item; Safari doesn't support children[0]
+        // on a doc fragment
+        physicalItems[i] = inst.root.querySelector('*');
+        Polymer.dom(this).appendChild(inst.root);
+      }
+
+      return physicalItems;
+    },
+
+    /**
+     * Increases the pool size. That is, the physical items in the DOM.
+     * This function will allocate additional physical items
+     * (limited by `MAX_PHYSICAL_COUNT`) if the content size is shorter than
+     * `_optPhysicalSize`
+     *
+     * @return Array
+     */
+    _increasePoolIfNeeded: function() {
+      if (this._physicalSize > this._optPhysicalSize) {
+        return null;
+      }
+
+      // the estimated number of physical items that we will need to reach
+      // the cap established by `_optPhysicalSize`.
+      var missingItems = Math.round(
+          (this._optPhysicalSize - this._physicalSize) * 1.2 / this._physicalAverage
+        );
+
+      // limit the size
+      var nextPhysicalCount = Math.min(
+          this._physicalCount + missingItems,
+          this._virtualCount,
+          MAX_PHYSICAL_COUNT
+        );
+
+      var prevPhysicalCount = this._physicalCount;
+      var delta = nextPhysicalCount - prevPhysicalCount;
+
+      if (delta <= 0) {
+        return null;
+      }
+
+      var newPhysicalItems = this._createPool(delta);
+      var emptyArray = new Array(delta);
+
+      [].push.apply(this._physicalItems, newPhysicalItems);
+      [].push.apply(this._physicalSizes, emptyArray);
+
+      this._physicalCount = prevPhysicalCount + delta;
+
+      // fill the array with the new item pos
+      while (delta > 0) {
+        emptyArray[--delta] = prevPhysicalCount + delta;
+      }
+
+      return emptyArray;
+    },
+
+    /**
+     * Distributes nodes if needed and updates the physical items.
+     */
     _refreshAll: function() {
       // polymer/issues/2039
       if (window.CustomElements) {
@@ -502,6 +616,9 @@ bound from the model object provided to the template scope):
       this._update();
     },
 
+    /**
+     * Templetizes the user template.
+     */
     _ensureTemplatized: function() {
       if (!this.ctor) {
         // Template instance props that should be excluded from forwarding
@@ -514,7 +631,7 @@ bound from the model object provided to the template scope):
         if (this._userTemplate) {
           this.templatize(this._userTemplate);
         } else {
-          console.warn('x-list requires a template to be provided in light-dom');
+          console.warn('iron-list requires a template to be provided in light-dom');
         }
       }
     },
@@ -592,25 +709,15 @@ bound from the model object provided to the template scope):
         this._virtualStartVal = 0;
         this._physicalTop = 0;
         this._virtualCount = this.items ? this.items.length : 0;
-
         this._collection = this.items ? Polymer.Collection.get(this.items) : null;
-        this._physicalItems = this._physicalItems || new Array(this._physicalCount);
-        this._physicalSizes = this._physicalSizes || new Array(this._physicalCount);
-
-        this._ensureTemplatized();
 
         // scroll to the top
         this._resetScrollPosition(0);
 
-        for (var i = 0; i < this._physicalCount; i++) {
-          if (!this._physicalItems[i]) {
-            var inst = this.stamp(this.items[i]);
-
-            // First element child is item; Safari doesn't support children[0]
-            // on a doc fragment
-            this._physicalItems[i] = inst.root.querySelector('*');
-            Polymer.dom(this).appendChild(inst.root);
-          }
+        // create the initial physical items
+        if (!this._physicalItems) {
+          this._physicalItems = this._createPool(this._physicalCount);
+          this._physicalSizes = new Array(this._physicalCount);
         }
 
         this.debounce('refresh', this._refreshAll);

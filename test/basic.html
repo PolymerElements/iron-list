@@ -18,6 +18,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="../../web-component-tester/browser.js"></script>
   <script src="../../test-fixture/test-fixture-mocha.js"></script>
 
+  <link rel="import" href="helpers.html">
   <link rel="import" href="../../test-fixture/test-fixture.html">
   <link rel="import" href="../iron-list.html">
 </head>
@@ -59,182 +60,130 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </template>
   </test-fixture>
 
-  <script>
-    function findElementInList(container, selector) {
-      var i = 0;
-      var children = container._children;
-      var ms = Polymer.DomApi.matchesSelector;
-      for (; i < children.length; i++) {
-        if (children[i].nodeType === Node.ELEMENT_NODE && ms.call(children[i], selector)) {
-          return children[i];
-        }
-      }
-      return null;
-    }
 
-    function buildItem(index) {
-      return {
-        index: index
-      };
-    }
+<script>
 
-    function buildDataSet(size) {
-      var data = [];
-      while (data.length < size) {
-        data.push(buildItem(data.length));
-      }
-      return data;
-    }
+  suite('basic features', function() {
+    var list, container;
 
-    function simulateScroll(config, fn) {
-      var list = config.list;
-      var target = config.target;
-      var delay = config.delay || 1;
-      var contribution = config.contribution || 10;
+    setup(function() {
+      container = fixture('trivialList');
+      list = findElementInList(container, 'iron-list');
+    });
 
-      function scroll(dir, prevVal) {
-        list.scrollTop = list.scrollTop + dir;
-        if (list.scrollTop !== target && prevVal !== list.scrollTop) {
-          setTimeout(scroll.bind(null, dir, list.scrollTop), delay);
-        } else {
-          setTimeout(fn.bind(null, list.scrollTop), 100);
-        }
-      }
+    test('defaults', function() {
+      assert.equal(list.items, null);
+      assert.equal(list.as, 'item');
+      assert.equal(list.indexAs, 'index');
+    });
 
-      if (list.scrollTop < target) {
-        scroll(Math.abs(contribution), -1);
-      } else if (list.scrollTop > target) {
-        scroll(-Math.abs(contribution), -1);
-      }
-    }
+    test('check items length', function(done) {
+      container.data = buildDataSet(100);
 
-    function getFirstItemFromList(list) {
-      var listRect = list.getBoundingClientRect();
-      return document.elementFromPoint(listRect.left + 1, listRect.top + 1);
-    }
-
-    suite('basic features', function() {
-      var list, ajax, container;
-
-      setup(function() {
-        container = fixture('trivialList');
-        ajax = findElementInList(container, 'iron-ajax');
-        list = findElementInList(container, 'iron-list');
-      });
-
-      test('defaults', function() {
-        assert.equal(list.items, null);
-        assert.equal(list.as, 'item');
-        assert.equal(list.indexAs, 'index');
-      });
-
-      test('check items length', function(done) {
-        container.data = buildDataSet(100);
-
-        flush(function() {
-          assert.equal(list.items.length, container.data.length);
-          done();
-        });
-      });
-
-      test('check physical item heights', function(done) {
-        container.data = buildDataSet(100);
-
-        flush(function() {
-          var rowHeight = list._physicalItems[0].offsetHeight;
-
-          list._physicalItems.forEach(function(item) {
-            assert.equal(item.offsetHeight, rowHeight);
-          });
-
-          done();
-        });
-      });
-
-      test('check physical item size', function(done) {
-        var setSize = list._physicalCount - 1;
-        container.data = buildDataSet(setSize);
-
-        flush(function() {
-          assert.equal(list.items.length, setSize);
-          done();
-        });
-      });
-
-      test('first visible index', function(done) {
-        container.data = buildDataSet(100);
-
-        flush(function() {
-          var setSize = list.items.length;
-          var rowHeight = list._physicalItems[0].offsetHeight;
-          var viewportHeight = list.offsetHeight;
-          var scrollToItem;
-
-          function checkFirstVisible() {
-            assert.equal(list.firstVisibleIndex, scrollToItem);
-            assert.equal(getFirstItemFromList(list).textContent, scrollToItem);
-          }
-
-          function doneScrollDown() {
-            checkFirstVisible();
-
-            scrollToItem = 1;
-
-            flush(function() {
-              simulateScroll({
-                list: list,
-                contribution: rowHeight,
-                target: scrollToItem*rowHeight
-              }, doneScrollUp);
-            });
-          }
-
-          function doneScrollUp() {
-            checkFirstVisible();
-            done();
-          }
-
-          scrollToItem = 50;
-          simulateScroll({
-            list: list,
-            contribution: 50,
-            target: scrollToItem*rowHeight
-          }, doneScrollDown);
-
-        });
-      });
-
-      test('scroll to index', function(done) {
-        list.items = buildDataSet(100);
-
-        flush(function() {
-          list.scrollToIndex(30);
-          assert.equal(list.firstVisibleIndex, 30);
-
-          list.scrollToIndex(0);
-          assert.equal(list.firstVisibleIndex, 0);
-
-          var rowHeight = getFirstItemFromList(list).offsetHeight;
-          var viewportHeight = list.offsetHeight;
-          var itemsPerViewport = Math.floor(viewportHeight/rowHeight);
-
-          list.scrollToIndex(99);
-          assert.equal(list.firstVisibleIndex, list.items.length - itemsPerViewport);
-
-          // make the height of the viewport same as the height of the row
-          // and scroll to the last item
-          list.style.height = list._physicalItems[0].offsetHeight + 'px';
-
-          setTimeout(function() {
-            list.scrollToIndex(99);
-            assert.equal(list.firstVisibleIndex, 99);
-            done();
-          }, 100);
-
-        });
+      flush(function() {
+        assert.equal(list.items.length, container.data.length);
+        done();
       });
     });
-  </script>
+
+    test('check physical item heights', function(done) {
+      container.data = buildDataSet(100);
+
+      flush(function() {
+        var rowHeight = list._physicalItems[0].offsetHeight;
+
+        list._physicalItems.forEach(function(item) {
+          assert.equal(item.offsetHeight, rowHeight);
+        });
+
+        done();
+      });
+    });
+
+    test('check physical item size', function(done) {
+      var setSize = list._physicalCount - 1;
+      container.data = buildDataSet(setSize);
+
+      flush(function() {
+        assert.equal(list.items.length, setSize);
+        done();
+      });
+    });
+
+    test('first visible index', function(done) {
+      container.data = buildDataSet(100);
+
+      flush(function() {
+        var setSize = list.items.length;
+        var rowHeight = list._physicalItems[0].offsetHeight;
+        var viewportHeight = list.offsetHeight;
+        var scrollToItem;
+
+        function checkFirstVisible() {
+          assert.equal(list.firstVisibleIndex, scrollToItem);
+          assert.equal(getFirstItemFromList(list).textContent, scrollToItem);
+        }
+
+        function doneScrollDown() {
+          checkFirstVisible();
+
+          scrollToItem = 1;
+
+          flush(function() {
+            simulateScroll({
+              list: list,
+              contribution: rowHeight,
+              target: scrollToItem*rowHeight
+            }, doneScrollUp);
+          });
+        }
+
+        function doneScrollUp() {
+          checkFirstVisible();
+          done();
+        }
+
+        scrollToItem = 50;
+        simulateScroll({
+          list: list,
+          contribution: 50,
+          target: scrollToItem*rowHeight
+        }, doneScrollDown);
+
+      });
+    });
+
+    test('scroll to index', function(done) {
+      list.items = buildDataSet(100);
+
+      flush(function() {
+        list.scrollToIndex(30);
+        assert.equal(list.firstVisibleIndex, 30);
+
+        list.scrollToIndex(0);
+        assert.equal(list.firstVisibleIndex, 0);
+
+        var rowHeight = getFirstItemFromList(list).offsetHeight;
+        var viewportHeight = list.offsetHeight;
+        var itemsPerViewport = Math.floor(viewportHeight/rowHeight);
+
+        list.scrollToIndex(99);
+        assert.equal(list.firstVisibleIndex, list.items.length - itemsPerViewport);
+
+        // make the height of the viewport same as the height of the row
+        // and scroll to the last item
+        list.style.height = list._physicalItems[0].offsetHeight + 'px';
+
+        setTimeout(function() {
+          list.scrollToIndex(99);
+          assert.equal(list.firstVisibleIndex, 99);
+          done();
+        }, 100);
+
+      });
+    });
+  });
+</script>
 
 </body>
 </html>
