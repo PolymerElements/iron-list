@@ -96,6 +96,7 @@ bound from the model object provided to the template scope):
       box-sizing: border-box;
       position: absolute;
       top: 0;
+      will-change: transform;
     }
 
   </style>
@@ -726,7 +727,7 @@ bound from the model object provided to the template scope):
 
       this._iterateItems(function(pidx) {
 
-        this.transform('translate3d(0, ' + y + 'px, 0)', this._physicalItems[pidx]);
+        this.transform('translateY(' + y + 'px)', this._physicalItems[pidx]);
         y += this._physicalSizes[pidx];
 
       }, itemSet);
