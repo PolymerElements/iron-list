@@ -495,7 +495,10 @@ bound from the model object provided to the template scope):
 
     _refreshAll: function() {
       // polymer/issues/2039
-      CustomElements.takeRecords();
+      if (window.CustomElements) {
+        window.CustomElements.takeRecords();
+      }
+
       this._update();
     },
 
