@@ -599,6 +599,9 @@ bound from the model object provided to the template scope):
 
         this._ensureTemplatized();
 
+        // scroll to the top
+        this._resetScrollPosition(0);
+
         for (var i = 0; i < this._physicalCount; i++) {
           if (!this._physicalItems[i]) {
             var inst = this.stamp(this.items[i]);
@@ -747,8 +750,10 @@ bound from the model object provided to the template scope):
     },
 
     _resetScrollPosition: function(pos) {
-      this._scroller.scrollTop = pos;
-      this._scrollPosition = this._scroller.scrollTop;
+      if (this._scroller) {
+        this._scroller.scrollTop = pos;
+        this._scrollPosition = this._scroller.scrollTop;
+      }
     },
 
     _updateScrollerSize: function() {
