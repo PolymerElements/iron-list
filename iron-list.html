@@ -267,6 +267,12 @@ bound from the model object provided to the template scope):
     _collection: null,
 
     /**
+     * True if the current item list was rendered for the first time
+     * after attached.
+     */
+    _initRendered: false,
+
+    /**
      * The bottom of the physical content.
      */
     get _physicalBottom() {
@@ -328,7 +334,7 @@ bound from the model object provided to the template scope):
      * An optimal physical size such that we will have enough physical items
      * to fill up the viewport and recycle when the user scrolls.
      *
-     * This default value assumes that we will at least have the equivalent 
+     * This default value assumes that we will at least have the equivalent
      * to a viewport of physical items above and below the user's viewport.
      */
     get _optPhysicalSize() {
@@ -359,6 +365,9 @@ bound from the model object provided to the template scope):
       return this._firstVisibleIndexVal;
     },
 
+    /**
+     * When the element has been attached to the DOM tree.
+     */
     attached: function() {
       // delegate to the parent's scroller
       // e.g. paper-scroll-header-panel
@@ -382,6 +391,16 @@ bound from the model object provided to the template scope):
       } else {
         this._scroller.addEventListener('scroll', this._scrollHandler.bind(this));
       }
+
+      // render the list of items if we haven't rendered them yet
+      this._render();
+    },
+
+    /**
+     * When the element has been removed from the DOM tree.
+     */
+    detached: function() {
+      this._initRendered = false;
     },
 
     /**
@@ -503,7 +522,7 @@ bound from the model object provided to the template scope):
     },
 
     /**
-     * Updates the physical items.
+     * Update the list of items, starting from the `_virtualStartVal` item.
      */
     _update: function(itemSet, movingUp) {
       // update models
@@ -527,9 +546,7 @@ bound from the model object provided to the template scope):
       this._updateScrollerSize();
 
       // increase the pool of physical items if needed
-      var itemSet = this._increasePoolIfNeeded();
-
-      if (itemSet) {
+      if (itemSet = this._increasePoolIfNeeded()) {
         // set models to the new items
         this.async(this._update.bind(this, itemSet));
       }
@@ -605,15 +622,18 @@ bound from the model object provided to the template scope):
     },
 
     /**
-     * Distributes nodes if needed and updates the physical items.
+     * Render a new list of items. This method does exactly the same as `update`,
+     * but it also ensures that only one `update` cycle is created.
      */
-    _refreshAll: function() {
-      // polymer/issues/2039
-      if (window.CustomElements) {
-        window.CustomElements.takeRecords();
+    _render: function() {
+      if (this.isAttached && !this._initRendered && this.items) {
+        // polymer/issues/2039
+        if (window.CustomElements) {
+          window.CustomElements.takeRecords();
+        }
+        this._update();
+        this._initRendered = true;
       }
-
-      this._update();
     },
 
     /**
@@ -705,6 +725,9 @@ bound from the model object provided to the template scope):
 
     _itemsChanged: function(change) {
       if (change.path === 'items') {
+        // render the new set
+        this._initRendered = false;
+
         // update the whole set
         this._virtualStartVal = 0;
         this._physicalTop = 0;
@@ -720,14 +743,16 @@ bound from the model object provided to the template scope):
           this._physicalSizes = new Array(this._physicalCount);
         }
 
-        this.debounce('refresh', this._refreshAll);
+        this.debounce('refresh', this._render);
 
       } else if (change.path === 'items.splices') {
+        // render the new set
+        this._initRendered = false;
 
         this._adjustVirtualIndex(change.value.indexSplices);
         this._virtualCount = this.items ? this.items.length : 0;
 
-        this.debounce('refresh', this._refreshAll);
+        this.debounce('refresh', this._render);
 
       } else {
         // update a single item
