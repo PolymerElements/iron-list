@@ -581,7 +581,7 @@ bound from the model object provided to the template scope):
      * @return Array
      */
     _increasePoolIfNeeded: function() {
-      if (this._physicalSize > this._optPhysicalSize) {
+      if (this._physicalSize >= this._optPhysicalSize) {
         return null;
       }
 
