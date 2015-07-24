@@ -69,6 +69,18 @@ bound from the model object provided to the template scope):
       </iron-list>
     </template>
 
+### Resizing
+
+`iron-list` lays out the items when it recives a notification via the `resize` event.
+This event is fired by any element that implements `IronResizableBehavior`.
+
+By default, elements such as `iron-pages`, `paper-tabs` or `paper-dialog` will trigger
+this event automatically. If you hide the list manually (e.g. you use `display: none`)
+you might want to implement `IronResizableBehavior` or fire this event manually right 
+after the list became visible again. e.g.
+
+    document.querySelector('iron-list').fire('resize');
+
 
 @group Iron Element
 @element iron-list
@@ -341,6 +353,13 @@ bound from the model object provided to the template scope):
       return this._viewportSize * 3;
     },
 
+   /**
+    * True if the current list is visible.
+    */
+    get _isVisible() {
+      return !!(this.offsetWidth || this.offsetHeight);
+    },
+
     /**
      * Gets the first visible item in the viewport.
      *
@@ -581,7 +600,7 @@ bound from the model object provided to the template scope):
      * @return Array
      */
     _increasePoolIfNeeded: function() {
-      if (this._physicalSize > this._optPhysicalSize) {
+      if (this._physicalSize >= this._optPhysicalSize || this._physicalAverage === 0) {
         return null;
       }
 
@@ -626,11 +645,7 @@ bound from the model object provided to the template scope):
      * but it also ensures that only one `update` cycle is created.
      */
     _render: function() {
-      if (this.isAttached && !this._initRendered && this.items) {
-        // polymer/issues/2039
-        if (window.CustomElements) {
-          window.CustomElements.takeRecords();
-        }
+      if (this.isAttached && !this._initRendered && this._isVisible && this.items) {
         this._update();
         this._initRendered = true;
       }
@@ -745,6 +760,7 @@ bound from the model object provided to the template scope):
 
         this.debounce('refresh', this._render);
 
+
       } else if (change.path === 'items.splices') {
         // render the new set
         this._initRendered = false;
@@ -837,6 +853,10 @@ bound from the model object provided to the template scope):
       var total = 0;
       var prevAvgCount = this._physicalAverageCount;
       var prevPhysicalAvg = this._physicalAverage;
+
+      // Make sure we distributed all the physical items
+      // so we can measure them
+      Polymer.dom.flush();
 
       for (var i = 0; i < this._physicalCount; i++) {
         this._physicalSizes[i] = this._physicalItems[i].offsetHeight;
@@ -948,19 +968,26 @@ bound from the model object provided to the template scope):
       this._firstVisibleIndexVal = null;
     },
 
+    /**
+     * Reset the physical average and the average count.
+     */
     _resetAverage: function() {
       this._physicalAverage = 0;
       this._physicalAverageCount = 0;
     },
 
+    /**
+     * A handler for the `resize` event triggered by `IronResizableBehavior`
+     * when the element is resized.
+     */
     _resizeHandler: function() {
-      if (this._physicalItems) {
-        this.debounce('resize', function() {
+      this.debounce('resize', function() {
+        if (this._physicalItems && this._isVisible) {
           this._resetAverage();
           this.updateViewportBoundaries();
           this.scrollToIndex(this.firstVisibleIndex);
-        });
-      }
+        }
+      });
     }
   });
 

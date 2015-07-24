@@ -13,6 +13,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var i = 0;
     var children = container._children;
     var ms = Polymer.DomApi.matchesSelector;
+
     for (; i < children.length; i++) {
       if (children[i].nodeType === Node.ELEMENT_NODE && ms.call(children[i], selector)) {
         return children[i];
@@ -42,12 +43,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var contribution = config.contribution || 10;
 
     function scroll(dir, prevVal) {
-      list.scrollTop = list.scrollTop + dir;
-      if (list.scrollTop !== target && prevVal !== list.scrollTop) {
-        setTimeout(scroll.bind(null, dir, list.scrollTop), delay);
-      } else {
+      if ((dir > 0 && list.scrollTop >= target) || 
+          (dir < 0 && list.scrollTop <= target) || 
+          list.scrollTop === prevVal
+        ){
+        list.scrollTop = target;
         setTimeout(fn.bind(null, list.scrollTop), 100);
+        return;
       }
+      prevVal = list.scrollTop;
+      list.scrollTop = list.scrollTop + dir;
+      setTimeout(scroll.bind(null, dir, prevVal), delay);
     }
 
     if (list.scrollTop < target) {

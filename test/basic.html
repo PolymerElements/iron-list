@@ -18,48 +18,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="../../web-component-tester/browser.js"></script>
   <script src="../../test-fixture/test-fixture-mocha.js"></script>
 
-  <link rel="import" href="helpers.html">
   <link rel="import" href="../../test-fixture/test-fixture.html">
-  <link rel="import" href="../iron-list.html">
+  <link rel="import" href="helpers.html">
+  <link rel="import" href="x-list.html">
 </head>
 <body>
 
   <test-fixture id="trivialList">
     <template>
-      <template is="dom-bind">
-        <style>
-          :host {
-            @apply(--layout-fit);
-            @apply(--layout-vertical);
-
-            display: block;
-          }
-
-          iron-list {
-            height: 300px;
-          }
-
-          .item:nth-child(odd) {
-            height: 100px;
-            background-color: green;
-            color: white;
-          }
-
-          .item:nth-child(even) {
-            height: 100px;
-            background-color: red;
-            color: white;
-          }
-        </style>
-        <iron-list items="[[data]]" as="item">
-          <template>
-            <div class="item">[[item.index]]</div>
-          </template>
-        </iron-list>
-      </template>
+      <x-list></x-list>
     </template>
   </test-fixture>
-
 
 <script>
 
@@ -68,7 +37,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     setup(function() {
       container = fixture('trivialList');
-      list = findElementInList(container, 'iron-list');
+      list = container.list;
     });
 
     test('defaults', function() {
