@@ -233,7 +233,7 @@ bound from the model object provided to the template scope):
     /**
      * A map between an item key and its physical item index
      */
-    _physicalIndexForKey: {},
+    _physicalIndexForKey: null,
 
     /**
      * The average scroll size
@@ -733,6 +733,7 @@ bound from the model object provided to the template scope):
         this._physicalTop = 0;
         this._virtualCount = this.items ? this.items.length : 0;
         this._collection = this.items ? Polymer.Collection.get(this.items) : null;
+        this._physicalIndexForKey = {};
 
         // scroll to the top
         this._resetScrollPosition(0);
