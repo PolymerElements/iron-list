@@ -28,13 +28,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <test-fixture id="trivialList">
     <template>
-      <x-list item-height="1"></x-list>
+      <x-list hidden></x-list>
     </template>
   </test-fixture>
 
   <script>
 
-    suite('dynamic physical count', function() {
+    suite('hidden list', function() {
       var list, container;
 
       setup(function() {
@@ -42,18 +42,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         list = container.list;
       });
 
-      test('increase pool size', function(done) {
-        list.items = buildDataSet(1000);
+      test('list size', function(done) {
+        list.items = buildDataSet(100);
         flush(function() {
-          var lastItem = getLastItemFromList(list);
-          var lastItemHeight = lastItem.offsetHeight;
-          var expectedFinalItem = list.offsetHeight/lastItemHeight;
-
-          assert.equal(lastItemHeight, 1);
-          assert.equal(getLastItemFromList(list).textContent, expectedFinalItem);
+          assert.equal(list.offsetWidth, 0);
+          assert.equal(list.offsetHeight, 0);
           done();
         });
       });
+
+      test('resize', function(done) {
+        list.items = buildDataSet(100);
+        list.fire('resize');
+        flush(function() {
+          assert.notEqual(getFirstItemFromList(list).textContent, '0');
+
+          container.removeAttribute('hidden');
+
+          flush(function() {
+            assert.notEqual(getFirstItemFromList(list).textContent, '0');
+
+            list.fire('resize');
+
+            flush(function() {
+              assert.equal(getFirstItemFromList(list).textContent, '0');
+              done();
+            });
+          });
+        });
+      });
+
     });
 
   </script>
