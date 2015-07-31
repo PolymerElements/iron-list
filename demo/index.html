@@ -12,7 +12,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <html>
 <head>
 
-  <title>iron-list and paper-scroll-header-panel demo</title>
+  <title>collapsible content</title>
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
@@ -20,127 +20,350 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="apple-mobile-web-app-capable" content="yes">
 
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../web-animations-js/web-animations-next-lite.min.js"></script>
 
   <link rel="import" href="../../polymer/polymer.html">
 
   <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
-  <link rel="import" href="../../paper-toolbar/paper-toolbar.html">
-  <link rel="import" href="../../paper-scroll-header-panel/paper-scroll-header-panel.html">
-  <link rel="import" href="../../paper-icon-button/paper-icon-button.html">
   <link rel="import" href="../../iron-ajax/iron-ajax.html">
   <link rel="import" href="../../iron-icons/iron-icons.html">
-
+  <link rel="import" href="../../iron-media-query/iron-media-query.html">
   <link rel="import" href="../iron-list.html">
+  <link rel="import" href="x-drawer.html">
 
   <style is="custom-style">
-
-    paper-scroll-header-panel {
-      @apply(--layout-fit);
-      @apply(--layout-vertical);
-      @apply(--paper-font-common-base);
-    }
 
     paper-toolbar.tall .title {
       font-size: 40px;
       margin-left: 60px;
-
       -webkit-transform-origin: left center;
       transform-origin: left center;
-      overflow: visible;
     }
 
     iron-list {
-      background-color: var(--paper-grey-200, #eee);
+      padding-top: 1px;
       padding-bottom: 16px;
     }
 
+    iron-list.wide {
+      /* Customize the container for the item */
+      --iron-list-items-container: {
+        max-width: 800px;
+        width: calc(100% - 60px);
+        margin: auto;
+        margin-top: 60px;
+        margin-bottom: 60px;
+        border-bottom: 1px solid #ddd;
+      };
+    }
+
+    iron-list:not(.wide) {
+      /* Customize the container for the item */
+      --iron-list-items-container: {
+        margin-top: 0;
+      };
+    }
+
     .item {
-      @apply(--layout-horizontal);
-
-      margin: 16px 16px 0 16px;
-      padding: 20px;
-
-      border-radius: 8px;
+      padding: 10px 20px;
       background-color: white;
       border: 1px solid #ddd;
+      line-height: 25px;
+      cursor: pointer;
+      margin-top: -1px;
+      position: relative;
+      overflow: hidden;
+
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
+      tap-highlight-color: rgba(0,0,0,0);
     }
 
-    .avatar {
-      height: 40px;
-      width: 40px;
-      border-radius: 20px;
-      box-sizing: border-box;
-      background-color: #DDD;
+    iron-list:not(.wide) .item.expanded {
+      margin: 40px 0;
+      border: 1px solid #ddd;
+      box-shadow: 0 3px 3px #ddd;
     }
 
-    .pad {
-      padding: 0 16px;
-      @apply(--layout-flex);
-      @apply(--layout-vertical);
+    iron-list.wide .item.expanded {
+      margin: 40px -20px;
+      border: 1px solid #ddd;
+      box-shadow: 0 3px 3px #ddd;
+      overflow: hidden;
     }
 
-    .primary {
-      font-size: 16px;
+    .item.expanded .primary {
       font-weight: bold;
     }
 
-    .secondary {
+    .item.expanded .avatar {
+      -webkit-transform: scale3d(1, 1, 1) translate(50%, 25%);
+      transform: scale3d(1, 1, 1) translate(50%, 25%);
+    }
+
+    .item.expanded .secondary {
+      display: block;
+      overflow: hidden;
+      margin-left: 0;
+      opacity: 0;
+      color: black;
+      -webkit-animation: fade-in 1s ease-out 0.1s forwards;
+      animation: fade-in 1s ease-out 0.1s forwards;
+    }
+
+    .item.expanded .pad {
+      white-space: normal;
+      margin-left: 90px;
+    }
+
+    .item.expanded .expand {
+      display: block;
+      color: #4285f4;
+      -webkit-transform: rotateZ(180deg);
+      transform: rotateZ(180deg);
+    }
+
+    .item .avatar {
+      width: 48px;
+      height: 48px;
+      position: absolute;
+      top: 0;
+      left: 10px;
+      border-radius: 50%;
+      background-color: #DDD;
+      box-sizing: border-box;
+
+      -webkit-transform: scale3d(0.5, 0.5, 1);
+      transform: scale3d(0.5, 0.5, 1);
+    }
+
+    .item .expand {
+      position: absolute;
+      right: 20px;
+      color: #999;
+      display: none;
+      will-change: transform;
+
+      -webkit-transition: -webkit-transform 0.1s ease-in-out;
+      transition: transform 0.1s ease-in-out;
+    }
+
+    .item .collapse {
+      position: absolute;
+      right: 20px;
+      color: #999;
+      display: none;
+    }
+
+    .item:hover .expand {
+      display: block;
+    }
+
+    .item .pad {
+      margin: 0 70px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .item .primary {
+      font-size: 16px;
+      display: inline;
+    }
+
+    .item .secondary {
       font-size: 14px;
+      color: #999;
+      display: inline;
+      margin-left: 20px;
     }
 
-    .dim {
-      color: gray;
+    .item .dim {
+      display: none;
     }
 
+    @keyframes fade-in {
+      0%   { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+     @-webkit-keyframes fade-in {
+      0%   { opacity: 0; }
+      100% { opacity: 1; }
+    }
   </style>
 
 </head>
 <body unresolved>
 
-  <template is="dom-bind">
-    <iron-ajax url="data/contacts.json" last-response="{{data}}" auto></iron-ajax>
+<template is="dom-bind">
 
-    <paper-scroll-header-panel class="fit" condenses keep-condensed-header>
-      <paper-toolbar class="tall">
-        <paper-icon-button icon="arrow-back"></paper-icon-button>
-        <div class="flex"></div>
-        <paper-icon-button icon="search"></paper-icon-button>
-        <paper-icon-button icon="more-vert"></paper-icon-button>
-        <div class="bottom title">iron-list</div>
-      </paper-toolbar>
-      <iron-list items="[[data]]" as="item">
-        <template>
-          <div>
-            <div class="item">
-              <img class="avatar" src="[[item.image]]">
-              <div class="pad">
-                <div class="primary">[[item.name]]</div>
-                <div class="secondary">[[item.shortText]]</div>
-                <div class="secondary dim">[[item.longText]]</div>
-              </div>
-              <iron-icon icon$="[[iconForItem(item)]]"></iron-icon>
+  <x-drawer fixed demo-title="Collapsible content">
+    <iron-ajax url="data/contacts.json" last-response="{{data}}" on-response="_dataReceived" auto></iron-ajax>
+    <iron-media-query query="(min-width: 600px)" on-query-matches-changed="_queryMatchedChanged"></iron-media-query>
+    <iron-list id="list" items="[[data]]" as="item">
+      <template>
+        <div on-tap="_tapItem">
+          <div class="item" class$="[[_getItemClass(item.index, item.expanded)]]">
+            <img class="avatar" src="[[item.image]]">
+            <div class="pad">
+              <iron-icon class="expand" icon="expand-more"></iron-icon>
+              <div class="primary">[[item.name]]</div>
+              <div class="secondary">[[item.shortText]]</div>
+              <div class="secondary dim">[[item.longText]]</div>
             </div>
           </div>
-        </template>
-      </iron-list>
-    </paper-scroll-header-panel>
-  </template>
+        </div>
+      </template>
+    </iron-list>
+  </x-drawer>
+</template>
 
-  <script>
+<script>
 
-    document.querySelector('template[is=dom-bind]').iconForItem = function(item) {
-      return item ? (item.integer < 50 ? 'star-border' : 'star') : '';
+  (function(scope) {
+
+    /*
+     * Event handler for the tap event.
+     */
+    scope._tapItem = function(event) {
+      var idx = this.$.list.indexForElement(event.target);
+      var shouldOpen = !list.get('items.' + idx + '.expanded');
+
+      // launch the animation
+      animateContainer(idx, event.currentTarget, this.$.list, shouldOpen);
     };
 
-    document.addEventListener('paper-header-transform', function(event) {
-      var title = this.querySelector('.title');
-      var detail = event.detail;
-      var deltaHeight = detail.height - detail.condensedHeight;
-      var scale = Math.max(0.6, (deltaHeight - detail.y) / (deltaHeight / 0.4)  + 0.6);
+    /*
+     * Event handler for iron-media-query when the query matched.
+     */
+    scope._queryMatchedChanged = function(e) {
+      this._queryMatched = e.detail.value;
+      this.debounce('resize', function() {
+        if (!this.$.list.classList.contains('wide') || !this._queryMatched) {
+          this.toggleClass('wide', this._queryMatched, this.$.list);
+          this.$.list.updateStyles();
+          this.$.list.updateViewportBoundaries();
+        }
+      });
+    };
 
-      Polymer.Base.transform('scale(' + scale + ') translateZ(0)', title);
-    });
+    /*
+     * Event handler for iron-ajax when the data was received.
+     */
+    scope._dataReceived = function() {
+      this.data.forEach(function(item) {
+        item.expanded = false;
+      });
+    }
 
-  </script>
+    /*
+     * Gets the classes for a given item.
+     */
+    scope._getItemClass = function(vidx, expanded) {
+      var classes = 'item';
+      if (expanded) {
+        classes +=' expanded';
+      }
+      return classes;
+    };
+
+    function setMargin(node, h, v) {
+      node.style.margin = v + 'px ' + h + 'px ';
+    }
+
+    function animateContainer(idx, container, list, open) {
+      var item = Polymer.dom(container).querySelector('.item');
+      var avatar = Polymer.dom(container).querySelector('.avatar');
+      var pad = Polymer.dom(container).querySelector('.pad');
+
+      var openVal = {
+        h: list.classList.contains('wide') ? -20 : 0,
+        v: 40,
+        avatar: 'scale3d(1, 1, 1) translate(50%, 25%)',
+        padMargin: 90
+      };
+      var closeVal = {
+        h: 0,
+        v: 0,
+        avatar: 'scale3d(0.5, 0.5, 1) translate(0px, 0px)',
+        padMargin: 70
+      };
+
+      var from = open ? closeVal : openVal;
+      var to = open ? openVal : closeVal;
+      var currentScrollTop = list.scroller.scrollTop - from.v;
+      var didScroll = false;
+      var animationConfig = {
+          direction: 'alternate',
+          duration: 100,
+          easing: 'ease-out'
+        };
+
+      // Animation for the item container
+      var itemContainerAnimation = new KeyframeEffect(null, [], animationConfig);
+
+      itemContainerAnimation.onsample = function(r) {
+        var h, v, padMargin;
+
+        // last frame
+        if (r === null) {
+          // update the model
+          list.set('items.' + idx + '.expanded', open);
+          // clear the custom css
+          item.style.cssText = '';
+          pad.style.cssText = '';
+          v = to.v;
+
+          // notify iron-list that we updated the size
+          // willChange: false because this is the last frame of the animation
+          list.updateSizeForIndex(idx, true);
+        } else {
+          h = Math.round((to.h - from.h)*r + from.h);
+          v = Math.round((to.v - from.v)*r + from.v);
+          padMargin = Math.round((to.padMargin - from.padMargin)*r + from.padMargin);
+
+          setMargin(item, h, v);
+          setMargin(pad, padMargin, 0);
+          
+          // notify iron-list that we updated the size
+          // willChange: true because we will change the size in the animation frame
+          list.updateSizeForIndex(idx, true);
+        }
+
+        // adjust the scrollTop only if the item was visible on the screen
+        if (!open || !(didScroll = list.scrollToIndexIfNeeded(idx, true) || didScroll)) {
+          list.scroll(currentScrollTop + v);
+        }
+      };
+
+      // Animation for the avatar
+      var avatarAnimation = new KeyframeEffect(avatar,
+        [
+          {transform: from.avatar},
+          {transform: to.avatar}
+        ],
+        animationConfig);
+
+      avatarAnimation.onsample = function(r) {
+        // last frame
+        if (r === null) {
+          avatar.style.cssText = '';
+        }
+      };
+
+      // avoid text layout
+      pad.style.width = (pad.offsetWidth) + 'px';
+
+      // initial frame
+      setMargin(item, from.h, from.v);
+      Polymer.Base.transform(from.avatar, avatar);
+
+      // play the animation
+      document.timeline.play(new GroupEffect([itemContainerAnimation, avatarAnimation]));
+    }
+
+  })(document.querySelector('template[is=dom-bind]'));
+
+</script>
 </body>
 </html>
