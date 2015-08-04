@@ -28,7 +28,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <test-fixture id="trivialList">
     <template>
-      <x-list item-height="1"></x-list>
+      <x-list item-height="1" list-height="40"></x-list>
     </template>
   </test-fixture>
 
@@ -54,6 +54,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           done();
         });
       });
+
+      test('increase pool size on resize', function(done) {
+        list.items = buildDataSet(1000);
+       
+        flush(function() {
+          // change the height of the list
+          container.listHeight = 500;
+          // resize
+          list.fire('resize');
+
+          flush(function() {
+            var lastItem = getLastItemFromList(list);
+            var lastItemHeight = lastItem.offsetHeight;
+            var expectedFinalItem = list.offsetHeight/lastItemHeight - 1;
+            
+            assert.equal(lastItemHeight, 1);
+            assert.equal(getLastItemFromList(list).textContent, expectedFinalItem);
+            done();
+          });
+        });
+      });
+
     });
 
   </script>

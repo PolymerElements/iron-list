@@ -22,10 +22,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
     }
 
-    iron-list {
-      height: 300px;
-    }
-
     .item {
       color: white;
     }
@@ -40,10 +36,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
 
   <template>
-    <iron-list items="[[data]]" as="item" id="list">
+    <iron-list style$="[[_computedListHeight(listHeight)]]" items="[[data]]" as="item" id="list">
       <template>
         <div class="item">
-          <div style$="[[_computedStyle()]]">[[item.index]]</div>
+          <div style$="[[_computedItemHeight()]]">[[item.index]]</div>
         </div>
       </template>
     </iron-list>
@@ -63,6 +59,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       itemHeight: {
         type: Number,
         value: 100
+      },
+
+      listHeight: {
+        type: Number,
+        value: 300
       }
     },
 
@@ -70,8 +71,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       return this.$.list;
     },
 
-    _computedStyle: function() {
+    _computedItemHeight: function() {
       return 'height: ' + (this.itemHeight) + 'px';
-    }
+    },
+
+    _computedListHeight: function(listHeight) {
+      return 'height: ' + (listHeight) + 'px';
+    },
   });
 </script>
