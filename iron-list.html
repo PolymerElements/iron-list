@@ -412,7 +412,7 @@ after the list became visible again. e.g.
       }
 
       // render the list of items if we haven't rendered them yet
-      this._render();
+      this.async(this._render, 1);
     },
 
     /**
