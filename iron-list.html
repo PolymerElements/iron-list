@@ -927,6 +927,7 @@ after the list became visible again. e.g.
         return;
       }
 
+      var itemSet;
       var firstVisible = this.firstVisibleIndex;
 
       idx = Math.min(Math.max(idx, 0), this._virtualCount-1);
@@ -964,6 +965,12 @@ after the list became visible again. e.g.
 
       // set the new scroll position
       this._resetScrollPosition(this._physicalTop + targetOffsetTop + 1);
+
+      // increase the pool of physical items if needed
+      if (itemSet = this._increasePoolIfNeeded()) {
+        // set models to the new items
+        this.async(this._update.bind(this, itemSet));
+      }
 
       // clear cached visible index
       this._firstVisibleIndexVal = null;
