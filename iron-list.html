@@ -76,7 +76,7 @@ This event is fired by any element that implements `IronResizableBehavior`.
 
 By default, elements such as `iron-pages`, `paper-tabs` or `paper-dialog` will trigger
 this event automatically. If you hide the list manually (e.g. you use `display: none`)
-you might want to implement `IronResizableBehavior` or fire this event manually right 
+you might want to implement `IronResizableBehavior` or fire this event manually right
 after the list became visible again. e.g.
 
     document.querySelector('iron-list').fire('resize');
@@ -112,9 +112,15 @@ after the list became visible again. e.g.
 
   </style>
   <template>
+
+    <array-selector id="selector" items="{{items}}"
+        selected="{{selectedItems}}" selected-item="{{selectedItem}}">
+    </array-selector>
+
     <div id="items">
       <content></content>
     </div>
+
   </template>
 </dom-module>
 
@@ -158,12 +164,61 @@ after the list became visible again. e.g.
       indexAs: {
         type: String,
         value: 'index'
-      }
+      },
 
+      /**
+       * The name of the variable to add to the binding scope to indicate
+       * if the row is selected.
+       */
+      selectedAs: {
+        type: String,
+        value: 'selected'
+      },
+
+      /**
+       * When true, tapping a row will select the item, placing its data model
+       * in the set of selected items retrievable via the selection property.
+       *
+       * Note that tapping focusable elements within the list item will not
+       * result in selection, since they are presumed to have their * own action.
+       */
+      selectionEnabled: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * When `multiSelection` is false, this is the currently selected item, or `null`
+       * if no item is selected.
+       */
+      selectedItem: {
+        type: Object,
+        notify: true
+      },
+
+      /**
+       * When `multiSelection` is true, this is an array that contains the selected items.
+       */
+      selectedItems: {
+        type: Object,
+        notify: true
+      },
+
+      /**
+       * When `true`, multiple items may be selected at once (in this case,
+       * `selected` is an array of currently selected items).  When `false`,
+       * only one item may be selected at a time.
+       */
+      multiSelection: {
+        type: Boolean,
+        value: false
+      }
     },
 
     observers: [
-      '_itemsChanged(items.*)'
+      '_itemsChanged(items.*)',
+      '_selectionEnabledChanged(selectionEnabled)',
+      '_multiSelectionChanged(multiSelection)'
     ],
 
     behaviors: [
@@ -384,6 +439,16 @@ after the list became visible again. e.g.
       return this._firstVisibleIndexVal;
     },
 
+    ready: function() {
+      if (IOS_TOUCH_SCROLLING) {
+        this._scrollListener = function() {
+          requestAnimationFrame(this._scrollHandler.bind(this));
+        }.bind(this);
+      } else {
+        this._scrollListener = this._scrollHandler.bind(this);
+      }
+    },
+
     /**
      * When the element has been attached to the DOM tree.
      */
@@ -399,19 +464,13 @@ after the list became visible again. e.g.
         this.classList.add('has-scroller');
       }
 
-      this.updateViewportBoundaries();
-
       if (IOS_TOUCH_SCROLLING) {
         this._scroller.style.webkitOverflowScrolling = 'touch';
-
-        this._scroller.addEventListener('scroll', function() {
-          requestAnimationFrame(this._scrollHandler.bind(this));
-        }.bind(this));
-      } else {
-        this._scroller.addEventListener('scroll', this._scrollHandler.bind(this));
       }
 
-      // render the list of items if we haven't rendered them yet
+      this._scroller.addEventListener('scroll', this._scrollListener);
+
+      this.updateViewportBoundaries();
       this._render();
     },
 
@@ -419,6 +478,9 @@ after the list became visible again. e.g.
      * When the element has been removed from the DOM tree.
      */
     detached: function() {
+      if (this._scroller) {
+        this._scroller.removeEventListener('scroll', this._scrollListener);
+      }
       this._initRendered = false;
     },
 
@@ -657,12 +719,16 @@ after the list became visible again. e.g.
     _ensureTemplatized: function() {
       if (!this.ctor) {
         // Template instance props that should be excluded from forwarding
-        this._instanceProps = {
-          __key__: true
-        };
-        this._instanceProps[this.as] = true;
-        this._instanceProps[this.indexAs] = true;
+        var props = {};
+
+        props.__key__ = true;
+        props[this.as] = true;
+        props[this.indexAs] = true;
+        props[this.selectedAs] = true;
+
+        this._instanceProps = props;
         this._userTemplate = Polymer.dom(this).querySelector('template');
+
         if (this._userTemplate) {
           this.templatize(this._userTemplate);
         } else {
@@ -761,7 +827,6 @@ after the list became visible again. e.g.
 
         this.debounce('refresh', this._render);
 
-
       } else if (change.path === 'items.splices') {
         // render the new set
         this._initRendered = false;
@@ -778,9 +843,15 @@ after the list became visible again. e.g.
     },
 
     _adjustVirtualIndex: function(splices) {
-      for (var i = 0; i < splices.length; i++) {
-        var splice = splices[i];
-        var idx = splice.index;
+      var i, splice, idx;
+
+      for (i = 0; i < splices.length; i++) {
+        splice = splices[i];
+
+        // deselect removed items
+        splice.removed.forEach(this.$.selector.deselect, this.$.selector);
+
+        idx = splice.index;
         // We only need to care about changes happening above the current position
         if (idx >= this._virtualStartVal) {
           break;
@@ -839,6 +910,7 @@ after the list became visible again. e.g.
         if (item) {
           inst[this.as] = item;
           inst.__key__ = this._collection.getKey(item);
+          inst[this.selectedAs] = this.$.selector.isSelected(item);
           inst[this.indexAs] = vidx;
           el.removeAttribute('hidden');
           this._physicalIndexForKey[inst.__key__] = pidx;
@@ -921,6 +993,7 @@ after the list became visible again. e.g.
      * of the physical items in the DOM tree.
      *
      * @method scrollToIndex
+     * @param {number} idx The index of the item
      */
     scrollToIndex: function(idx) {
       if (typeof idx !== 'number') {
@@ -989,6 +1062,136 @@ after the list became visible again. e.g.
           this.scrollToIndex(this.firstVisibleIndex);
         }
       });
+    },
+
+    _getModelFromItem: function(item) {
+      var key = this._collection.getKey(item);
+      var pidx = this._physicalIndexForKey[key];
+
+      if (pidx !== undefined) {
+        return this._physicalItems[pidx]._templateInstance;
+      }
+      return null;
+    },
+
+    /**
+     * Select the list item at the given index.
+     *
+     * @method selectItem
+     * @param {(Object|number)} item the item object or its index
+     */
+    selectItem: function(item) {
+      if (typeof item === 'number') {
+        item = this.items[item];
+        if (!item) {
+          throw new RangeError('<item> not found');
+        }
+      } else {
+        if (this._collection.getKey(item) === undefined) {
+          throw new TypeError('<item> should be a valid item');
+        }
+      }
+
+      var model = this._getModelFromItem(item);
+
+      if (!this.multiSelection && this.selectedItem) {
+        this.deselectItem(this.selectedItem);
+      }
+      if (model) {
+        model[this.selectedAs] = true;
+      }
+      this.$.selector.select(item);
+    },
+
+    /**
+     * Deselects the given item list if it is already selected.
+     *
+     * @method deselect
+     * @param {(Object|number)} item the item object or its index
+     */
+    deselectItem: function(item) {
+      if (typeof item === 'number') {
+        item = this.items[item];
+        if (!item) {
+          throw new RangeError('<item> not found');
+        }
+      } else {
+        if (this._collection.getKey(item) === undefined) {
+          throw new TypeError('<item> should be a valid item');
+        }
+      }
+
+      var model = this._getModelFromItem(item);
+
+      if (model) {
+        model[this.selectedAs] = false;
+      }
+      this.$.selector.deselect(item);
+    },
+
+    /**
+     * Select or deselect a given item depending on whether the item
+     * has already been selected.
+     *
+     * @method toggleSelectionForItem
+     * @param {(Object|number)} item the item object or its index
+     */
+    toggleSelectionForItem: function(item) {
+      var item = typeof item === 'number' ? this.items[item] : item;
+      if (this.$.selector.isSelected(item)) {
+        this.deselectItem(item);
+      } else {
+        this.selectItem(item);
+      }
+    },
+
+    /**
+     * Clears the current selection state of the list.
+     *
+     * @method clearSelection
+     */
+    clearSelection: function() {
+      function unselect(item) {
+        var model = this._getModelFromItem(item);
+        if (model) {
+          model[this.selectedAs] = false;
+        }
+      }
+
+      if (Array.isArray(this.selectedItems)) {
+        this.selectedItems.forEach(unselect, this);
+      } else if (this.selectedItem) {
+        unselect.call(this, this.selectedItem);
+      }
+     
+      this.$.selector.clearSelection();    
+    },
+
+    /**
+     * Add an event listener to `tap` if `selectionEnabled` is true,
+     * it will remove the listener otherwise.
+     */
+    _selectionEnabledChanged: function(selectionEnabled) {
+      if (selectionEnabled) {
+        this.listen(this, 'tap', '_selectionHandler');
+      } else {
+        this.unlisten(this, 'tap', '_selectionHandler');
+      }
+    },
+
+    /**
+     * Select an item from an event object.
+     */
+    _selectionHandler: function(e) {
+      var model = this.modelForElement(e.target);
+      if (model) {
+        this.toggleSelectionForItem(model[this.as]);
+      }
+    },
+
+    _multiSelectionChanged: function(multiSelection) {
+      this.clearSelection();
+      this.$.selector.multi = multiSelection;
     }
   });
 

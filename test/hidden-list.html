@@ -64,10 +64,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             list.fire('resize');
 
-            flush(function() {
+            Polymer.Base.async(function() {
               assert.equal(getFirstItemFromList(list).textContent, '0');
               done();
-            });
+            }, 100);
           });
         });
       });
