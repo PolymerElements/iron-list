@@ -199,7 +199,7 @@ after the list became visible again. e.g.
     /**
      * The number of tiles in the DOM.
      */
-    _physicalCount: DEFAULT_PHYSICAL_COUNT,
+    _physicalCount: 0,
 
     /**
      * The k-th tile that is at the top of the scrolling list.
@@ -645,7 +645,9 @@ after the list became visible again. e.g.
      * but it also ensures that only one `update` cycle is created.
      */
     _render: function() {
-      if (this.isAttached && !this._initRendered && this._isVisible && this.items) {
+      var requiresUpdate = this._virtualCount > 0 || this._physicalCount > 0;
+
+      if (this.isAttached && !this._initRendered && this._isVisible && requiresUpdate)  {
         this._update();
         this._initRendered = true;
       }
@@ -755,12 +757,12 @@ after the list became visible again. e.g.
 
         // create the initial physical items
         if (!this._physicalItems) {
+          this._physicalCount = DEFAULT_PHYSICAL_COUNT;
           this._physicalItems = this._createPool(this._physicalCount);
           this._physicalSizes = new Array(this._physicalCount);
         }
 
         this.debounce('refresh', this._render);
-
 
       } else if (change.path === 'items.splices') {
         // render the new set
