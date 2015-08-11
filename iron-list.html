@@ -76,7 +76,7 @@ This event is fired by any element that implements `IronResizableBehavior`.
 
 By default, elements such as `iron-pages`, `paper-tabs` or `paper-dialog` will trigger
 this event automatically. If you hide the list manually (e.g. you use `display: none`)
-you might want to implement `IronResizableBehavior` or fire this event manually right 
+you might want to implement `IronResizableBehavior` or fire this event manually right
 after the list became visible again. e.g.
 
     document.querySelector('iron-list').fire('resize');
@@ -285,6 +285,12 @@ after the list became visible again. e.g.
     _initRendered: false,
 
     /**
+     * Keep a reference to the bound scroll handler, so that it can
+     * be unregistered.
+     */
+    _boundScrollHandler: null,
+
+    /**
      * The bottom of the physical content.
      */
     get _physicalBottom() {
@@ -401,14 +407,16 @@ after the list became visible again. e.g.
 
       this.updateViewportBoundaries();
 
+      this._boundScrollHandler = this._scrollHandler.bind(this);
+
       if (IOS_TOUCH_SCROLLING) {
         this._scroller.style.webkitOverflowScrolling = 'touch';
 
         this._scroller.addEventListener('scroll', function() {
-          requestAnimationFrame(this._scrollHandler.bind(this));
+          requestAnimationFrame(this._boundScrollHandler);
         }.bind(this));
       } else {
-        this._scroller.addEventListener('scroll', this._scrollHandler.bind(this));
+        this._scroller.addEventListener('scroll', this._boundScrollHandler);
       }
 
       // render the list of items if we haven't rendered them yet
@@ -419,6 +427,7 @@ after the list became visible again. e.g.
      * When the element has been removed from the DOM tree.
      */
     detached: function() {
+      this._scroller.removeEventListener('scroll', this._boundScrollHandler);
       this._initRendered = false;
     },
 
