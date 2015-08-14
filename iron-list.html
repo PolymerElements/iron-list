@@ -282,7 +282,7 @@ after the list became visible again. e.g.
      * True if the current item list was rendered for the first time
      * after attached.
      */
-    _initRendered: false,
+    _itemsRendered: false,
 
     /**
      * The bottom of the physical content.
@@ -357,7 +357,7 @@ after the list became visible again. e.g.
     * True if the current list is visible.
     */
     get _isVisible() {
-      return !!(this.offsetWidth || this.offsetHeight);
+      return this._scroller && Boolean(this._scroller.offsetWidth || this._scroller.offsetHeight);
     },
 
     /**
@@ -419,7 +419,7 @@ after the list became visible again. e.g.
      * When the element has been removed from the DOM tree.
      */
     detached: function() {
-      this._initRendered = false;
+      this._itemsRendered = false;
     },
 
     /**
@@ -647,9 +647,9 @@ after the list became visible again. e.g.
     _render: function() {
       var requiresUpdate = this._virtualCount > 0 || this._physicalCount > 0;
 
-      if (this.isAttached && !this._initRendered && this._isVisible && requiresUpdate)  {
+      if (this.isAttached && !this._itemsRendered && this._isVisible && requiresUpdate)  {
         this._update();
-        this._initRendered = true;
+        this._itemsRendered = true;
       }
     },
 
@@ -743,7 +743,7 @@ after the list became visible again. e.g.
     _itemsChanged: function(change) {
       if (change.path === 'items') {
         // render the new set
-        this._initRendered = false;
+        this._itemsRendered = false;
 
         // update the whole set
         this._virtualStartVal = 0;
@@ -766,7 +766,7 @@ after the list became visible again. e.g.
 
       } else if (change.path === 'items.splices') {
         // render the new set
-        this._initRendered = false;
+        this._itemsRendered = false;
 
         this._adjustVirtualIndex(change.value.indexSplices);
         this._virtualCount = this.items ? this.items.length : 0;
@@ -992,7 +992,8 @@ after the list became visible again. e.g.
      */
     _resizeHandler: function() {
       this.debounce('resize', function() {
-        if (this._physicalItems && this._isVisible) {
+        this._render();
+        if (this._itemsRendered && this._physicalItems && this._isVisible) {
           this._resetAverage();
           this.updateViewportBoundaries();
           this.scrollToIndex(this.firstVisibleIndex);

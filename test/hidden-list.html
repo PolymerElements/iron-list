@@ -54,21 +54,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       test('resize', function(done) {
         list.items = buildDataSet(100);
         list.fire('resize');
-        flush(function() {
-          assert.notEqual(getFirstItemFromList(list).textContent, '0');
+       
+        assert.notEqual(getFirstItemFromList(list).textContent, '0');
+
+        Polymer.RenderStatus.whenReady(function() {
 
           container.removeAttribute('hidden');
+          assert.notEqual(getFirstItemFromList(list).textContent, '0');
 
+          list.fire('resize');
           flush(function() {
-            assert.notEqual(getFirstItemFromList(list).textContent, '0');
-
-            list.fire('resize');
-
-            flush(function() {
-              assert.equal(getFirstItemFromList(list).textContent, '0');
-              done();
-            });
+            assert.isTrue(list.isAttached);
+            assert.equal(getFirstItemFromList(list).textContent, '0');
+            done();
           });
+
         });
       });
 
