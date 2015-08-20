@@ -63,6 +63,18 @@ bound from the model object provided to the template scope):
 </template>
 ```
 
+### Styling
+
+To customize the container for the items:
+
+```css
+iron-list {
+ --iron-list-items-container: {
+    // custom CSS
+  };
+}
+```
+
 ### Resizing
 
 `iron-list` lays out the items when it recives a notification via the `resize` event.

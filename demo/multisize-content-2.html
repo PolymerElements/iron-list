@@ -12,7 +12,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <html>
 <head>
 
-  <title>iron-list demo</title>
+  <title>multisize content 2</title>
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
@@ -23,12 +23,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <link rel="import" href="../../polymer/polymer.html">
   <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
-  <link rel="import" href="../iron-list.html">
-
   <link rel="import" href="../../iron-ajax/iron-ajax.html">
-  <link rel="import" href="../../iron-icon/iron-icon.html">
   <link rel="import" href="../../iron-icons/iron-icons.html">
   <link rel="import" href="../../paper-toolbar/paper-toolbar.html">
+  <link rel="import" href="../iron-list.html">
+  <link rel="import" href="x-drawer.html">
 
   <dom-module id="x-app">
 
@@ -40,21 +39,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         display: block;
         font-family: sans-serif;
+
+        --x-drawer-toolbar: {
+          background: var(--paper-pink-500);
+          color: white;
+        };
       }
 
-      .toolbar {
-        background: #E91E63;
-        box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
-        color: white;
-      }
-
-      #list {
-        @apply(--layout-flex);
+      iron-list {
+        background-color: white;
       }
 
       .item {
-        padding: 16px;
         @apply(--layout-horizontal);
+        padding: 16px;
       }
 
       .avatar {
@@ -97,33 +95,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
 
     <template>
-
-      <iron-ajax url="data/contacts.json" last-response="{{data}}" auto></iron-ajax>
-
-      <paper-toolbar class="toolbar">
-        <div>Inbox</div>
-      </paper-toolbar>
-
-      <iron-list id="list" items="[[data]]" as="item">
-        <template>
-          <div>
-            <div class="item">
-              <img class="avatar" src="[[item.image]]">
-              <div class="pad">
-                <div class="primary">
-                  <span>[[index]]</span>
-                  <span>[[item.name]]</span>
+      <x-drawer demo-title="Inbox">
+        <iron-ajax url="data/contacts.json" last-response="{{data}}" auto></iron-ajax>
+        <iron-list items="[[data]]" as="item">
+          <template>
+            <div>
+              <div class="item">
+                <img class="avatar" src="[[item.image]]">
+                <div class="pad">
+                  <div class="primary">
+                    <span>[[index]]</span>
+                    <span>[[item.name]]</span>
+                  </div>
+                  <div class="secondary">[[item.shortText]]</div>
+                  <div class="secondary dim">[[item.longText]]</div>
                 </div>
-                <div class="secondary">[[item.shortText]]</div>
-                <div class="secondary dim">[[item.longText]]</div>
+                <iron-icon icon$="[[iconForItem(item)]]"></iron-icon>
               </div>
-              <iron-icon icon$="[[iconForItem(item)]]"></iron-icon>
+              <div class="border"></div>
             </div>
-            <div class="border"></div>
-          </div>
-        </template>
-      </iron-list>
-
+          </template>
+        </iron-list>
+      </x-drawer>
     </template>
   </dom-module>
 
