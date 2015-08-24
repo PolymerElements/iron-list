@@ -823,7 +823,7 @@ after the list became visible again. e.g.
 
         // create the initial physical items
         if (!this._physicalItems) {
-          this._physicalCount = Math.min(DEFAULT_PHYSICAL_COUNT, this._virtualCount);
+          this._physicalCount = this._virtualCount ? Math.min(DEFAULT_PHYSICAL_COUNT, this._virtualCount) : DEFAULT_PHYSICAL_COUNT;
           this._physicalItems = this._createPool(this._physicalCount);
           this._physicalSizes = new Array(this._physicalCount);
         }
