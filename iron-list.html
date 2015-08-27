@@ -98,6 +98,10 @@ after the list became visible again. e.g.
       overflow: auto;
     }
 
+    :host(:not(.has-scroller)) {
+      position: relative;
+    }
+
     #items {
       position: relative;
     }
@@ -303,9 +307,14 @@ after the list became visible again. e.g.
     _physicalIndexForKey: null,
 
     /**
-     * The average scroll size
+     * The estimated scroll height based on `_physicalAverage`
      */
-    _scrollSize: 0,
+    _estScrollHeight: 0,
+
+    /**
+     * The scroll height of the dom node
+     */
+    _scrollHeight: 0,
 
     /**
      * The size of the viewport
@@ -377,7 +386,7 @@ after the list became visible again. e.g.
      * The maximum scroll top value.
      */
     get _maxScrollTop() {
-      return this._scrollSize - this._viewportSize;
+      return this._estScrollHeight - this._viewportSize;
     },
 
     /**
@@ -806,6 +815,10 @@ after the list became visible again. e.g.
       }
     },
 
+    /**
+     * Called when the items have changed. That is, ressignments
+     * to `items`, splices or updates to a single item.
+     */
     _itemsChanged: function(change) {
       if (change.path === 'items') {
         // render the new set
@@ -869,6 +882,10 @@ after the list became visible again. e.g.
       this._refresh();
     },
 
+    /**
+     * Executes a provided function per every physical index in `itemSet`
+     * `itemSet` default value is equivalent to the entire set of physical indexes.
+     */
     _iterateItems: function(fn, itemSet) {
       var pidx, vidx, rtn, i;
 
@@ -904,6 +921,9 @@ after the list became visible again. e.g.
       }
     },
 
+    /**
+     * Assigns the data models to a given set of items.
+     */
     _assignModels: function(itemSet) {
       this._iterateItems(function(pidx, vidx) {
         var el = this._physicalItems[pidx];
@@ -925,6 +945,9 @@ after the list became visible again. e.g.
       }, itemSet);
     },
 
+    /**
+     * Updates the height for a given set of items.
+     */
     _updateMetrics: function() {
       var total = 0;
       var prevAvgCount = this._physicalAverageCount;
@@ -950,6 +973,9 @@ after the list became visible again. e.g.
       }
     },
 
+    /**
+     * Updates the position of the physical items.
+     */
     _positionItems: function(itemSet) {
       this._adjustScrollPosition();
 
@@ -963,6 +989,9 @@ after the list became visible again. e.g.
       }, itemSet);
     },
 
+    /**
+     * Adjusts the scroll position when it was overestimated.
+     */
     _adjustScrollPosition: function() {
       var deltaHeight = this._virtualStartVal === 0 ? this._physicalTop :
           Math.min(this._scrollPosition + this._physicalTop, 0);
@@ -977,6 +1006,9 @@ after the list became visible again. e.g.
       }
     },
 
+    /**
+     * Sets the position of the scroll.
+     */
     _resetScrollPosition: function(pos) {
       if (this._scroller) {
         this._scroller.scrollTop = pos;
@@ -984,11 +1016,21 @@ after the list became visible again. e.g.
       }
     },
 
-    _updateScrollerSize: function() {
-      this._scrollSize = (this._physicalBottom +
+    /**
+     * Sets the scroll height, that's the height of the content,
+     */
+    _updateScrollerSize: function(forceUpdate) {
+      this._estScrollHeight = (this._physicalBottom +
           Math.max(this._virtualCount - this._physicalCount - this._virtualStartVal, 0) * this._physicalAverage);
 
-      this.$.items.style.height = this._scrollSize + 'px';
+      forceUpdate = forceUpdate || this._scrollHeight === 0;
+      forceUpdate = forceUpdate || this._scrollPosition >= this._estScrollHeight - this._physicalSize;
+
+      // amortize height adjustment, so it won't trigger repaints very often
+      if (forceUpdate || Math.abs(this._estScrollHeight - this._scrollHeight) >= this._optPhysicalSize) {
+        this.$.items.style.height = this._estScrollHeight + 'px';
+        this._scrollHeight = this._estScrollHeight;
+      }
     },
 
     /**
@@ -1034,7 +1076,7 @@ after the list became visible again. e.g.
       }
 
       // update the scroller size
-      this._updateScrollerSize();
+      this._updateScrollerSize(true);
 
       // update the position of the items
       this._positionItems();
@@ -1174,8 +1216,8 @@ after the list became visible again. e.g.
       } else if (this.selectedItem) {
         unselect.call(this, this.selectedItem);
       }
-     
-      this.$.selector.clearSelection();    
+
+      this.$.selector.clearSelection();
     },
 
     /**
