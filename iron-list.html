@@ -88,37 +88,35 @@ after the list became visible again. e.g.
 -->
 
 <dom-module id="iron-list">
-  <style>
-
-    :host {
-      display: block;
-    }
-
-    :host(.has-scroller) {
-      overflow: auto;
-    }
-
-    :host(:not(.has-scroller)) {
-      position: relative;
-    }
-
-    #items {
-      position: relative;
-    }
-
-    #items > ::content > * {
-      width: 100%;
-      box-sizing: border-box;
-      position: absolute;
-      top: 0;
-      will-change: transform;
-    }
-
-  </style>
   <template>
+    <style>
+      :host {
+        display: block;
+      }
+  
+      :host(.has-scroller) {
+        overflow: auto;
+      }
+  
+      :host(:not(.has-scroller)) {
+        position: relative;
+      }
+  
+      #items {
+        position: relative;
+      }
+  
+      #items > ::content > * {
+        width: 100%;
+        box-sizing: border-box;
+        position: absolute;
+        top: 0;
+        will-change: transform;
+      }
+    </style>
 
     <array-selector id="selector" items="{{items}}"
-        selected="{{selectedItems}}" selected-item="{{selectedItem}}">
+      selected="{{selectedItems}}" selected-item="{{selectedItem}}">
     </array-selector>
 
     <div id="items">
