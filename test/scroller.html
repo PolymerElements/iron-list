@@ -1,0 +1,120 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE
+The complete set of authors may be found at http://polymer.github.io/AUTHORS
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS
+-->
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>iron-list test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../test-fixture/test-fixture-mocha.js"></script>
+
+  <link rel="import" href="../../test-fixture/test-fixture.html">
+  <link rel="import" href="../../paper-styles/paper-styles.html">
+  <link rel="import" href="helpers.html">
+  <link rel="import" href="x-list.html">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    .hasScroll {
+      overflow-y: auto;
+      width: 100%;
+      height: 600px;
+    }
+  </style>
+</head>
+<body>
+
+  <test-fixture id="trivialList">
+    <template>
+      <x-list></x-list>
+    </template>
+  </test-fixture>
+
+  <script>
+
+    suite('scroller property', function() {
+      var list, container;
+
+      setup(function() {
+        container = fixture('trivialList');
+        list = container.list;
+      });
+
+      test('default value', function(done) {
+        list.items = buildDataSet(100);
+        flush(function() {
+          assert.equal(list.scroller, list);
+          done();
+        });
+      });
+
+      test('document scroll', function(done) {
+        list.items = buildDataSet(100);
+        list.scroller = window;
+
+        flush(function() {
+          var rowHeight = list._physicalItems[0].offsetHeight;
+
+          assert.equal(list.scroller, window);
+          assert.equal(list.firstVisibleIndex, 0);
+
+          window.scrollTo(0, rowHeight * 20);
+
+          Polymer.Base.async(function() {
+            assert.equal(list.firstVisibleIndex, 20);
+            done();
+          }, 100);
+        });
+      });
+
+      test('reset scroller when detached', function(done) {
+        list.items = buildDataSet(100);
+        list.scroller = window;
+        flush(function() {
+          list.parentNode.removeChild(list);
+
+          Polymer.Base.async(function() {
+            assert.isNull(list.scroller);
+            done();
+          }, 100);
+        });
+      });
+
+      test('custom scroller', function(done) {
+        list.items = buildDataSet(100);
+        container.classList.add('hasScroll');
+
+        list.scroller = container;
+
+        flush(function() {
+          var rowHeight = list._physicalItems[0].offsetHeight;
+
+          assert.equal(list.scroller, container);
+
+          container.scrollTop = rowHeight * 50;
+
+          Polymer.Base.async(function() {
+            assert.equal(list.firstVisibleIndex, 50);
+            done();
+          }, 100);
+        });
+      });
+    });
+
+  </script>
+
+</body>
+</html>
