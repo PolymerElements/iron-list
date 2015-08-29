@@ -210,19 +210,28 @@ after the list became visible again. e.g.
 
       /**
        * When `true`, multiple items may be selected at once (in this case,
-       * `selected` is an array of currently selected items).  When `false`,
+       * `selected` is an array of currently selected items). When `false`,
        * only one item may be selected at a time.
        */
       multiSelection: {
         type: Boolean,
         value: false
+      },
+
+      /**
+       * The scroll target. When defined, iron-list will delegate the scroll to this element.
+       * To use the main document scroll, set this property to `window`.
+       */
+      scroller: {
+        type: Object
       }
     },
 
     observers: [
       '_itemsChanged(items.*)',
       '_selectionEnabledChanged(selectionEnabled)',
-      '_multiSelectionChanged(multiSelection)'
+      '_multiSelectionChanged(multiSelection)',
+      '_scrollerChanged(scroller)'
     ],
 
     behaviors: [
@@ -239,11 +248,6 @@ after the list became visible again. e.g.
      * Recommended value ≈ 0.5, so it will distribute tiles evely in both directions.
      */
     _ratio: 0.5,
-
-    /**
-     * The element that controls the scroll
-     */
-    _scroller: null,
 
     /**
      * The padding-top value of the `scroller` element
@@ -421,7 +425,23 @@ after the list became visible again. e.g.
     * True if the current list is visible.
     */
     get _isVisible() {
-      return this._scroller && Boolean(this._scroller.offsetWidth || this._scroller.offsetHeight);
+      return (this.scroller === window) ?
+          true : this.scroller && Boolean(this.scroller.offsetWidth || this.scroller.offsetHeight);
+    },
+
+    get _scrollTop() {
+      if (this.scroller) {
+        return (this.scroller === window) ? window.pageYOffset : this.scroller.scrollTop;
+      }
+      return 0;
+    },
+
+    set _scrollTop(top) {
+      if (this.scroller === window) {
+        window.scroll(window.pageXOffset, top);
+      } else {
+        this.scroller.scrollTop = top;
+      }
     },
 
     /**
@@ -448,16 +468,6 @@ after the list became visible again. e.g.
       return this._firstVisibleIndexVal;
     },
 
-    ready: function() {
-      if (IOS_TOUCH_SCROLLING) {
-        this._scrollListener = function() {
-          requestAnimationFrame(this._scrollHandler.bind(this));
-        }.bind(this);
-      } else {
-        this._scrollListener = this._scrollHandler.bind(this);
-      }
-    },
-
     /**
      * When the element has been attached to the DOM tree.
      */
@@ -466,20 +476,15 @@ after the list became visible again. e.g.
       // e.g. paper-scroll-header-panel
       var el = Polymer.dom(this);
 
-      if (el.parentNode && el.parentNode.scroller) {
-        this._scroller = el.parentNode.scroller;
-      } else {
-        this._scroller = this;
-        this.classList.add('has-scroller');
+      // set the default value to the scroller
+      if (!this.scroller) {
+        if (el.parentNode && el.parentNode.scroller) {
+          this.scroller = el.parentNode.scroller;
+        } else {
+          this.scroller = this;
+        }
       }
 
-      if (IOS_TOUCH_SCROLLING) {
-        this._scroller.style.webkitOverflowScrolling = 'touch';
-      }
-
-      this._scroller.addEventListener('scroll', this._scrollListener);
-
-      this.updateViewportBoundaries();
       this._render();
     },
 
@@ -488,9 +493,7 @@ after the list became visible again. e.g.
      */
     detached: function() {
       this._itemsRendered = false;
-      if (this._scroller) {
-        this._scroller.removeEventListener('scroll', this._scrollListener);
-      }
+      this.scroller = null;
     },
 
     /**
@@ -500,9 +503,16 @@ after the list became visible again. e.g.
      * @method updateViewportBoundaries
      */
     updateViewportBoundaries: function() {
-      var scrollerStyle = window.getComputedStyle(this._scroller);
-      this._scrollerPaddingTop = parseInt(scrollerStyle['padding-top']);
-      this._viewportSize = this._scroller.offsetHeight;
+      if (this.scroller === window) {
+        this._scrollerPaddingTop = 0;
+
+      } else if (this.scroller) {
+        var scrollerStyle = window.getComputedStyle(this.scroller);
+        this._scrollerPaddingTop = parseInt(scrollerStyle['padding-top']);
+
+      } else {
+        this._scrollerPaddingTop = 0;
+      }
     },
 
     /**
@@ -517,7 +527,7 @@ after the list became visible again. e.g.
       // clamp the `scrollTop` value
       // IE 10|11 scrollTop may go above `_maxScrollTop`
       // iOS `scrollTop` may go below 0 and above `_maxScrollTop`
-      var scrollTop = Math.max(0, Math.min(this._maxScrollTop, this._scroller.scrollTop));
+      var scrollTop = Math.max(0, Math.min(this._maxScrollTop, this._scrollTop));
 
       var tileHeight, kth, recycledTileSet;
       var ratio = this._ratio;
@@ -615,6 +625,7 @@ after the list became visible again. e.g.
      * Update the list of items, starting from the `_virtualStartVal` item.
      */
     _update: function(itemSet, movingUp) {
+
       // update models
       this._assignModels(itemSet);
 
@@ -964,7 +975,13 @@ after the list became visible again. e.g.
       }
 
       this._physicalSize = total;
-      this._viewportSize = this._scroller.offsetHeight;
+
+      if (this.scroller) {
+        this._viewportSize = this.scroller === window ?
+          window.innerHeight : this.scroller.offsetHeight;
+      } else {
+        this._viewportSize = 0;
+      }
 
       if (this._physicalAverageCount !== prevAvgCount) {
         this._physicalAverage = Math.round(
@@ -1001,7 +1018,7 @@ after the list became visible again. e.g.
 
         // juking scroll position during interial scrolling on iOS is no bueno
         if (!IOS_TOUCH_SCROLLING) {
-          this._resetScrollPosition(this._scroller.scrollTop - deltaHeight);
+          this._resetScrollPosition(this._scrollTop - deltaHeight);
         }
       }
     },
@@ -1010,9 +1027,9 @@ after the list became visible again. e.g.
      * Sets the position of the scroll.
      */
     _resetScrollPosition: function(pos) {
-      if (this._scroller) {
-        this._scroller.scrollTop = pos;
-        this._scrollPosition = this._scroller.scrollTop;
+      if (this.scroller) {
+        this._scrollTop = pos;
+        this._scrollPosition = this._scrollTop;
       }
     },
 
@@ -1245,6 +1262,35 @@ after the list became visible again. e.g.
     _multiSelectionChanged: function(multiSelection) {
       this.clearSelection();
       this.$.selector.multi = multiSelection;
+    },
+
+    _scrollerChanged: function(scroller, oldScroller) {
+      if (scroller === 'window') {
+        this.scroller = window;
+      } else if (scroller) {
+        if (!this._scrollListener) {
+          this._scrollListener = IOS_TOUCH_SCROLLING ?
+            function() {
+              requestAnimationFrame(this._scrollHandler.bind(this));
+            }.bind(this) : this._scrollHandler.bind(this);
+        }
+
+        this.updateViewportBoundaries();
+        this.toggleClass('has-scroller', scroller === this, this);
+        scroller.addEventListener('scroll', this._scrollListener);
+
+        if (IOS_TOUCH_SCROLLING) {
+          if (scroller === window) {
+            document.documentElement.style.webkitOverflowScrolling = 'touch';
+          } else {
+            scroller.style.webkitOverflowScrolling = 'touch';
+          }
+        }
+      }
+
+      if (oldScroller && oldScroller.addEventListener) {
+        oldScroller.addEventListener('scroll', this._scrollListener);
+      }
     }
   });
 
