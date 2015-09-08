@@ -49,6 +49,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       overflow: visible;
     }
 
+    paper-toolbar paper-icon-button {
+      --paper-icon-button-ink-color: white;
+    }
+
     iron-list {
       background-color: var(--paper-grey-200, #eee);
       padding-bottom: 16px;
@@ -59,10 +63,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       margin: 16px 16px 0 16px;
       padding: 20px;
-
       border-radius: 8px;
       background-color: white;
       border: 1px solid #ddd;
+    }
+
+    .item:focus {
+      outline: 0;
+      border-color: #666;
     }
 
     .avatar {
@@ -102,16 +110,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <paper-scroll-header-panel class="fit" condenses keep-condensed-header>
       <paper-toolbar class="tall">
-        <paper-icon-button icon="arrow-back"></paper-icon-button>
+        <paper-icon-button icon="arrow-back" alt="Back"></paper-icon-button>
         <div class="flex"></div>
-        <paper-icon-button icon="search"></paper-icon-button>
-        <paper-icon-button icon="more-vert"></paper-icon-button>
+        <paper-icon-button icon="search" alt="Search"></paper-icon-button>
+        <paper-icon-button icon="more-vert" alt="More options"></paper-icon-button>
         <div class="bottom title">iron-list</div>
       </paper-toolbar>
       <iron-list items="[[data]]" as="item">
         <template>
           <div>
-            <div class="item">
+            <div class="item" tabindex="0">
               <img class="avatar" src="[[item.image]]">
               <div class="pad">
                 <div class="primary">[[item.name]]</div>
