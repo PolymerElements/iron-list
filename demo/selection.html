@@ -54,6 +54,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         font-weight: bold;
       }
 
+      .toolbar paper-icon-button {
+        --paper-icon-button-ink-color: white;
+      }
+
       #itemsList, 
       #selectedItemsList {
         @apply(--layout-flex);
@@ -64,6 +68,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         cursor: pointer;
         padding: 16px 22px;
         border-bottom: 1px solid #DDD;
+      }
+
+      .item:focus {
+        outline: 0;
+        background-color: #ddd;
       }
 
       .item.selected .star {
@@ -127,6 +136,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         position: relative;
       }
 
+      paper-item:focus {
+        outline: 0;
+        background-color: #ddd;
+      }
+
       paper-item:hover:after {
         content: "－";
         width: 16px;
@@ -143,7 +157,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         position: absolute;
         right: 15px;
         top: calc(50% - 8px);
-
       }
 
       .noSelection {
@@ -160,7 +173,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <paper-toolbar class="toolbar">
         <div class="flex">Inbox</div>
         <div style="position: relative;">
-          <paper-icon-button icon="icons:star" on-tap="_toggleStarredView"></paper-icon-button>
+          <paper-icon-button icon="icons:star" alt="Starred" on-tap="_toggleStarredView"></paper-icon-button>
           <paper-badge label$="[[selectedItems.length]]"></paper-badge>
         </div>
       </paper-toolbar>
@@ -170,7 +183,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <iron-list id="itemsList" items="[[data]]" selected-items="{{selectedItems}}" selection-enabled multi-selection>
             <template>
               <div>
-                <div class$="[[_computedClass(selected)]]">
+                <div tabindex="0" aria-label$="[[_getAriaLabel(item, selected)]]" class$="[[_computedClass(selected)]]">
                   <img class="avatar" src="[[item.image]]">
                   <div class="pad">
                     <div class="primary">
@@ -193,7 +206,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <!-- List for the selected items -->
           <iron-list id="selectedItemsList" items="[[selectedItems]]" hidden$="[[!selectedItems.length]]">
             <template>
-              <paper-item on-tap="_unselect">[[item.name]]</paper-item>
+              <paper-item on-tap="_unselect" tabindex="0">[[item.name]]</paper-item>
             </template>
           </iron-list>
         </div>
@@ -243,6 +256,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         _showSelectionChanged: function() {
           this.$.selectedItemsList.fire('resize');
+        },
+
+        _getAriaLabel: function(item, selected) {
+          return selected ? 'Deselect ' + item.name : 'Select ' + item.name;
         }
       });
 
