@@ -999,7 +999,7 @@ after the list became visible again. e.g.
 
       this._iterateItems(function(pidx) {
 
-        this.transform('translate3d(0, ' + y + 'px, 0)', this._physicalItems[pidx]);
+        this.transform('translateY(' + y + 'px)', this._physicalItems[pidx]);
         y += this._physicalSizes[pidx];
 
       });
