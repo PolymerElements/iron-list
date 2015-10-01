@@ -1027,6 +1027,8 @@ after the list became visible again. e.g.
 
     /**
      * Sets the scroll height, that's the height of the content,
+     * 
+     * @param {boolean=} forceUpdate If true, updates the height no matter what.
      */
     _updateScrollerSize: function(forceUpdate) {
       this._estScrollHeight = (this._physicalBottom +
