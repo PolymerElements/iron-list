@@ -23,17 +23,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <link rel="import" href="../../polymer/polymer.html">
   <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
-  <link rel="import" href="../iron-list.html">
-
   <link rel="import" href="../../iron-ajax/iron-ajax.html">
   <link rel="import" href="../../paper-icon-button/paper-icon-button.html">
-
   <link rel="import" href="../../iron-icon/iron-icon.html">
   <link rel="import" href="../../iron-icons/iron-icons.html">
   <link rel="import" href="../../paper-toolbar/paper-toolbar.html">
   <link rel="import" href="../../paper-menu/paper-menu.html">
   <link rel="import" href="../../paper-item/paper-item.html">
   <link rel="import" href="../../paper-badge/paper-badge.html">
+  <link rel="import" href="../iron-list.html">
 
   <dom-module id="x-app">
 
@@ -70,7 +68,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         border-bottom: 1px solid #DDD;
       }
 
-      .item:focus {
+      .item:focus,
+      .item.selected:focus {
         outline: 0;
         background-color: #ddd;
       }
@@ -79,7 +78,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         color: var(--paper-blue-600);
       }
 
-      .item.selected {
+      .item.selected:not(:focus) {
         background-color: var(--google-grey-100);
       }
 
@@ -141,7 +140,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         background-color: #ddd;
       }
 
-      paper-item:hover:after {
+      paper-item:hover::after {
         content: "－";
         width: 16px;
         height: 16px;

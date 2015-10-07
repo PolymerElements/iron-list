@@ -64,6 +64,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       listHeight: {
         type: Number,
         value: 300
+      },
+
+      pre: {
+        type: Boolean
       }
     },
 
@@ -72,11 +76,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     _computedItemHeight: function() {
-      return 'height: ' + (this.itemHeight) + 'px';
+      var css = '';
+      css += this.itemHeight === 0 ? '' : 'height: ' + (this.itemHeight) + 'px;';
+      css += this.pre ? 'white-space:pre;' : '';
+      return css;
     },
 
     _computedListHeight: function(listHeight) {
       return 'height: ' + (listHeight) + 'px';
-    },
+    }
   });
 </script>

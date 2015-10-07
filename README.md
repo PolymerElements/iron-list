@@ -77,6 +77,18 @@ after the list became visible again. e.g.
 document.querySelector('iron-list').fire('iron-resize');
 ```
 
+### Styling
+
+Use the `--iron-list-items-container` mixin to style the container of items, e.g.
+
+```css
+iron-list {
+ --iron-list-items-container: {
+    margin: auto;
+  };
+}
+```
+
 ### When should `<iron-list>` be used?
 
 `iron-list` should be used when a page has significantly more DOM nodes than the ones visible on the screen. e.g. the page has 500 nodes, but only 20 are visible at the time. This is why we refer to it as a `virtual` list. In this case, a `dom-repeat` will still create 500 nodes which could slow down the web app, but `iron-list` will only create 20.
