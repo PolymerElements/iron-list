@@ -14,6 +14,7 @@
   ],
   "main": "iron-list.html",
   "license": "http://polymer.github.io/LICENSE.txt",
+  "ignore": [],
   "dependencies": {
     "polymer": "Polymer/polymer#^1.1.0",
     "iron-resizable-behavior": "polymerelements/iron-resizable-behavior#^1.0.0"
