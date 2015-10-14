@@ -105,20 +105,20 @@ after the list became visible again. e.g.
       :host {
         display: block;
       }
-  
+
       :host(.has-scroller) {
         overflow: auto;
       }
-  
+
       :host(:not(.has-scroller)) {
         position: relative;
       }
-  
+
       #items {
         @apply(--iron-list-items-container);
         position: relative;
       }
-  
+
       #items > ::content > * {
         width: 100%;
         box-sizing: border-box;
@@ -386,8 +386,7 @@ after the list became visible again. e.g.
      * The largest n-th value for an item such that it can be rendered in `_physicalStart`.
      */
     get _maxVirtualStart() {
-      return this._virtualCount < this._physicalCount ?
-          this._virtualCount : this._virtualCount - this._physicalCount;
+      return Math.max(0, this._virtualCount - this._physicalCount);
     },
 
     /**
@@ -718,7 +717,7 @@ after the list became visible again. e.g.
       [].push.apply(this._physicalSizes, emptyArray);
 
       this._physicalCount = prevPhysicalCount + delta;
- 
+
       return true;
     },
 
@@ -899,7 +898,7 @@ after the list became visible again. e.g.
     /**
      * Executes a provided function per every physical index in `itemSet`
      * `itemSet` default value is equivalent to the entire set of physical indexes.
-     * 
+     *
      * @param {!function(number, number)} fn
      * @param {!Array<number>=} itemSet
      */
@@ -1041,7 +1040,7 @@ after the list became visible again. e.g.
 
     /**
      * Sets the scroll height, that's the height of the content,
-     * 
+     *
      * @param {boolean=} forceUpdate If true, updates the height no matter what.
      */
     _updateScrollerSize: function(forceUpdate) {
@@ -1076,9 +1075,8 @@ after the list became visible again. e.g.
 
       // start at the previous virtual item
       // so we have a item above the first visible item
-      if (idx > this._virtualEnd || idx < this._virtualStart) {
-        this._virtualStart = idx - 1;
-      }
+      this._virtualStart = idx - 1;
+
       // assign new models
       this._assignModels();
 
