@@ -154,6 +154,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           done();
         });
       });
+
+      test('delete item and scroll to bottom', function() {
+        var setSize = 100, index;
+
+        list.items = buildDataSet(setSize);
+
+        while (list.items.length > 10) {
+          index = parseInt(list.items.length * Math.random());
+          list.arrayDelete('items',  list.items[index]);
+          list.scrollToIndex(list.items.length - 1);
+          assert.isTrue(/^[0-9]*$/.test(getFirstItemFromList(list).textContent));
+        }
+      });
+
     });
   </script>
 
