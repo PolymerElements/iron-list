@@ -1076,8 +1076,9 @@ after the list became visible again. e.g.
 
       // start at the previous virtual item
       // so we have a item above the first visible item
-      this._virtualStart = idx - 1;
-
+      if (idx > this._virtualEnd || idx < this._virtualStart) {
+        this._virtualStart = idx - 1;
+      }
       // assign new models
       this._assignModels();
 
