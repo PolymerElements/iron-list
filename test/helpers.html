@@ -72,4 +72,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var listRect = list.getBoundingClientRect();
     return document.elementFromPoint(listRect.left + 1, listRect.top + listRect.height - 1);
   }
+
+  function isFullOfItems(list) {
+    var listRect = list.getBoundingClientRect();
+    var listHeight = listRect.height - 1;
+    var item, y = listRect.top + 1;
+    // IE 10 & 11 doesn't render propertly :(
+    var badPixels = 0;
+    while (y < listHeight) {
+      item = document.elementFromPoint(listRect.left + 1, y);
+      if (item.parentNode && !item.parentNode._templateInstance) {
+        badPixels++;
+      }
+      if (badPixels > 3) {
+        return false;
+      }
+      y += 2;
+    }
+    return true;
+  }
 </script>
