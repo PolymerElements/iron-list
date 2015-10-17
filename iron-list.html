@@ -145,6 +145,7 @@ after the list became visible again. e.g.
 
   var IOS = navigator.userAgent.match(/iP(?:hone|ad;(?: U;)? CPU) OS (\d+)/);
   var IOS_TOUCH_SCROLLING = IOS && IOS[1] >= 8;
+  var DEFAULT_PHYSICAL_COUNT = 20;
   var MAX_PHYSICAL_COUNT = 500;
 
   Polymer({
@@ -225,15 +226,6 @@ after the list became visible again. e.g.
       multiSelection: {
         type: Boolean,
         value: false
-      },
-      
-      /**
-       * The minimum number of items to render.
-       */
-      minimumItems: {
-        type: Number,
-        value: 20,
-        observer: '_resizeHandler'
       },
       
       /** 
@@ -865,7 +857,7 @@ after the list became visible again. e.g.
 
         // create the initial physical items
         if (!this._physicalItems) {
-          this._physicalCount = Math.max(1, Math.min(this.minimumItems, this._virtualCount));
+          this._physicalCount = Math.max(1, Math.min(DEFAULT_PHYSICAL_COUNT, this._virtualCount));
           this._physicalItems = this._createPool(this._physicalCount);
           this._physicalSizes = new Array(this._physicalCount);
         }
