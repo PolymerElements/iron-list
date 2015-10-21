@@ -13,7 +13,7 @@ be reused with a new model at any time. Particularly, any state that may change
 as the result of a user interaction with the list item must be bound to the model
 to avoid view state inconsistency.
 
-__Important:__ `iron-list` must ether be explicitly sized, or delegate scrolling to an
+__Important:__ `iron-list` must either be explicitly sized, or delegate scrolling to an
 explicitly sized parent. By "explicitly sized", we mean it either has an explicit
 CSS `height` property set via a class or inline style, or else is sized by other
 layout means (e.g. the `flex` or `fit` classes).
@@ -65,7 +65,7 @@ bound from the model object provided to the template scope):
 
 ### Resizing
 
-`iron-list` lays out the items when it recives a notification via the `iron-resize` event.
+`iron-list` lays out the items when it receives a notification via the `iron-resize` event.
 This event is fired by any element that implements `IronResizableBehavior`.
 
 By default, elements such as `iron-pages`, `paper-tabs` or `paper-dialog` will trigger
