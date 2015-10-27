@@ -31,6 +31,7 @@
     "iron-icon": "polymerelements/iron-icon#^1.0.0",
     "iron-icons": "polymerelements/iron-icons#^1.0.0",
     "paper-badge": "polymerelements/paper-badge#^1.0.0",
+    "paper-spinner": "polymerelements/paper-spinner#^1.0.0",
     "paper-toolbar": "polymerelements/paper-toolbar#^1.0.0",
     "test-fixture": "polymerelements/test-fixture#^1.0.0",
     "iron-test-helpers": "polymerelements/iron-test-helpers#^1.0.0",
