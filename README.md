@@ -51,37 +51,37 @@ scope for the array.
 For example, given the following `data` array:
 
 ##### data.json
-
-    [
-      {"name": "Bob"},
-      {"name": "Tim"},
-      {"name": "Mike"}
-    ]
-
+```js
+[
+  {"name": "Bob"},
+  {"name": "Tim"},
+  {"name": "Mike"}
+]
+```
 The following code would render the list (note the name and checked properties are
 bound from the model object provided to the template scope):
-
-    <template is="dom-bind">
-      <iron-ajax url="data.json" last-response="{{data}}" auto></iron-ajax>
-      <iron-list items="[[data]]" as="item">
-        <template>
-          <div>
-            Name: <span>[[item.name]]</span>
-          </div>
-        </template>
-      </iron-list>
+```html
+<template is="dom-bind">
+  <iron-ajax url="data.json" last-response="{{data}}" auto></iron-ajax>
+  <iron-list items="[[data]]" as="item">
+    <template>
+      <div>
+        Name: <span>[[item.name]]</span>
+      </div>
     </template>
-
+  </iron-list>
+</template>
+```
 ### Styling
 
 Use the `--iron-list-items-container` mixin to style the container of items, e.g.
-
-    iron-list {
-     --iron-list-items-container: {
-        margin: auto;
-      };
-    }
-
+```css
+iron-list {
+  --iron-list-items-container: {
+   margin: auto;
+  };
+}
+```
 ### Resizing
 
 `iron-list` lays out the items when it receives a notification via the `iron-resize` event.
@@ -92,7 +92,9 @@ this event automatically. If you hide the list manually (e.g. you use `display: 
 you might want to implement `IronResizableBehavior` or fire this event manually right
 after the list became visible again. e.g.
 
-    document.querySelector('iron-list').fire('iron-resize');
+```js
+document.querySelector('iron-list').fire('iron-resize');
+```
 
 ### When should `<iron-list>` be used?
 
@@ -105,5 +107,3 @@ However, having an `iron-list` does not mean that you can load all the data at o
 Say, you have a million records in the database, you want to split the data into pages
 so you can bring a page at the time. The page could contain 500 items, and iron-list
 will only render 20.
-
-
