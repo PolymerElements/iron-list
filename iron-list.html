@@ -245,6 +245,17 @@ will only render 20.
       multiSelection: {
         type: Boolean,
         value: false
+      },
+      
+      /** 
+       * The number of extra pages to render. For example: if this value is 2
+       * (the default), an extra page will be rendered above and below the
+       * currently visible items.
+       */
+      extraPages: {
+        type: Number,
+        value: 2,
+        observer: '_resizeHandler'
       }
     },
 
@@ -454,7 +465,7 @@ will only render 20.
      * to a viewport of physical items above and below the user's viewport.
      */
     get _optPhysicalSize() {
-      return this._viewportSize * 3;
+      return this._viewportSize * Math.max(1, this.extraPages + 1);
     },
 
    /**
