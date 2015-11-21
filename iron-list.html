@@ -759,16 +759,16 @@ will only render 20.
       if (this._viewportSize !== 0 && this._physicalSize < this._optPhysicalSize) {
         // 0 <= `currentPage` <= `_maxPages`
         var currentPage = Math.floor(this._physicalSize / this._viewportSize);
-
         if (currentPage === 0) {
           // fill the first page
-          this.async(this._increasePool.bind(this, Math.round(this._physicalCount * 0.5)));
+          this._debounceTemplate(this._increasePool.bind(this, Math.round(this._physicalCount * 0.5)));
         } else if (this._lastPage !== currentPage) {
-          // once a page is filled up, paint it and defer the next increase
-          requestAnimationFrame(this._increasePool.bind(this, 1));
+          // paint the page and defer the next increase
+          // wait 16ms which is rough enough to get paint cycle.
+          Polymer.dom.addDebouncer(this.debounce('_debounceTemplate', this._increasePool.bind(this, 1), 16));
         } else {
           // fill the rest of the pages
-          this.async(this._increasePool.bind(this, 1));
+          this._debounceTemplate(this._increasePool.bind(this, 1));
         }
         this._lastPage = currentPage;
         return true;
@@ -783,7 +783,7 @@ will only render 20.
       // limit the size
       var nextPhysicalCount = Math.min(
           this._physicalCount + missingItems,
-          this._virtualCount,
+          this._virtualCount - this._virtualStart,
           MAX_PHYSICAL_COUNT
         );
       var prevPhysicalCount = this._physicalCount;
@@ -929,16 +929,16 @@ will only render 20.
           this._physicalItems = this._createPool(this._physicalCount);
           this._physicalSizes = new Array(this._physicalCount);
         }
+        this._debounceTemplate(this._render);
 
-        this.debounce('refresh', this._render);
       } else if (change.path === 'items.splices') {
         // render the new set
         this._itemsRendered = false;
-
         this._adjustVirtualIndex(change.value.indexSplices);
         this._virtualCount = this.items ? this.items.length : 0;
+        
+        this._debounceTemplate(this._render);
 
-        this.debounce('refresh', this._render);
       } else {
         // update a single item
         this._forwardItemPath(change.path.split('.').slice(1).join('.'), change.value);
@@ -1024,7 +1024,7 @@ will only render 20.
         var inst = el._templateInstance;
         var item = this.items && this.items[vidx];
 
-        if (item) {
+        if (item !== undefined && item !== null) {
           inst[this.as] = item;
           inst.__key__ = this._collection.getKey(item);
           inst[this.selectedAs] =
@@ -1081,10 +1081,8 @@ will only render 20.
       var y = this._physicalTop;
 
       this._iterateItems(function(pidx) {
-
         this.transform('translate3d(0, ' + y + 'px, 0)', this._physicalItems[pidx]);
         y += this._physicalSizes[pidx];
-
       });
     },
 
@@ -1146,6 +1144,8 @@ will only render 20.
         return;
       }
 
+      Polymer.dom.flush();
+
       var firstVisible = this.firstVisibleIndex;
 
       idx = Math.min(Math.max(idx, 0), this._virtualCount-1);
@@ -1174,7 +1174,6 @@ will only render 20.
         currentTopItem = (currentTopItem + 1) % this._physicalCount;
         currentVirtualItem++;
       }
-
       // update the scroller size
       this._updateScrollerSize(true);
 
@@ -1182,7 +1181,7 @@ will only render 20.
       this._positionItems();
 
       // set the new scroll position
-      this._resetScrollPosition(this._physicalTop + targetOffsetTop + 1);
+      this._resetScrollPosition(this._physicalTop + this._scrollerPaddingTop + targetOffsetTop + 1);
 
       // increase the pool of physical items if needed
       this._increasePoolIfNeeded();
@@ -1205,7 +1204,7 @@ will only render 20.
      * when the element is resized.
      */
     _resizeHandler: function() {
-      this.debounce('resize', function() {
+      this._debounceTemplate(function() {
         this._render();
         if (this._itemsRendered && this._physicalItems && this._isVisible) {
           this._resetAverage();

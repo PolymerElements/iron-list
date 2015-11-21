@@ -88,13 +88,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var badPixels = 0;
     while (y < listHeight) {
       item = document.elementFromPoint(listRect.left + 100, y);
-      if (item.parentNode && !item.parentNode._templateInstance) {
+      if (!item || (item.parentNode && !item.parentNode._templateInstance)) {
         badPixels++;
       }
-      if (badPixels > 3) {
+      y++;
+      if (badPixels > 2) {
         return false;
       }
-      y += 2;
     }
     return true;
   }
