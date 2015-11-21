@@ -131,7 +131,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     test('scroll to index', function(done) {
       list.items = buildDataSet(100);
 
-      flush(function() {
+      setTimeout(function() {
         list.scrollToIndex(30);
         assert.equal(list.firstVisibleIndex, 30);
 
@@ -154,8 +154,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           assert.equal(list.firstVisibleIndex, 99);
           done();
         }, 100);
-
-      });
+      }, 100);
     });
 
     test('reset items', function(done) {
