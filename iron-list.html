@@ -116,6 +116,8 @@ will only render 20.
 @demo demo/index.html Simple list
 @demo demo/selection.html Selection of items
 @demo demo/collapse.html Collapsable items
+@demo demo/scroll-threshold.html Scroll threshold
+
 -->
 
 <dom-module id="iron-list">
@@ -138,7 +140,7 @@ will only render 20.
         position: relative;
       }
 
-      #items > ::content > * {
+      #items > ::content > .list-item {
         width: 100%;
         box-sizing: border-box;
         position: absolute;
@@ -245,6 +247,22 @@ will only render 20.
       multiSelection: {
         type: Boolean,
         value: false
+      },
+
+      /**
+       * Distance from the top bound of the scroller where the "upper trigger" will fire.
+       */
+      upperThreshold: {
+        type: Number,
+        value: 0
+      },
+
+      /**
+       * Distance from the bottom bound of the scroller where the "lower trigger" will fire.
+       */
+      lowerThreshold: {
+        type: Number,
+        value: 0
       }
     },
 
@@ -381,6 +399,8 @@ will only render 20.
      * after attached.
      */
     _itemsRendered: false,
+
+    _scrollThreshold: 0,
 
     /**
      * The page that is currently rendered.
@@ -707,6 +727,7 @@ will only render 20.
         // First element child is item; Safari doesn't support children[0]
         // on a doc fragment
         physicalItems[i] = inst.root.querySelector('*');
+        physicalItems[i].classList.add('list-item');
         Polymer.dom(this).appendChild(inst.root);
       }
 
@@ -896,13 +917,16 @@ will only render 20.
         this.debounce('refresh', this._render);
 
       } else if (change.path === 'items.splices') {
-        // render the new set
         this._itemsRendered = false;
-
         this._adjustVirtualIndex(change.value.indexSplices);
         this._virtualCount = this.items ? this.items.length : 0;
 
-        this.debounce('refresh', this._render);
+        this.debounce('refresh', function() {
+          // measure the new items
+          this._render();
+          // refresh if needed
+          this._refresh();
+        });
 
       } else {
         // update a single item
@@ -935,6 +959,27 @@ will only render 20.
 
     _scrollHandler: function() {
       this._refresh();
+
+      this.debounce('scrollThreshold', function() {
+        var scrollTop = this._scrollPosition;
+        if (scrollTop <= this.upperThreshold) {
+          if (!(this._scrollThreshold & 1)) {
+            this.fire('upper-trigger');
+            this._scrollThreshold = this._scrollThreshold | 1;
+          }
+        } else {
+          this._scrollThreshold = this._scrollThreshold & ~1;
+        }
+
+        if (scrollTop >= (this._physicalTop + this._hiddenContentSize) - this.lowerThreshold) {
+          if (!(this._scrollThreshold & 2)) {
+            this.fire('lower-trigger');
+            this._scrollThreshold = this._scrollThreshold | 2;
+          }
+        } else {
+          this._scrollThreshold = this._scrollThreshold & ~2;
+        }
+      });
     },
 
     /**
@@ -1328,6 +1373,18 @@ will only render 20.
       }
     }
   });
+
+  /**
+   * Fired when the scroll top position reached `lowerThreshold`
+   *
+   * @event lower-trigger
+   */
+
+  /**
+   * Fired when the scroll top position reached `upperThreshold`
+   *
+   * @event upper-trigger
+   */
 
 })();
 
