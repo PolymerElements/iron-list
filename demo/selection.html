@@ -36,7 +36,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <dom-module id="x-app">
 
     <style>
-
       :host {
         @apply(--layout-fit);
         @apply(--layout-vertical);
@@ -57,7 +56,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         --paper-icon-button-ink-color: white;
       }
 
-      #itemsList, 
+      #itemsList,
       #selectedItemsList {
         @apply(--layout-flex);
       }
@@ -272,7 +271,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </script>
 
 </head>
-<body class="fullbleed" unresolved>
+<style is="custom-style">
+  body {
+    @apply(--layout-fullbleed);
+  }
+</style>
+<body unresolved>
 
   <x-app></x-app>
 
