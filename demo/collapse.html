@@ -31,7 +31,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="../iron-list.html">
 
 </head>
-<body class="fullbleed" unresolved>
+<body unresolved>
 
 <dom-module id="x-collapse">
   <template>
@@ -128,7 +128,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       .item.expanded:hover .longText::after {
         content: ' [–]';
       }
-      
+
+      .spacer {
+        @apply(--layout-flex);
+      }
+
       @media (max-width: 460px) {
         paper-toolbar .bottom.title {
           font-size: 14px;
@@ -138,7 +142,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <iron-ajax url="data/contacts.json" last-response="{{items}}" auto></iron-ajax>
       <paper-toolbar>
         <paper-icon-button icon="arrow-back" alt="Back"></paper-icon-button>
-        <div class="flex"></div>
+        <div class="spacer"></div>
         <paper-icon-button icon="search" alt="Search"></paper-icon-button>
         <paper-icon-button icon="more-vert" alt="More options"></paper-icon-button>
         <div class="bottom title">Collapsable items using iron-list</div>
