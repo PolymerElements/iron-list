@@ -12,6 +12,10 @@
   "authors": [
     "The Polymer Authors"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/PolymerElements/iron-list"
+  },
   "main": "iron-list.html",
   "license": "http://polymer.github.io/LICENSE.txt",
   "ignore": [],
