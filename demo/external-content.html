@@ -47,15 +47,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     paper-toolbar {
       background-color: var(--dark-primary-color);
-    }
-
-    paper-toolbar.tall .title {
-      font-size: 40px;
-      margin-left: 60px;
-
-      -webkit-transform-origin: left center;
-      transform-origin: left center;
-      overflow: visible;
+      --paper-toolbar-title: {
+        font-size: 40px;
+        margin-left: 60px;
+        -webkit-transform-origin: left center;
+        transform-origin: left center;
+        overflow: visible;
+      };
     }
 
     .middle-container {
