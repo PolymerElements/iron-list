@@ -111,7 +111,7 @@ visible on the screen. e.g. the page has 500 nodes, but only 20 are visible at t
 This is why we refer to it as a `virtual` list. In this case, a `dom-repeat` will still
 create 500 nodes which could slow down the web app, but `iron-list` will only create 20.
 
-However, having an `iron-list` does not mean that you can load all the data at once. 
+However, having an `iron-list` does not mean that you can load all the data at once.
 Say, you have a million records in the database, you want to split the data into pages
 so you can bring a page at the time. The page could contain 500 items, and iron-list
 will only render 20.
