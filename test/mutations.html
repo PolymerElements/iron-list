@@ -62,12 +62,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           simulateScroll({
             list: list,
             contribution: 100,
-            target: 0
-          }, function() {
-            flush(function() {
+            target: 0,
+            onScrollEnd: function() {
               assert.equal(getFirstItemFromList(list).textContent, phrase);
               done();
-            });
+            }
           });
         }
 
@@ -77,10 +76,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           simulateScroll({
             list: list,
             contribution: 100,
-            target: setSize*rowHeight
-          }, function() {
-            list.set('items.0.index', phrase);
-            flush(scrollBackUp);
+            target: setSize*rowHeight,
+            onScrollEnd: function() {
+              list.set('items.0.index', phrase);
+              scrollBackUp();
+            }
           });
         });
       });
@@ -104,11 +104,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           simulateScroll({
             list: list,
             contribution: rowHeight,
-            target: list.items.length*rowHeight
-          }, function() {
-            assert.equal(getFirstItemFromList(list).textContent,
+            target: list.items.length*rowHeight,
+            onScrollEnd: function() {
+              assert.equal(getFirstItemFromList(list).textContent, 
                 list.items.length - itemsPerViewport);
-            done();
+              done();
+            }
           });
         })
       });
@@ -123,18 +124,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           simulateScroll({
             list: list,
             contribution: rowHeight,
-            target: setSize*rowHeight
-          }, function() {
-            var viewportHeight = list.offsetHeight;
-            var itemsPerViewport = Math.floor(viewportHeight/rowHeight);
+            target: setSize*rowHeight,
+            onScrollEnd: function() {
+              var viewportHeight = list.offsetHeight;
+              var itemsPerViewport = Math.floor(viewportHeight/rowHeight);
 
-            list.pop('items');
+              list.pop('items');
 
-            flush(function() {
-              assert.equal(list.items.length, setSize-1);
-              assert.equal(getFirstItemFromList(list).textContent, setSize - 3 - 1);
-              done();
-            });
+              flush(function() {
+                assert.equal(list.items.length, setSize-1);
+                assert.equal(getFirstItemFromList(list).textContent, setSize - 3 - 1);
+                done();
+              });
+            }
           });
         });
       });
@@ -164,6 +166,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           list.scrollToIndex(list.items.length - 1);
           assert.isTrue(/^[0-9]*$/.test(getFirstItemFromList(list).textContent));
         }
+      });
+
+     test('reassign items', function(done) {
+        list.items = buildDataSet(100);
+        container.itemHeight = 'auto';
+
+        flush(function() {
+          var itemHeight = getFirstItemFromList(list).offsetHeight;
+          var hasRepeatedItems = checkRepeatedItems(list);
+
+          simulateScroll({
+            list: list,
+            contribution: itemHeight,
+            target: itemHeight * list.items.length,
+            onScrollEnd: function() {
+              list.items = list.items.slice(0);
+              simulateScroll({
+                list: list,
+                contribution: itemHeight,
+                target: itemHeight * list.items.length,
+                onScroll: function() {
+                  assert.isFalse(hasRepeatedItems(), 'List should not have repeated items');
+                },
+                onScrollEnd: done
+              });
+            }
+          });
+        });
+
       });
 
     });

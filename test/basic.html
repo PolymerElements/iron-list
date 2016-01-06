@@ -82,7 +82,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       flush(function() {
         var setSize = list.items.length;
-        var rowHeight = list._physicalItems[0].offsetHeight;
+        var rowHeight = container.itemHeight;
         var viewportHeight = list.offsetHeight;
         var scrollToItem;
 
@@ -93,7 +93,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         function checkLastVisible() {
           var visibleItemsCount = Math.floor(viewportHeight / rowHeight);
-
           assert.equal(list.lastVisibleIndex, scrollToItem + visibleItemsCount - 1);
           assert.equal(getLastItemFromList(list).textContent, scrollToItem + visibleItemsCount - 1);
         }
@@ -101,15 +100,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         function doneScrollDown() {
           checkFirstVisible();
           checkLastVisible();
-
           scrollToItem = 1;
-
           flush(function() {
             simulateScroll({
               list: list,
               contribution: rowHeight,
-              target: scrollToItem*rowHeight
-            }, doneScrollUp);
+              target: scrollToItem*rowHeight,
+              onScrollEnd: doneScrollUp
+            });
           });
         }
 
@@ -118,13 +116,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           checkLastVisible();
           done();
         }
-
         scrollToItem = 50;
+
         simulateScroll({
           list: list,
           contribution: 50,
-          target: scrollToItem*rowHeight
-        }, doneScrollDown);
+          target: scrollToItem*rowHeight,
+          onScrollEnd: doneScrollDown
+        });
 
       });
     });
