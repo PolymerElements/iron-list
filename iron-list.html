@@ -418,7 +418,7 @@ will only render 20.
      * The n-th item rendered in the last physical item.
      */
     get _virtualEnd() {
-      return this._virtualStartVal + this._physicalCount - 1;
+      return this._virtualStart + this._physicalCount - 1;
     },
 
     /**
@@ -453,8 +453,13 @@ will only render 20.
     set _virtualStart(val) {
       // clamp the value so that _minVirtualStart <= val <= _maxVirtualStart
       this._virtualStartVal = Math.min(this._maxVirtualStart, Math.max(this._minVirtualStart, val));
-      this._physicalStart = this._virtualStartVal % this._physicalCount;
-      this._physicalEnd = (this._physicalStart + this._physicalCount - 1) % this._physicalCount;
+      if (this._physicalCount === 0)  {
+        this._physicalStart = 0;
+        this._physicalEnd = 0;
+      } else {
+        this._physicalStart = this._virtualStartVal % this._physicalCount;
+        this._physicalEnd = (this._physicalStart + this._physicalCount - 1) % this._physicalCount;
+      }
     },
 
     /**
@@ -699,7 +704,7 @@ will only render 20.
     },
 
     /**
-     * Update the list of items, starting from the `_virtualStartVal` item.
+     * Update the list of items, starting from the `_virtualStart` item.
      * @param {!Array<number>=} itemSet
      * @param {!Array<number>=} movingUp
      */
@@ -909,7 +914,7 @@ will only render 20.
         this._itemsRendered = false;
 
         // update the whole set
-        this._virtualStartVal = 0;
+        this._virtualStart = 0;
         this._physicalTop = 0;
         this._virtualCount = this.items ? this.items.length : 0;
         this._collection = this.items ? Polymer.Collection.get(this.items) : null;
@@ -926,7 +931,6 @@ will only render 20.
         }
 
         this.debounce('refresh', this._render);
-
       } else if (change.path === 'items.splices') {
         // render the new set
         this._itemsRendered = false;
@@ -935,7 +939,6 @@ will only render 20.
         this._virtualCount = this.items ? this.items.length : 0;
 
         this.debounce('refresh', this._render);
-
       } else {
         // update a single item
         this._forwardItemPath(change.path.split('.').slice(1).join('.'), change.value);
@@ -956,12 +959,12 @@ will only render 20.
 
         idx = splice.index;
         // We only need to care about changes happening above the current position
-        if (idx >= this._virtualStartVal) {
+        if (idx >= this._virtualStart) {
           break;
         }
 
         this._virtualStart = this._virtualStart +
-            Math.max(splice.addedCount - splice.removed.length, idx - this._virtualStartVal);
+            Math.max(splice.addedCount - splice.removed.length, idx - this._virtualStart);
       }
     },
 
@@ -983,9 +986,9 @@ will only render 20.
         for (i = 0; i < itemSet.length; i++) {
           pidx = itemSet[i];
           if (pidx >= this._physicalStart) {
-            vidx = this._virtualStartVal + (pidx - this._physicalStart);
+            vidx = this._virtualStart + (pidx - this._physicalStart);
           } else {
-            vidx = this._virtualStartVal + (this._physicalCount - this._physicalStart) + pidx;
+            vidx = this._virtualStart + (this._physicalCount - this._physicalStart) + pidx;
           }
           if ((rtn = fn.call(this, pidx, vidx)) != null) {
             return rtn;
@@ -993,7 +996,7 @@ will only render 20.
         }
       } else {
         pidx = this._physicalStart;
-        vidx = this._virtualStartVal;
+        vidx = this._virtualStart;
 
         for (; pidx < this._physicalCount; pidx++, vidx++) {
           if ((rtn = fn.call(this, pidx, vidx)) != null) {
@@ -1089,7 +1092,7 @@ will only render 20.
      * Adjusts the scroll position when it was overestimated.
      */
     _adjustScrollPosition: function() {
-      var deltaHeight = this._virtualStartVal === 0 ? this._physicalTop :
+      var deltaHeight = this._virtualStart === 0 ? this._physicalTop :
           Math.min(this._scrollPosition + this._physicalTop, 0);
 
       if (deltaHeight) {
@@ -1119,7 +1122,7 @@ will only render 20.
      */
     _updateScrollerSize: function(forceUpdate) {
       this._estScrollHeight = (this._physicalBottom +
-          Math.max(this._virtualCount - this._physicalCount - this._virtualStartVal, 0) * this._physicalAverage);
+          Math.max(this._virtualCount - this._physicalCount - this._virtualStart, 0) * this._physicalAverage);
 
       forceUpdate = forceUpdate || this._scrollHeight === 0;
       forceUpdate = forceUpdate || this._scrollPosition >= this._estScrollHeight - this._physicalSize;
