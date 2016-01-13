@@ -7,6 +7,9 @@ iron-list.html
 Edit those files, and our readme bot will duplicate them over here!
 Edit this file, and the bot will squash your changes :)
 
+The bot does some handling of markdown. Please file a bug if it does the wrong
+thing! https://github.com/PolymerLabs/tedium/issues
+
 -->
 
 [![Build Status](https://travis-ci.org/PolymerElements/iron-list.svg?branch=master)](https://travis-ci.org/PolymerElements/iron-list)
@@ -15,8 +18,6 @@ _[Demo and API Docs](https://elements.polymer-project.org/elements/iron-list)_
 
 
 ##&lt;iron-list&gt;
-
-
 
 `iron-list` displays a virtual, 'infinite' list. The template inside
 the iron-list element represents the DOM to create for each list item.
@@ -39,12 +40,14 @@ layout means (e.g. the `flex` or `fit` classes).
 
 List item templates should bind to template models of the following structure:
 
-    {
-      index: 0,     // data index for this item
-      item: {       // user data corresponding to items[index]
-        /* user item data  */
-      }
-    }
+```css
+{
+  index: 0,     // data index for this item
+  item: {       // user data corresponding to items[index]
+    /* user item data  */
+  }
+}
+```
 
 Alternatively, you can change the property name used as data index by changing the
 `indexAs` property. The `as` property defines the name of the variable to add to the binding
