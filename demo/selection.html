@@ -49,6 +49,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         background: var(--paper-pink-500);
         box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
         z-index: 1;
+        color: white;
         --paper-toolbar-title: {
           font-size: 16px;
           line-height: 16px;
@@ -73,21 +74,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         border-bottom: 1px solid #DDD;
       }
 
-      .item:hover {
-        background-color: var(--google-grey-100);
-      }
-
       .item:focus,
       .item.selected:focus {
         outline: 0;
+        background-color: #ddd;
       }
 
       .item.selected .star {
         color: var(--paper-blue-600);
-      }
-
-      .item.selected {
-        background-color: var(--google-grey-100);
       }
 
       .avatar {
@@ -95,7 +89,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         width: 40px;
         border-radius: 20px;
         box-sizing: border-box;
-        background-color: #DDD;
+        background-color: #ddd;
       }
 
       .pad {
@@ -141,11 +135,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         white-space: nowrap;
         cursor: pointer;
         position: relative;
-      }
-
-      paper-item:focus {
-        outline: 0;
-        background-color: #ddd;
       }
 
       paper-item:hover::after {
@@ -198,7 +187,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <iron-list id="itemsList" items="[[data]]" selected-items="{{selectedItems}}" selection-enabled multi-selection>
           <template>
             <div>
-              <div tabindex="0" aria-label$="[[_getAriaLabel(item, selected)]]" class$="[[_computedClass(selected)]]">
+              <div tabindex$="[[tabIndex]]" aria-label$="Select/Deselect [[item.name]]" class$="[[_computedClass(selected)]]">
                 <img class="avatar" src="[[item.image]]">
                 <div class="pad">
                   <div class="primary">
@@ -219,7 +208,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <!-- List for the selected items -->
           <iron-list id="selectedItemsList" items="[[selectedItems]]" hidden$="[[!selectedItems.length]]">
             <template>
-              <paper-item on-tap="_unselect" tabindex="0">[[item.name]]</paper-item>
+              <paper-item tabindex$="[[tabIndex]]" on-tap="_unselect" aria-label$="Deselect [[item.name]]">[[item.name]]</paper-item>
             </template>
           </iron-list>
         </div>
@@ -269,10 +258,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         _showSelectionChanged: function() {
           this.$.selectedItemsList.fire('resize');
-        },
-
-        _getAriaLabel: function(item, selected) {
-          return selected ? 'Deselect ' + item.name : 'Select ' + item.name;
         }
       });
 
