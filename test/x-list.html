@@ -33,13 +33,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .item:nth-child(even) {
       background-color: red;
     }
+
+    iron-list {
+      overflow: hidden;
+    }
   </style>
 
   <template>
     <iron-list style$="[[_computedListHeight(listHeight)]]" items="[[data]]" as="item" id="list">
       <template>
         <div class="item">
-          <div style$="[[_computedItemHeight(item)]]">[[item.index]]</div>
+          <div style$="[[_computedItemHeight(item)]]">[[_getItemValue(item, item.*, itemProp)]]</div>
         </div>
       </template>
     </iron-list>
@@ -68,6 +72,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       pre: {
         type: Boolean
+      },
+
+      itemProp: {
+        value: 'index',
+        type: String
       }
     },
 
@@ -87,6 +96,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     _computedListHeight: function(listHeight) {
       return 'height: ' + (listHeight) + 'px';
+    },
+
+    _getItemValue: function(item) {
+      return this.itemProp === '' ? item : item[this.itemProp];
     }
   });
 </script>
