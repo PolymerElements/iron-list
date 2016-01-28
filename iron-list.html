@@ -145,6 +145,12 @@ will only render 20.
         display: block;
       }
 
+      @media only screen and (-webkit-max-device-pixel-ratio: 1) {
+        :host {
+          will-change: transform;
+        }
+      }
+
       :host(.has-scroller) {
         overflow: auto;
       }
@@ -985,6 +991,8 @@ will only render 20.
         this._itemsRendered = false;
         this._adjustVirtualIndex(change.value.indexSplices);
         this._virtualCount = this.items ? this.items.length : 0;
+
+        this._debounceTemplate(this._render);
 
         if (this._focusedIndex < 0 || this._focusedIndex >= this._virtualCount) {
           this._focusedIndex = 0;
