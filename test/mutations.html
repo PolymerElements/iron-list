@@ -67,11 +67,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         function scrollBackUp() {
           simulateScroll({
             list: list,
-            contribution: 100,
+            contribution: 200,
             target: 0,
             onScrollEnd: function() {
-              assert.equal(getFirstItemFromList(list).textContent, phrase);
-              done();
+             assert.equal(getFirstItemFromList(list).textContent, phrase);
+             done();
             }
           });
         }
@@ -81,7 +81,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // scroll down
           simulateScroll({
             list: list,
-            contribution: 100,
+            contribution: 200,
             target: setSize*rowHeight,
             onScrollEnd: function() {
               list.set('items.0.index', phrase);
@@ -109,7 +109,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           simulateScroll({
             list: list,
-            contribution: rowHeight,
+            contribution: 200,
             target: list.items.length*rowHeight,
             onScrollEnd: function() {
               assert.equal(getFirstItemFromList(list).textContent, 
@@ -149,7 +149,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           simulateScroll({
             list: list,
-            contribution: rowHeight,
+            contribution: 200,
             target: setSize*rowHeight,
             onScrollEnd: function() {
               var viewportHeight = list.offsetHeight;
@@ -204,7 +204,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           simulateScroll({
             list: list,
-            contribution: itemHeight,
+            contribution: 200,
             target: itemHeight * list.items.length,
             onScrollEnd: function() {
               list.items = list.items.slice(0);

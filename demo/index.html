@@ -42,6 +42,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       background-color: var(--paper-grey-200, #eee);
     }
 
+    paper-toolbar {
+      color: white;
+    }
+
     paper-toolbar.tall .title {
       font-size: 40px;
       margin-left: 60px;
@@ -71,7 +75,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .item:focus {
       outline: 0;
-      border-color: #666;
+      border-color:#666;
     }
 
     .avatar {
@@ -115,16 +119,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <paper-scroll-header-panel condenses keep-condensed-header>
       <paper-toolbar class="tall">
-        <paper-icon-button icon="arrow-back" alt="Back"></paper-icon-button>
+        <paper-icon-button icon="arrow-back" alt="Back" tabindex="1"></paper-icon-button>
         <div class="spacer"></div>
-        <paper-icon-button icon="search" alt="Search"></paper-icon-button>
-        <paper-icon-button icon="more-vert" alt="More options"></paper-icon-button>
+        <paper-icon-button icon="search" alt="Search" tabindex="1"></paper-icon-button>
+        <paper-icon-button icon="more-vert" alt="More options" tabindex="1"></paper-icon-button>
         <div class="bottom title">iron-list</div>
       </paper-toolbar>
       <iron-list items="[[data]]" as="item">
         <template>
           <div>
-            <div class="item">
+            <div class="item" tabindex$="[[tabIndex]]">
               <img class="avatar" src="[[item.image]]">
               <div class="pad">
                 <div class="primary">[[item.name]]</div>
