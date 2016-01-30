@@ -40,12 +40,12 @@ layout means (e.g. the `flex` or `fit` classes).
 
 List item templates should bind to template models of the following structure:
 
-```css
+```js
 {
-  index: 0,     // data index for this item
-  item: {       // user data corresponding to items[index]
-    /* user item data  */
-  }
+  index: 0,        // index in the item array
+  selected: false, // true if the current item is selected
+  tabIndex: -1,    // a dynamically generated tabIndex for focus management
+  item: {}         // user data corresponding to items[index]
 }
 ```
 
@@ -74,16 +74,33 @@ bound from the model object provided to the template scope):
   <iron-list items="[[data]]" as="item">
     <template>
       <div>
-        Name: <span>[[item.name]]</span>
+        Name: [[item.name]]
       </div>
     </template>
   </iron-list>
 </template>
 ```
 
+### Accessibility
+
+`iron-list` automatically manages the focus state for the items. It also provides
+a `tabIndex` property within the template scope that can be used for keyboard navigation.
+For example, users can press the up and down keys to move to previous and next
+items in the list:
+
+```html
+<iron-list items="[[data]]" as="item">
+  <template>
+    <div tabindex$="[[tabIndex]]">
+      Name: [[item.name]]
+    </div>
+  </template>
+</iron-list>
+```
+
 ### Styling
 
-Use the `--iron-list-items-container` mixin to style the container of items, e.g.
+You can use the `--iron-list-items-container` mixin to style the container of items:
 
 ```css
 iron-list {
@@ -101,7 +118,7 @@ This event is fired by any element that implements `IronResizableBehavior`.
 By default, elements such as `iron-pages`, `paper-tabs` or `paper-dialog` will trigger
 this event automatically. If you hide the list manually (e.g. you use `display: none`)
 you might want to implement `IronResizableBehavior` or fire this event manually right
-after the list became visible again. e.g.
+after the list became visible again. For example:
 
 ```js
 document.querySelector('iron-list').fire('iron-resize');
