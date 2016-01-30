@@ -9,13 +9,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <!doctype html>
-<html>
+<html id="html">
 <head>
 
   <title>iron-list and paper-scroll-header-panel demo</title>
 
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=no">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
 
@@ -23,8 +23,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <link rel="import" href="../../polymer/polymer.html">
   <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
-  <link rel="import" href="../../paper-toolbar/paper-toolbar.html">
-  <link rel="import" href="../../paper-scroll-header-panel/paper-scroll-header-panel.html">
+  <link rel="import" href="../../app-layout/app-header/app-header.html">
+  <link rel="import" href="../../app-layout/app-toolbar/app-toolbar.html">
+  <link rel="import" href="../../app-layout/app-scroll-effects/app-scroll-effects.html">
   <link rel="import" href="../../paper-icon-button/paper-icon-button.html">
   <link rel="import" href="../../iron-ajax/iron-ajax.html">
   <link rel="import" href="../../iron-icons/iron-icons.html">
@@ -33,48 +34,65 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <style is="custom-style">
     body {
       @apply(--layout-fullbleed);
+      font-family: 'Roboto', 'Noto', sans-serif;
+      background-color: #eee;
     }
 
-    paper-scroll-header-panel {
-      @apply(--layout-fit);
-      @apply(--layout-vertical);
-      @apply(--paper-font-common-base);
-      background-color: var(--paper-grey-200, #eee);
-    }
-
-    paper-toolbar {
+    app-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1;
+      background-color: #0b8043;
       color: white;
+
+      --app-header-front-background: {
+        background-color: #4285f4;
+      };
     }
 
-    paper-toolbar.tall .title {
-      font-size: 40px;
-      margin-left: 60px;
-      overflow: visible;
-      -webkit-transform-origin: left center;
-      transform-origin: left center;
-    }
-
-    paper-toolbar paper-icon-button {
+    app-header paper-icon-button {
       --paper-icon-button-ink-color: white;
     }
 
+    [title] {
+      font-weight: 400;
+      margin: 0 0 0 50px;
+    }
+
+    [condensed-title] {
+      font-weight: 400;
+      margin-left: 30px;
+    }
+
+    [condensed-title] i {
+      font-style: normal;
+      font-weight: 100;
+    }
+
+    app-toolbar.tall {
+      height: 148px;
+    }
+
     iron-list {
+      padding-top: 212px;
       padding-bottom: 16px;
     }
 
     .item {
       @apply(--layout-horizontal);
-
-      margin: 16px 16px 0 16px;
       padding: 20px;
       border-radius: 8px;
       background-color: white;
       border: 1px solid #ddd;
+      max-width: 800px;
+      margin: 16px auto 0 auto;
     }
 
     .item:focus {
       outline: 0;
-      border-color:#666;
+      border-color: #333;
     }
 
     .avatar {
@@ -116,15 +134,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template is="dom-bind">
     <iron-ajax url="data/contacts.json" last-response="{{data}}" auto></iron-ajax>
 
-    <paper-scroll-header-panel condenses keep-condensed-header>
-      <paper-toolbar class="tall">
-        <paper-icon-button icon="arrow-back" alt="Back" tabindex="1"></paper-icon-button>
-        <div class="spacer"></div>
-        <paper-icon-button icon="search" alt="Search" tabindex="1"></paper-icon-button>
-        <paper-icon-button icon="more-vert" alt="More options" tabindex="1"></paper-icon-button>
-        <div class="bottom title">iron-list</div>
-      </paper-toolbar>
-      <iron-list items="[[data]]" as="item">
+      <app-header condenses fixed effects="resize-title blend-background waterfall">
+        <app-toolbar>
+          <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+          <h4 condensed-title>iron-list <i>&mdash; Demo</i></h4>
+          <paper-icon-button icon="search"></paper-icon-button>
+          <paper-icon-button icon="more-vert"></paper-icon-button>
+        </app-toolbar>
+        <app-toolbar class="tall">
+          <h1 title>iron-list</h1>
+        </app-toolbar>
+      </app-header>
+
+      <!-- iron-list using the document scroll -->
+      <iron-list items="[[data]]" as="item" scroll-target="html">
         <template>
           <div>
             <div class="item" tabindex$="[[tabIndex]]">
@@ -139,7 +162,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
         </template>
       </iron-list>
-    </paper-scroll-header-panel>
+
   </template>
 
   <script>
@@ -147,15 +170,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     document.querySelector('template[is=dom-bind]').iconForItem = function(item) {
       return item ? (item.integer < 50 ? 'star-border' : 'star') : '';
     };
-
-    document.addEventListener('paper-header-transform', function(event) {
-      var title = this.querySelector('.title');
-      var detail = event.detail;
-      var deltaHeight = detail.height - detail.condensedHeight;
-      var scale = Math.max(0.6, (deltaHeight - detail.y) / (deltaHeight / 0.4)  + 0.6);
-
-      Polymer.Base.transform('scale(' + scale + ') translateZ(0)', title);
-    });
 
   </script>
 </body>

@@ -11,6 +11,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
+<link rel="import" href="../iron-scroll-target-behavior/iron-scroll-target-behavior.html">
 
 <!--
 
@@ -136,6 +137,8 @@ will only render 20.
 @demo demo/index.html Simple list
 @demo demo/selection.html Selection of items
 @demo demo/collapse.html Collapsable items
+@demo demo/scroll-threshold.html Scroll thesholds
+
 -->
 
 <dom-module id="iron-list">
@@ -143,20 +146,13 @@ will only render 20.
     <style>
       :host {
         display: block;
+        position: relative;
       }
 
       @media only screen and (-webkit-max-device-pixel-ratio: 1) {
         :host {
           will-change: transform;
         }
-      }
-
-      :host(.has-scroller) {
-        overflow: auto;
-      }
-
-      :host(:not(.has-scroller)) {
-        position: relative;
       }
 
       #items {
@@ -278,13 +274,15 @@ will only render 20.
     observers: [
       '_itemsChanged(items.*)',
       '_selectionEnabledChanged(selectionEnabled)',
-      '_multiSelectionChanged(multiSelection)'
+      '_multiSelectionChanged(multiSelection)',
+      '_setOverflow(scrollTarget)'
     ],
 
     behaviors: [
       Polymer.Templatizer,
       Polymer.IronResizableBehavior,
-      Polymer.IronA11yKeysBehavior
+      Polymer.IronA11yKeysBehavior,
+      Polymer.IronScrollTargetBehavior
     ],
 
     listeners: {
@@ -302,12 +300,6 @@ will only render 20.
      * Recommended value ~0.5, so it will distribute tiles evely in both directions.
      */
     _ratio: 0.5,
-
-    /**
-     * The element that controls the scroll
-     * @type {?Element}
-     */
-    _scroller: null,
 
     /**
      * The padding-top value of the `scroller` element
@@ -340,7 +332,7 @@ will only render 20.
     _physicalSize: 0,
 
     /**
-     * The average `offsetHeight` of the tiles observed till now.
+     * The average `F` of the tiles observed till now.
      */
     _physicalAverage: 0,
 
@@ -534,7 +526,7 @@ will only render 20.
     * True if the current list is visible.
     */
     get _isVisible() {
-      return this._scroller && Boolean(this._scroller.offsetWidth || this._scroller.offsetHeight);
+      return this.scrollTarget && Boolean(this.scrollTarget.offsetWidth || this.scrollTarget.offsetHeight);
     },
 
     /**
@@ -543,10 +535,8 @@ will only render 20.
      * @type {number}
      */
     get firstVisibleIndex() {
-      var physicalOffset;
-
       if (this._firstVisibleIndexVal === null) {
-        physicalOffset = this._physicalTop;
+        var physicalOffset = this._physicalTop;
 
         this._firstVisibleIndexVal = this._iterateItems(
           function(pidx, vidx) {
@@ -557,7 +547,6 @@ will only render 20.
             }
           }) || 0;
       }
-
       return this._firstVisibleIndexVal;
     },
 
@@ -567,10 +556,8 @@ will only render 20.
      * @type {number}
      */
     get lastVisibleIndex() {
-      var physicalOffset;
-
       if (this._lastVisibleIndexVal === null) {
-        physicalOffset = this._physicalTop;
+        var physicalOffset = this._physicalTop;
 
         this._iterateItems(function(pidx, vidx) {
           physicalOffset += this._physicalSizes[pidx];
@@ -580,45 +567,31 @@ will only render 20.
           }
         });
       }
-
       return this._lastVisibleIndexVal;
     },
 
     ready: function() {
-      this._ensureTemplatized();
-
       this.addEventListener('focus', this._didFocus.bind(this), true);
+    },
 
-      this._scrollListener = IOS_TOUCH_SCROLLING ?
-        function() {
-          requestAnimationFrame(this._scrollHandler.bind(this));
-        }.bind(this) : this._scrollHandler.bind(this);
+    get _defaultScrollTarget() {
+      return this;
     },
 
     /**
      * When the element has been attached to the DOM tree.
      */
     attached: function() {
-      // delegate to the parent's scroller
-      // e.g. paper-scroll-header-panel
-      var el = Polymer.dom(this);
-
-      var parentNode = /** @type {?{scroller: ?Element}} */ (el.parentNode);
-      if (parentNode && parentNode.scroller) {
-        this._scroller = parentNode.scroller;
-      } else {
-        this._scroller = this;
-        this.classList.add('has-scroller');
-      }
-
-      if (IOS_TOUCH_SCROLLING) {
-        this._scroller.style.webkitOverflowScrolling = 'touch';
-      }
-
-      this._scroller.addEventListener('scroll', this._scrollListener);
-
       this.updateViewportBoundaries();
       this._render();
+    },
+
+    /**
+     * Set the overflow property if this element has its own scrolling region
+     */
+    _setOverflow: function(scrollTarget) {
+      this.style.webkitOverflowScrolling = scrollTarget === this ? 'touch' : '';
+      this.style.overflow = scrollTarget === this ? 'auto' : '';
     },
 
     /**
@@ -626,9 +599,6 @@ will only render 20.
      */
     detached: function() {
       this._itemsRendered = false;
-      if (this._scroller) {
-        this._scroller.removeEventListener('scroll', this._scrollListener);
-      }
     },
 
     /**
@@ -638,20 +608,20 @@ will only render 20.
      * @method updateViewportBoundaries
      */
     updateViewportBoundaries: function() {
-      var scrollerStyle = window.getComputedStyle(this._scroller);
+      var scrollerStyle = window.getComputedStyle(this.scrollTarget);
       this._scrollerPaddingTop = parseInt(scrollerStyle['padding-top'], 10);
-      this._viewportSize = this._scroller.offsetHeight;
+      this._viewportSize = this._scrollTargetHeight;
     },
 
     /**
      * Update the models, the position of the
      * items in the viewport and recycle tiles as needed.
      */
-    _refresh: function() {
+    _scrollHandler: function() {
       // clamp the `scrollTop` value
       // IE 10|11 scrollTop may go above `_maxScrollTop`
       // iOS `scrollTop` may go below 0 and above `_maxScrollTop`
-      var scrollTop = Math.max(0, Math.min(this._maxScrollTop, this._scroller.scrollTop));
+      var scrollTop = Math.max(0, Math.min(this._maxScrollTop, this._scrollTop));
       var tileHeight, tileTop, kth, recycledTileSet, scrollBottom, physicalBottom;
       var ratio = this._ratio;
       var delta = scrollTop - this._scrollPosition;
@@ -790,6 +760,8 @@ will only render 20.
     _createPool: function(size) {
       var physicalItems = new Array(size);
 
+      this._ensureTemplatized();
+
       for (var i = 0; i < size; i++) {
         var inst = this.stamp(null);
         // First element child is item; Safari doesn't support children[0]
@@ -859,6 +831,7 @@ will only render 20.
       if (this.isAttached && !this._itemsRendered && this._isVisible && requiresUpdate) {
         this._lastPage = 0;
         this._update();
+        this._scrollHandler();
         this._itemsRendered = true;
       }
     },
@@ -984,8 +957,8 @@ will only render 20.
           this._physicalItems = this._createPool(this._physicalCount);
           this._physicalSizes = new Array(this._physicalCount);
         }
-
         this._debounceTemplate(this._render);
+
       } else if (change.path === 'items.splices') {
         // render the new set
         this._itemsRendered = false;
@@ -998,6 +971,7 @@ will only render 20.
           this._focusedIndex = 0;
         }
         this._debounceTemplate(this._render);
+
       } else {
         // update a single item
         this._forwardItemPath(change.path.split('.').slice(1).join('.'), change.value);
@@ -1025,10 +999,6 @@ will only render 20.
         this._virtualStart = this._virtualStart +
             Math.max(splice.addedCount - splice.removed.length, idx - this._virtualStart);
       }
-    },
-
-    _scrollHandler: function() {
-      this._refresh();
     },
 
     /**
@@ -1102,14 +1072,15 @@ will only render 20.
      * @param {!Array<number>=} itemSet
      */
      _updateMetrics: function(itemSet) {
-      var newPhysicalSize = 0;
-      var oldPhysicalSize = 0;
-      var prevAvgCount = this._physicalAverageCount;
-      var prevPhysicalAvg = this._physicalAverage;
       // Make sure we distributed all the physical items
       // so we can measure them
       Polymer.dom.flush();
 
+      var newPhysicalSize = 0;
+      var oldPhysicalSize = 0;
+      var prevAvgCount = this._physicalAverageCount;
+      var prevPhysicalAvg = this._physicalAverage;
+      
       this._iterateItems(function(pidx, vidx) {
 
         oldPhysicalSize += this._physicalSizes[pidx] || 0;
@@ -1120,7 +1091,7 @@ will only render 20.
       }, itemSet);
 
       this._physicalSize = this._physicalSize + newPhysicalSize - oldPhysicalSize;
-      this._viewportSize = this._scroller.offsetHeight;
+      this._viewportSize = this._scrollTargetHeight;
 
       // update the average if we measured something
       if (this._physicalAverageCount !== prevAvgCount) {
@@ -1155,10 +1126,9 @@ will only render 20.
 
       if (deltaHeight) {
         this._physicalTop = this._physicalTop - deltaHeight;
-
         // juking scroll position during interial scrolling on iOS is no bueno
         if (!IOS_TOUCH_SCROLLING) {
-          this._resetScrollPosition(this._scroller.scrollTop - deltaHeight);
+          this._resetScrollPosition(this._scrollTop - deltaHeight);
         }
       }
     },
@@ -1167,9 +1137,9 @@ will only render 20.
      * Sets the position of the scroll.
      */
     _resetScrollPosition: function(pos) {
-      if (this._scroller) {
-        this._scroller.scrollTop = pos;
-        this._scrollPosition = this._scroller.scrollTop;
+      if (this.scrollTarget) {
+        this._scrollTop = pos;
+        this._scrollPosition = this._scrollTop;
       }
     },
 
@@ -1256,6 +1226,10 @@ will only render 20.
      * when the element is resized.
      */
     _resizeHandler: function() {
+      // iOS fires the resize event when the address bar slides up
+      if (IOS && Math.abs(this._viewportSize - this._scrollTargetHeight) < 100) {
+        return;
+      }
       this._debounceTemplate(function() {
         this._render();
         if (this._itemsRendered && this._physicalItems && this._isVisible) {
