@@ -27,7 +27,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="../../paper-icon-button/paper-icon-button.html">
   <link rel="import" href="../../iron-icon/iron-icon.html">
   <link rel="import" href="../../iron-icons/iron-icons.html">
-  <link rel="import" href="../../paper-toolbar/paper-toolbar.html">
+  <link rel="import" href="../../paper-styles/color.html">
+  <link rel="import" href="../../paper-styles/typography.html">
+  <link rel="import" href="../../app-layout/app-toolbar/app-toolbar.html">
   <link rel="import" href="../../paper-menu/paper-menu.html">
   <link rel="import" href="../../paper-item/paper-item.html">
   <link rel="import" href="../../paper-badge/paper-badge.html">
@@ -40,12 +42,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         @apply(--layout-fit);
         @apply(--layout-vertical);
         @apply(--paper-font-common-base);
-
         display: block;
         font-family: sans-serif;
       }
 
-      .toolbar {
+      app-toolbar {
         background: var(--paper-pink-500);
         box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
         color: white;
@@ -59,7 +60,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         };
       }
 
-      .toolbar paper-icon-button {
+      app-toolbar paper-icon-button {
         --paper-icon-button-ink-color: white;
       }
 
@@ -83,6 +84,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       .item.selected .star {
         color: var(--paper-blue-600);
+      }
+
+      .item.selected {
+        background-color: var(--google-grey-300);
+        border-bottom: 1px solid #ccc;
       }
 
       .avatar {
@@ -171,18 +177,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       #starredView {
         @apply(--layout-vertical);
       }
+
     </style>
 
     <template>
       <iron-ajax url="data/contacts.json" last-response="{{data}}" auto></iron-ajax>
 
-      <paper-toolbar class="toolbar">
-        <div class="title">Selection using iron-list</div>
+      <app-toolbar>
+        <div title>Selection using iron-list</div>
         <div>
           <paper-icon-button icon="icons:star" alt="Starred" on-tap="_toggleStarredView"></paper-icon-button>
           <paper-badge label$="[[selectedItems.length]]"></paper-badge>
         </div>
-      </paper-toolbar>
+      </app-toolbar>
+
       <div class="twoColumns">
         <!-- Main List for the items -->
         <iron-list id="itemsList" items="[[data]]" selected-items="{{selectedItems}}" selection-enabled multi-selection>

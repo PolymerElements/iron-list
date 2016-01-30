@@ -39,9 +39,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     });
 
     test('defaults', function() {
-      assert.equal(list.items, null);
-      assert.equal(list.as, 'item');
-      assert.equal(list.indexAs, 'index');
+      assert.equal(list.items, null, 'items');
+      assert.equal(list.as, 'item', 'as');
+      assert.equal(list.indexAs, 'index', 'indexAs');
+      assert.equal(list.selectedAs, 'selected', 'selectedAs');
+      assert.equal(list.scrollTarget, list, 'scrollTarget');
+      assert.isFalse(list.selectionEnabled, 'selectionEnabled');
+      assert.isFalse(list.multiSelection, 'multiSelection');
     });
 
     test('check items length', function(done) {
