@@ -10,6 +10,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
 
 <!--
 
@@ -34,12 +35,14 @@ layout means (e.g. the `flex` or `fit` classes).
 
 List item templates should bind to template models of the following structure:
 
-    {
-      index: 0,     // data index for this item
-      item: {       // user data corresponding to items[index]
-        /* user item data  */
-      }
-    }
+```js
+{
+  index: 0,        // index in the item array
+  selected: false, // true if the current item is selected
+  tabIndex: -1,    // a dynamically generated tabIndex for focus management
+  item: {}         // user data corresponding to items[index]
+}
+```
 
 Alternatively, you can change the property name used as data index by changing the
 `indexAs` property. The `as` property defines the name of the variable to add to the binding
@@ -66,16 +69,33 @@ bound from the model object provided to the template scope):
   <iron-list items="[[data]]" as="item">
     <template>
       <div>
-        Name: <span>[[item.name]]</span>
+        Name: [[item.name]]
       </div>
     </template>
   </iron-list>
 </template>
 ```
 
+### Accessibility
+
+`iron-list` automatically manages the focus state for the items. It also provides
+a `tabIndex` property within the template scope that can be used for keyboard navigation.
+For example, users can press the up and down keys to move to previous and next
+items in the list:
+
+```html
+<iron-list items="[[data]]" as="item">
+  <template>
+    <div tabindex$="[[tabIndex]]">
+      Name: [[item.name]]
+    </div>
+  </template>
+</iron-list>
+```
+
 ### Styling
 
-Use the `--iron-list-items-container` mixin to style the container of items, e.g.
+You can use the `--iron-list-items-container` mixin to style the container of items:
 
 ```css
 iron-list {
@@ -93,7 +113,7 @@ This event is fired by any element that implements `IronResizableBehavior`.
 By default, elements such as `iron-pages`, `paper-tabs` or `paper-dialog` will trigger
 this event automatically. If you hide the list manually (e.g. you use `display: none`)
 you might want to implement `IronResizableBehavior` or fire this event manually right
-after the list became visible again. e.g.
+after the list became visible again. For example:
 
 ```js
 document.querySelector('iron-list').fire('iron-resize');
@@ -166,6 +186,7 @@ will only render 20.
   var IOS_TOUCH_SCROLLING = IOS && IOS[1] >= 8;
   var DEFAULT_PHYSICAL_COUNT = 3;
   var MAX_PHYSICAL_COUNT = 500;
+  var HIDDEN_Y = '-10000px';
 
   Polymer({
 
@@ -256,11 +277,18 @@ will only render 20.
 
     behaviors: [
       Polymer.Templatizer,
-      Polymer.IronResizableBehavior
+      Polymer.IronResizableBehavior,
+      Polymer.IronA11yKeysBehavior
     ],
 
     listeners: {
       'iron-resize': '_resizeHandler'
+    },
+
+    keyBindings: {
+      'up': '_didMoveUp',
+      'down': '_didMoveDown',
+      'enter': '_didEnter'
     },
 
     /**
@@ -401,6 +429,22 @@ will only render 20.
     _maxPages: 3,
 
     /**
+     * The currently focused item index.
+     */
+    _focusedIndex: 0,
+
+    /**
+     * The the item that is focused if it is moved offscreen.
+     */
+    _offscreenFocusedItem: null,
+
+    /**
+     * The item that backfills the `_offscreenFocusedItem` in the physical items
+     * list when that item is moved offscreen.
+     */
+    _focusBackfillItem: null,
+
+    /**
      * The bottom of the physical content.
      */
     get _physicalBottom() {
@@ -535,13 +579,14 @@ will only render 20.
     },
 
     ready: function() {
-      if (IOS_TOUCH_SCROLLING) {
-        this._scrollListener = function() {
+      this._ensureTemplatized();
+
+      this.addEventListener('focus', this._didFocus.bind(this), true);
+
+      this._scrollListener = IOS_TOUCH_SCROLLING ?
+        function() {
           requestAnimationFrame(this._scrollHandler.bind(this));
-        }.bind(this);
-      } else {
-        this._scrollListener = this._scrollHandler.bind(this);
-      }
+        }.bind(this) : this._scrollHandler.bind(this);
     },
 
     /**
@@ -709,12 +754,16 @@ will only render 20.
      * @param {!Array<number>=} movingUp
      */
     _update: function(itemSet, movingUp) {
+      // manage focus
+      if (this._isIndexRendered(this._focusedIndex)) {
+        this._restoreFocusedItem();
+      } else {
+        this._creatFocusBackfillItem();
+      }
       // update models
       this._assignModels(itemSet);
-
       // measure heights
       this._updateMetrics(itemSet);
-
       // adjust offset after measuring
       if (movingUp) {
         while (movingUp.length) {
@@ -723,10 +772,8 @@ will only render 20.
       }
       // update the position of the items
       this._positionItems();
-
       // set the scroller size
       this._updateScrollerSize();
-
       // increase the pool of physical items
       this._increasePoolIfNeeded();
     },
@@ -737,8 +784,6 @@ will only render 20.
     _createPool: function(size) {
       var physicalItems = new Array(size);
 
-      this._ensureTemplatized();
-
       for (var i = 0; i < size; i++) {
         var inst = this.stamp(null);
         // First element child is item; Safari doesn't support children[0]
@@ -746,7 +791,6 @@ will only render 20.
         physicalItems[i] = inst.root.querySelector('*');
         Polymer.dom(this).appendChild(inst.root);
       }
-
       return physicalItems;
     },
 
@@ -820,11 +864,11 @@ will only render 20.
       if (!this.ctor) {
         // Template instance props that should be excluded from forwarding
         var props = {};
-
         props.__key__ = true;
         props[this.as] = true;
         props[this.indexAs] = true;
         props[this.selectedAs] = true;
+        props.tabIndex = true;
 
         this._instanceProps = props;
         this._userTemplate = Polymer.dom(this).querySelector('template');
@@ -892,6 +936,10 @@ will only render 20.
         var key = path.substring(0, dot < 0 ? path.length : dot);
         var idx = this._physicalIndexForKey[key];
         var row = this._physicalItems[idx];
+
+        if (idx === this._focusedIndex && this._offscreenFocusedItem) {
+          row = this._offscreenFocusedItem;
+        }
         if (row) {
           var inst = row._templateInstance;
           if (dot >= 0) {
@@ -910,17 +958,18 @@ will only render 20.
      */
     _itemsChanged: function(change) {
       if (change.path === 'items') {
+
+        this._restoreFocusedItem();
         // render the new set
         this._itemsRendered = false;
-
         // update the whole set
         this._virtualStart = 0;
         this._physicalTop = 0;
         this._virtualCount = this.items ? this.items.length : 0;
+        this._focusedIndex = 0;
         this._collection = this.items ? Polymer.Collection.get(this.items) : null;
         this._physicalIndexForKey = {};
 
-        // scroll to the top
         this._resetScrollPosition(0);
 
         // create the initial physical items
@@ -929,16 +978,18 @@ will only render 20.
           this._physicalItems = this._createPool(this._physicalCount);
           this._physicalSizes = new Array(this._physicalCount);
         }
-        this._debounceTemplate(this._render);
 
+        this._debounceTemplate(this._render);
       } else if (change.path === 'items.splices') {
         // render the new set
         this._itemsRendered = false;
         this._adjustVirtualIndex(change.value.indexSplices);
         this._virtualCount = this.items ? this.items.length : 0;
-        
-        this._debounceTemplate(this._render);
 
+        if (this._focusedIndex < 0 || this._focusedIndex >= this._virtualCount) {
+          this._focusedIndex = 0;
+        }
+        this._debounceTemplate(this._render);
       } else {
         // update a single item
         this._forwardItemPath(change.path.split('.').slice(1).join('.'), change.value);
@@ -1003,10 +1054,7 @@ will only render 20.
             return rtn;
           }
         }
-
-        pidx = 0;
-
-        for (; pidx < this._physicalStart; pidx++, vidx++) {
+        for (pidx = 0; pidx < this._physicalStart; pidx++, vidx++) {
           if ((rtn = fn.call(this, pidx, vidx)) != null) {
             return rtn;
           }
@@ -1027,9 +1075,9 @@ will only render 20.
         if (item !== undefined && item !== null) {
           inst[this.as] = item;
           inst.__key__ = this._collection.getKey(item);
-          inst[this.selectedAs] =
-            /** @type {!ArraySelectorElement} */ (this.$.selector).isSelected(item);
+          inst[this.selectedAs] = /** @type {!ArraySelectorElement} */ (this.$.selector).isSelected(item);
           inst[this.indexAs] = vidx;
+          inst.tabIndex = vidx === this._focusedIndex ? 0 : -1;
           el.removeAttribute('hidden');
           this._physicalIndexForKey[inst.__key__] = pidx;
         } else {
@@ -1055,10 +1103,12 @@ will only render 20.
       Polymer.dom.flush();
 
       this._iterateItems(function(pidx, vidx) {
+
         oldPhysicalSize += this._physicalSizes[pidx] || 0;
         this._physicalSizes[pidx] = this._physicalItems[pidx].offsetHeight;
         newPhysicalSize += this._physicalSizes[pidx];
         this._physicalAverageCount += this._physicalSizes[pidx] ? 1 : 0;
+
       }, itemSet);
 
       this._physicalSize = this._physicalSize + newPhysicalSize - oldPhysicalSize;
@@ -1081,8 +1131,10 @@ will only render 20.
       var y = this._physicalTop;
 
       this._iterateItems(function(pidx) {
-        this.transform('translate3d(0, ' + y + 'px, 0)', this._physicalItems[pidx]);
+
+        this.translate3d(0, y + 'px', 0, this._physicalItems[pidx]);
         y += this._physicalSizes[pidx];
+
       });
     },
 
@@ -1147,19 +1199,15 @@ will only render 20.
       Polymer.dom.flush();
 
       var firstVisible = this.firstVisibleIndex;
-
       idx = Math.min(Math.max(idx, 0), this._virtualCount-1);
 
       // start at the previous virtual item
       // so we have a item above the first visible item
       this._virtualStart = idx - 1;
-
       // assign new models
       this._assignModels();
-
       // measure the new sizes
       this._updateMetrics();
-
       // estimate new physical offset
       this._physicalTop = this._virtualStart * this._physicalAverage;
 
@@ -1176,16 +1224,12 @@ will only render 20.
       }
       // update the scroller size
       this._updateScrollerSize(true);
-
       // update the position of the items
       this._positionItems();
-
       // set the new scroll position
       this._resetScrollPosition(this._physicalTop + this._scrollerPaddingTop + targetOffsetTop + 1);
-
       // increase the pool of physical items if needed
       this._increasePoolIfNeeded();
-
       // clear cached visible index
       this._firstVisibleIndexVal = null;
       this._lastVisibleIndexVal = null;
@@ -1230,12 +1274,14 @@ will only render 20.
      * @param {(Object|number)} item The item object or its index
      */
     _getNormalizedItem: function(item) {
-      if (typeof item === 'number') {
-        item = this.items[item];
-        if (!item) {
-          throw new RangeError('<item> not found');
+      if (this._collection.getKey(item) === undefined) {
+        if (typeof item === 'number') {
+          item = this.items[item];
+          if (!item) {
+            throw new RangeError('<item> not found');
+          }
+          return item;
         }
-      } else if (this._collection.getKey(item) === undefined) {
         throw new TypeError('<item> should be a valid item');
       }
       return item;
@@ -1258,6 +1304,7 @@ will only render 20.
         model[this.selectedAs] = true;
       }
       this.$.selector.select(item);
+      this.updateSizeForItem(item);
     },
 
     /**
@@ -1275,6 +1322,7 @@ will only render 20.
         model[this.selectedAs] = false;
       }
       this.$.selector.deselect(item);
+      this.updateSizeForItem(item);
     },
 
     /**
@@ -1320,20 +1368,15 @@ will only render 20.
      * it will remove the listener otherwise.
      */
     _selectionEnabledChanged: function(selectionEnabled) {
-      if (selectionEnabled) {
-        this.listen(this, 'tap', '_selectionHandler');
-        this.listen(this, 'keypress', '_selectionHandler');
-      } else {
-        this.unlisten(this, 'tap', '_selectionHandler');
-        this.unlisten(this, 'keypress', '_selectionHandler');
-      }
+      var handler = selectionEnabled ? this.listen : this.unlisten;
+      handler.call(this, this, 'tap', '_selectionHandler');
     },
 
     /**
      * Select an item from an event object.
      */
     _selectionHandler: function(e) {
-      if (e.type !== 'keypress' || e.keyCode === 13) {
+      if (this.selectionEnabled) {
         var model = this.modelForElement(e.target);
         if (model) {
           this.toggleSelectionForItem(model[this.as]);
@@ -1361,6 +1404,135 @@ will only render 20.
         this._updateMetrics([pidx]);
         this._positionItems();
       }
+    },
+
+    _isIndexRendered: function(idx) {
+      return idx >= this._virtualStart && idx <= this._virtualEnd;
+    },
+
+    _getPhysicalItemForIndex: function(idx, force) {
+      if (!this._collection) {
+        return null;
+      }
+      if (!this._isIndexRendered(idx)) {
+        if (force) {
+          this.scrollToIndex(idx);
+          return this._getPhysicalItemForIndex(idx, false);
+        }
+        return null;
+      }
+      var item = this._getNormalizedItem(idx);
+      var physicalItem = this._physicalItems[this._physicalIndexForKey[this._collection.getKey(item)]];
+
+      return physicalItem || null;
+    },
+
+    _focusPhysicalItem: function(idx) {
+      this._restoreFocusedItem();
+
+      var physicalItem = this._getPhysicalItemForIndex(idx, true);
+      if (!physicalItem) {
+        return;
+      }
+      var SECRET = ~(Math.random() * 100);
+      var model = physicalItem._templateInstance;
+      var focusable;
+
+      model.tabIndex = SECRET;
+      // the focusable element could be the entire physical item
+      if (physicalItem.tabIndex === SECRET) {
+       focusable = physicalItem;
+      }
+      // the focusable element could be somewhere within the physical item
+      if (!focusable) {
+        focusable = Polymer.dom(physicalItem).querySelector('[tabindex="' + SECRET + '"]');
+      }
+      // restore the tab index
+      model.tabIndex = 0;
+      focusable && focusable.focus();
+    },
+
+    _restoreFocusedItem: function() {
+      if (!this._offscreenFocusedItem) {
+        return;
+      }
+      var item = this._getNormalizedItem(this._focusedIndex);
+      var pidx = this._physicalIndexForKey[this._collection.getKey(item)];
+
+      if (pidx !== undefined) {
+        this.translate3d(0, HIDDEN_Y, 0, this._physicalItems[pidx]);
+        this._physicalItems[pidx] = this._offscreenFocusedItem;
+      }
+      this._offscreenFocusedItem = null;
+    },
+
+    _removeFocusedItem: function() {
+      if (!this._offscreenFocusedItem) {
+        return;
+      }
+      Polymer.dom(this).removeChild(this._offscreenFocusedItem);
+      this._offscreenFocusedItem = null;
+      this._focusBackfillItem = null;
+    },
+
+    _creatFocusBackfillItem: function() {
+      if (this._offscreenFocusedItem) {
+        return;
+      }
+      var item = this._getNormalizedItem(this._focusedIndex);
+      var pidx = this._physicalIndexForKey[this._collection.getKey(item)];
+
+      this._offscreenFocusedItem = this._physicalItems[pidx];
+      this.translate3d(0, HIDDEN_Y, 0, this._offscreenFocusedItem);
+
+      if (!this._focusBackfillItem) {
+        var stampedTemplate = this.stamp(null);
+        this._focusBackfillItem = stampedTemplate.root.querySelector('*');
+        Polymer.dom(this).appendChild(stampedTemplate.root);
+      }
+      this._physicalItems[pidx] = this._focusBackfillItem;
+    },
+
+    _didFocus: function(e) {
+      var targetModel = this.modelForElement(e.target);
+      var fidx = this._focusedIndex;
+
+      if (!targetModel) {
+        return;
+      }
+      this._restoreFocusedItem();
+
+      if (this.modelForElement(this._offscreenFocusedItem) === targetModel) {
+        this.scrollToIndex(fidx);
+      } else {
+        // restore tabIndex for the currently focused item
+        this._getModelFromItem(this._getNormalizedItem(fidx)).tabIndex = -1;
+        // set the tabIndex for the next focused item
+        targetModel.tabIndex = 0;
+        fidx = targetModel.index;
+        this._focusedIndex = fidx;
+        // bring the item into view
+        if (fidx < this.firstVisibleIndex || fidx > this.lastVisibleIndex) {
+          this.scrollToIndex(fidx);
+        } else {
+          this._update();
+        }
+      }
+    },
+
+    _didMoveUp: function() {
+      this._focusPhysicalItem(Math.max(0, this._focusedIndex - 1));
+    },
+
+    _didMoveDown: function() {
+      this._focusPhysicalItem(Math.min(this._virtualCount, this._focusedIndex + 1));
+    },
+
+    _didEnter: function(e) {
+      // focus the currently focused physical item
+      this._focusPhysicalItem(this._focusedIndex);
+      // toggle selection
+      this._selectionHandler(e.detail.keyboardEvent);
     }
   });
 

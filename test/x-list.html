@@ -43,7 +43,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <iron-list style$="[[_computedListHeight(listHeight)]]" items="[[data]]" as="item" id="list">
       <template>
         <div class="item">
-          <div style$="[[_computedItemHeight(item)]]">[[_getItemValue(item, item.*, itemProp)]]</div>
+          <div style$="[[_computedItemHeight(item)]]" tabindex$="[[tabIndex]]">[[_getItemValue(item, item.*, itemProp)]]</div>
         </div>
       </template>
     </iron-list>
