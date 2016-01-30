@@ -76,23 +76,12 @@ bound from the model object provided to the template scope):
 </template>
 ```
 
-### Styling
+### Accessibility
 
-Use the `--iron-list-items-container` mixin to style the container of items, e.g.
-
-```css
-iron-list {
- --iron-list-items-container: {
-    margin: auto;
-  };
-}
-```
-
-### A11y
-
-`iron-list` can manage the items' focus state automatically. For keyboard navigation,
-users can use the up and down keys to move to the previous and next items in the list.
-To enable focus management, you can bind to the `tabIndex` property. e.g.
+`iron-list` automatically manages the focus state for the items. It also provides
+a `tabIndex` property within the template scope that can be used for keyboard navigation.
+For example, users can press the up and down keys to move to previous and next
+items in the list:
 
 ```html
 <iron-list items="[[data]]" as="item">
@@ -104,6 +93,18 @@ To enable focus management, you can bind to the `tabIndex` property. e.g.
 </iron-list>
 ```
 
+### Styling
+
+You can use the `--iron-list-items-container` mixin to style the container of items:
+
+```css
+iron-list {
+ --iron-list-items-container: {
+    margin: auto;
+  };
+}
+```
+
 ### Resizing
 
 `iron-list` lays out the items when it receives a notification via the `iron-resize` event.
@@ -112,7 +113,7 @@ This event is fired by any element that implements `IronResizableBehavior`.
 By default, elements such as `iron-pages`, `paper-tabs` or `paper-dialog` will trigger
 this event automatically. If you hide the list manually (e.g. you use `display: none`)
 you might want to implement `IronResizableBehavior` or fire this event manually right
-after the list became visible again. e.g.
+after the list became visible again. For example:
 
 ```js
 document.querySelector('iron-list').fire('iron-resize');
