@@ -161,9 +161,13 @@ will only render 20.
         position: relative;
       }
 
-      #items > ::content > * {
+      :host(:not([grid])) #items > ::content > * {
         width: 100%;
+      };
+
+      #items > ::content > * {
         box-sizing: border-box;
+        margin: 0;
         position: absolute;
         top: 0;
         will-change: transform;
@@ -190,6 +194,7 @@ will only render 20.
   var DEFAULT_PHYSICAL_COUNT = 3;
   var MAX_PHYSICAL_COUNT = 500;
   var HIDDEN_Y = '-10000px';
+  var DEFAULT_GRID_SIZE = 200;
 
   Polymer({
 
@@ -230,6 +235,17 @@ will only render 20.
       selectedAs: {
         type: String,
         value: 'selected'
+      },
+
+      /**
+       * When true, `iron-list` will render the items in a fixed-width grid. 
+       * The width of each item will be determined from the offsetWidth of 
+       * the provided template DOM
+       */
+      grid: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true
       },
 
       /**
@@ -352,7 +368,12 @@ will only render 20.
     /**
      * The height of the list. This is referred as the viewport in the context of list.
      */
-    _viewportSize: 0,
+    _viewportHeight: 0,
+
+    /**
+     * The width of the list. This is referred as the viewport in the context of list.
+     */
+    _viewportWidth: 0,
 
     /**
      * An array of DOM nodes that are currently in the tree
@@ -425,6 +446,21 @@ will only render 20.
     _focusBackfillItem: null,
 
     /**
+     * The maximum items per row
+     */
+    _itemsPerRow: 1,
+
+    /**
+     * The width of each grid item
+     */
+    _itemWidth: null,
+
+    /**
+     * The width of each grid item
+     */
+    _rowHeight: null,
+
+    /**
      * The bottom of the physical content.
      */
     get _physicalBottom() {
@@ -435,7 +471,7 @@ will only render 20.
      * The bottom of the scroll.
      */
     get _scrollBottom() {
-      return this._scrollPosition + this._viewportSize;
+      return this._scrollPosition + this._viewportHeight;
     },
 
     /**
@@ -449,14 +485,15 @@ will only render 20.
      * The height of the physical content that isn't on the screen.
      */
     get _hiddenContentSize() {
-      return this._physicalSize - this._viewportSize;
+      var size = this.grid ? this._physicalRows * this._rowHeight : this._physicalSize;
+      return size - this._viewportHeight;
     },
 
     /**
      * The maximum scroll top value.
      */
     get _maxScrollTop() {
-      return this._estScrollHeight - this._viewportSize + this._scrollerPaddingTop;
+      return this._estScrollHeight - this._viewportHeight + this._scrollerPaddingTop;
     },
 
     /**
@@ -528,7 +565,14 @@ will only render 20.
      * to a viewport of physical items above and below the user's viewport.
      */
     get _optPhysicalSize() {
-      return this._viewportSize * this._maxPages;
+      if (this.grid) {
+        return this._estRowsInView * this._rowHeight * this._maxPages;
+      }
+      return this._viewportHeight * this._maxPages;
+    },
+
+    get _optPhysicalCount() {
+      return this._estRowsInView * this._itemsPerRow * this._maxPages;
     },
 
    /**
@@ -545,13 +589,19 @@ will only render 20.
      */
     get firstVisibleIndex() {
       if (this._firstVisibleIndexVal === null) {
-        var physicalOffset = this._physicalTop + this._scrollerPaddingTop;
+        var physicalOffset = Math.floor(this._physicalTop + this._scrollerPaddingTop);
 
         this._firstVisibleIndexVal = this._iterateItems(
           function(pidx, vidx) {
-            physicalOffset += this._physicalSizes[pidx];
+            physicalOffset += this._getPhysicalSizeIncrement(pidx);
+
             if (physicalOffset > this._scrollPosition) {
-              return vidx;
+              return this.grid ? vidx - (vidx % this._itemsPerRow) : vidx;
+            }
+
+            // Handle a partially rendered final row in grid mode
+            if (this.grid && this._virtualCount - 1 === vidx) {
+              return vidx - (vidx % this._itemsPerRow);
             }
           }) || 0;
       }
@@ -565,21 +615,42 @@ will only render 20.
      */
     get lastVisibleIndex() {
       if (this._lastVisibleIndexVal === null) {
-        var physicalOffset = this._physicalTop;
+        if (this.grid) {
+          var lastIndex = this.firstVisibleIndex + this._estRowsInView * this._itemsPerRow - 1;
+          this._lastVisibleIndexVal = lastIndex > this._virtualCount ? this._virtualCount : lastIndex;
+        } else {
+          var physicalOffset = this._physicalTop;
 
-        this._iterateItems(function(pidx, vidx) {
-          physicalOffset += this._physicalSizes[pidx];
+          this._iterateItems(function(pidx, vidx) {
+            physicalOffset += this._getPhysicalSizeIncrement(pidx);
 
-          if (physicalOffset <= this._scrollBottom) {
-            this._lastVisibleIndexVal = vidx;
-          }
-        });
+            if(physicalOffset <= this._scrollBottom) {
+              if (this.grid) {
+                var lastIndex = vidx - vidx % this._itemsPerRow + this._itemsPerRow - 1;
+                this._lastVisibleIndexVal = lastIndex > this._virtualCount ? this._virtualCount : lastIndex;
+              } else {
+                this._lastVisibleIndexVal = vidx;
+              }
+            }
+          });
+        }
       }
       return this._lastVisibleIndexVal;
     },
 
     get _defaultScrollTarget() {
       return this;
+    },
+    get _virtualRowCount() {
+      return Math.ceil(this._virtualCount / this._itemsPerRow);
+    },
+
+    get _estRowsInView() {
+      return Math.ceil(this._viewportHeight / this._rowHeight);
+    },
+
+    get _physicalRows() {
+      return Math.ceil(this._physicalCount / this._itemsPerRow);
     },
 
     ready: function() {
@@ -617,7 +688,10 @@ will only render 20.
       this._scrollerPaddingTop = this.scrollTarget === this ? 0 :
           parseInt(window.getComputedStyle(this)['padding-top'], 10);
 
-      this._viewportSize = this._scrollTargetHeight;
+      this._viewportHeight = this._scrollTargetHeight;
+      if (this.grid) {
+        this._updateGridMetrics(true);
+      }
     },
 
     /**
@@ -669,10 +743,10 @@ will only render 20.
             // ensure that these recycled tiles are needed
             virtualStart - recycledTiles > 0 &&
             // ensure that the tile is not visible
-            physicalBottom - this._physicalSizes[kth] > scrollBottom
+            physicalBottom - this._getPhysicalSizeIncrement(kth) > scrollBottom
         ) {
 
-          tileHeight = this._physicalSizes[kth];
+          tileHeight = this._getPhysicalSizeIncrement(kth);
           currentRatio += tileHeight / hiddenContentSize;
           physicalBottom -= tileHeight;
           recycledTileSet.push(kth);
@@ -703,10 +777,10 @@ will only render 20.
             // ensure that these recycled tiles are needed
             virtualEnd + recycledTiles < lastVirtualItemIndex &&
             // ensure that the tile is not visible
-            this._physicalTop + this._physicalSizes[kth] < scrollTop
+            this._physicalTop + this._getPhysicalSizeIncrement(kth) < scrollTop
           ) {
 
-          tileHeight = this._physicalSizes[kth];
+          tileHeight = this._getPhysicalSizeIncrement(kth);
           currentRatio += tileHeight / hiddenContentSize;
 
           this._physicalTop += tileHeight;
@@ -743,7 +817,8 @@ will only render 20.
       // adjust offset after measuring
       if (movingUp) {
         while (movingUp.length) {
-          this._physicalTop -= this._physicalSizes[movingUp.pop()];
+          var idx = movingUp.pop();
+          this._physicalTop -= this._getPhysicalSizeIncrement(idx);
         }
       }
       // update the position of the items
@@ -789,7 +864,7 @@ will only render 20.
         return false;
       }
       // this value should range between [0 <= `currentPage` <= `_maxPages`]
-      var currentPage = Math.floor(this._physicalSize / this._viewportSize);
+      var currentPage = Math.floor(this._physicalSize / this._viewportHeight);
 
       if (currentPage === 0) {
         // fill the first page
@@ -797,10 +872,10 @@ will only render 20.
       } else if (this._lastPage !== currentPage && isClientHeightFull) {
         // paint the page and defer the next increase
         // wait 16ms which is rough enough to get paint cycle.
-        Polymer.dom.addDebouncer(this.debounce('_debounceTemplate', this._increasePool.bind(this, 1), 16));
+        Polymer.dom.addDebouncer(this.debounce('_debounceTemplate', this._increasePool.bind(this, this._itemsPerRow), 16));
       } else {
         // fill the rest of the pages
-        this._debounceTemplate(this._increasePool.bind(this, 1));
+        this._debounceTemplate(this._increasePool.bind(this, this._itemsPerRow));
       }
 
       this._lastPage = currentPage;
@@ -1040,11 +1115,7 @@ will only render 20.
       if (arguments.length === 2 && itemSet) {
         for (i = 0; i < itemSet.length; i++) {
           pidx = itemSet[i];
-          if (pidx >= this._physicalStart) {
-            vidx = this._virtualStart + (pidx - this._physicalStart);
-          } else {
-            vidx = this._virtualStart + (this._physicalCount - this._physicalStart) + pidx;
-          }
+          vidx = this._computeVidx(pidx);
           if ((rtn = fn.call(this, pidx, vidx)) != null) {
             return rtn;
           }
@@ -1064,6 +1135,13 @@ will only render 20.
           }
         }
       }
+    },
+
+    _computeVidx: function(pidx) {
+      if (pidx >= this._physicalStart) {
+        return this._virtualStart + (pidx - this._physicalStart);
+      }
+      return this._virtualStart + (this._physicalCount - this._physicalStart) + pidx;
     },
 
     /**
@@ -1115,8 +1193,13 @@ will only render 20.
 
       }, itemSet);
 
-      this._physicalSize = this._physicalSize + newPhysicalSize - oldPhysicalSize;
-      this._viewportSize = this._scrollTargetHeight;
+      this._viewportHeight = this._scrollTargetHeight;
+      if (this.grid) {
+        this._updateGridMetrics();
+        this._physicalSize = Math.ceil(this._physicalCount / this._itemsPerRow) * this._rowHeight;
+      } else {
+        this._physicalSize = this._physicalSize + newPhysicalSize - oldPhysicalSize;
+      }
 
       // update the average if we measured something
       if (this._physicalAverageCount !== prevAvgCount) {
@@ -1124,6 +1207,20 @@ will only render 20.
             ((prevPhysicalAvg * prevAvgCount) + newPhysicalSize) /
             this._physicalAverageCount);
       }
+    },
+
+    _updateGridMetrics: function() {
+      this._viewportWidth = this._scrollTargetWidth;
+
+      // Set item width to the value of the _physicalItems offsetWidth
+      this._itemWidth = this._physicalCount > 0 ? this._physicalItems[0].offsetWidth : DEFAULT_GRID_SIZE;
+
+      // Set row height ot the value of the _physicalItems offsetHeight
+      this._rowHeight = this._physicalCount > 0 ? this._physicalItems[0].offsetHeight : DEFAULT_GRID_SIZE;
+
+      // If in grid mode compute how many items with exist in each row
+      this._itemsPerRow = this._itemWidth ? Math.floor(this._viewportWidth / this._itemWidth) : this._itemsPerRow;
+
     },
 
     /**
@@ -1134,10 +1231,46 @@ will only render 20.
 
       var y = this._physicalTop;
 
-      this._iterateItems(function(pidx) {
-        this.translate3d(0, y + 'px', 0, this._physicalItems[pidx]);
-        y += this._physicalSizes[pidx];
+      var totalItemWidth = this._itemsPerRow * this._itemWidth;
+      var rowOffset = (this._viewportWidth - totalItemWidth) / 2;
+
+      this._iterateItems(function(pidx, vidx) {
+        if (this.grid) {
+          var modulus = vidx % this._itemsPerRow;
+          var x = ((modulus * this._itemWidth) + rowOffset);
+          this.translate3d(x + 'px', y + 'px', 0, this._physicalItems[pidx]);
+        } else {
+          this.translate3d(0, y + 'px', 0, this._physicalItems[pidx]);
+        }
+
+        if (this._shouldRenderNextRow(this.grid ? vidx : pidx)) {
+          var increment = parseInt(this.grid ? this._rowHeight : this._physicalSizes[pidx]);
+          y += isNaN(increment) ? 0 : increment;
+        }
+
       });
+    },
+
+     _getPhysicalSizeIncrement: function(pidx, incrementAtEndOfRow) {
+      if (!this.grid) {
+        return this._physicalSizes[pidx];
+      }
+      var vidx = this._computeVidx(pidx);
+      if (vidx % this._itemsPerRow !== (this._itemsPerRow - 1)) {
+        return 0;
+      }
+      return this._rowHeight;
+    },
+
+    /**
+     * Returns, based on the current index,
+     * whether or not the next index will need
+     * to be rendered on a new row.
+
+     * @return {(Boolean)}
+     */
+    _shouldRenderNextRow: function(pidx) {
+      return pidx % this._itemsPerRow === this._itemsPerRow - 1;
     },
 
     /**
@@ -1172,11 +1305,16 @@ will only render 20.
      * @param {boolean=} forceUpdate If true, updates the height no matter what.
      */
     _updateScrollerSize: function(forceUpdate) {
-      this._estScrollHeight = (this._physicalBottom +
-          Math.max(this._virtualCount - this._physicalCount - this._virtualStart, 0) * this._physicalAverage);
+      if (this.grid) {
+        this._estScrollHeight = this._virtualRowCount * this._rowHeight;
+      } else {
+        this._estScrollHeight = (this._physicalBottom +
+            Math.max(this._virtualCount - this._physicalCount - this._virtualStart, 0) * this._physicalAverage);
+      }
 
       forceUpdate = forceUpdate || this._scrollHeight === 0;
       forceUpdate = forceUpdate || this._scrollPosition >= this._estScrollHeight - this._physicalSize;
+      forceUpdate = forceUpdate || this.grid && this.$.items.style.height < this._estScrollHeight;
 
       // amortize height adjustment, so it won't trigger repaints very often
       if (forceUpdate || Math.abs(this._estScrollHeight - this._scrollHeight) >= this._optPhysicalSize) {
@@ -1201,7 +1339,7 @@ will only render 20.
       idx = Math.min(Math.max(idx, 0), this._virtualCount-1);
       // update the virtual start only when needed
       if (!this._isIndexRendered(idx) || idx >= this._maxVirtualStart) {
-        this._virtualStart = idx - 1;
+        this._virtualStart = this.grid ? (idx - this._itemsPerRow * 2) : (idx - 1);
       }
       // manage focus
       this._manageFocus();
@@ -1209,8 +1347,10 @@ will only render 20.
       this._assignModels();
       // measure the new sizes
       this._updateMetrics();
+      
       // estimate new physical offset
-      this._physicalTop = this._virtualStart * this._physicalAverage;
+      var estPhysicalTop = Math.ceil(this._virtualStart / this._itemsPerRow)  * this._physicalAverage;
+      this._physicalTop = estPhysicalTop;
 
       var currentTopItem = this._physicalStart;
       var currentVirtualItem = this._virtualStart;
@@ -1218,8 +1358,8 @@ will only render 20.
       var hiddenContentSize = this._hiddenContentSize;
 
       // scroll to the item as much as we can
-      while (currentVirtualItem < idx && targetOffsetTop < hiddenContentSize) {
-        targetOffsetTop = targetOffsetTop + this._physicalSizes[currentTopItem];
+      while (currentVirtualItem < idx && targetOffsetTop <= hiddenContentSize) {
+        targetOffsetTop = targetOffsetTop + this._getPhysicalSizeIncrement(currentTopItem);
         currentTopItem = (currentTopItem + 1) % this._physicalCount;
         currentVirtualItem++;
       }
@@ -1250,7 +1390,7 @@ will only render 20.
      */
     _resizeHandler: function() {
       // iOS fires the resize event when the address bar slides up
-      if (IOS && Math.abs(this._viewportSize - this._scrollTargetHeight) < 100) {
+      if (IOS && Math.abs(this._viewportHeight - this._scrollTargetHeight) < 100) {
         return;
       }
       // In Desktop Safari 9.0.3, if the scroll bars are always shown, 
