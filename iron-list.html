@@ -1486,7 +1486,7 @@ will only render 20.
         this._getModelFromItem(this._getNormalizedItem(fidx)).tabIndex = -1;
         // set the tabIndex for the next focused item
         targetModel.tabIndex = 0;
-        fidx = targetModel.index;
+        fidx = /** @type {{index: number}} */(targetModel).index;
         this._focusedIndex = fidx;
         // bring the item into view
         if (fidx < this.firstVisibleIndex || fidx > this.lastVisibleIndex) {
