@@ -29,8 +29,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="../../paper-styles/typography.html">
   <link rel="import" href="../../iron-ajax/iron-ajax.html">
   <link rel="import" href="../../iron-icons/iron-icons.html">
+  <link rel="import" href="../../iron-image/iron-image.html">
   <link rel="import" href="../iron-list.html">
-  
+
   <style>
     body {
       background-color: #eee;
@@ -45,7 +46,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template>
     <style>
       :host {
-        display: block; 
+        display: block;
         @apply(--paper-font-common-base);
       }
 
@@ -153,7 +154,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <template>
         <div>
           <div class$="[[getClassForItem(item, selected)]]" tabindex$="[[tabIndex]]">
-            <img class="avatar" src="[[item.image]]">
+            <iron-image class="avatar" sizing="contain" src="[[item.image]]"></iron-image>
             <div class="pad">
               <div class="primary">[[item.name]]</div>
               <div class="shortText">[[item.shortText]]</div>
@@ -189,6 +190,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         getClassForItem: function(item, selected) {
           return selected ? 'item expanded' : 'item';
         }
+
       });
 
     });
