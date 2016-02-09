@@ -165,17 +165,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       list.items = buildDataSet(100);
 
       flush(function() {
-        var firstItem = getFirstItemFromList(list);
-        assert.equal(firstItem.textContent, '0');
+        assert.equal(getFirstItemFromList(list).textContent, '0');
 
         list.items = null;
 
         flush(function() {
-          assert.notEqual(getFirstItemFromList(list), firstItem);
+          assert.notEqual(getFirstItemFromList(list).textContent, '0');
           list.items = buildDataSet(100);
 
           flush(function() {
-            assert.equal(getFirstItemFromList(list), firstItem);
+            assert.equal(getFirstItemFromList(list).textContent, '0');
             done();
           });
         });
