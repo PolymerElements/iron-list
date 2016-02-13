@@ -43,8 +43,49 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       container.data = buildDataSet(100);
 
       flush(function() {
+        console.log(getFirstItemFromList(list));
         assert.notEqual(getFirstItemFromList(list).tabIndex, -1);
         done();
+      });
+    });
+
+    test('focus the first item and then reset the items', function(done) {
+      list.items = buildDataSet(100);
+
+      flush(function() {
+        getFirstItemFromList(list).focus();
+
+        simulateScroll({
+          list: list,
+          contribution: 200,
+          target: 3000,
+          onScrollEnd: function() {
+            list.items = [];
+            flush(function() {
+              done(); 
+            });
+          }
+        });
+      });
+    });
+
+    test('focus the first item and then splice all the items', function(done) {
+      list.items = buildDataSet(100);
+
+      flush(function() {
+        getFirstItemFromList(list).focus();
+
+        simulateScroll({
+          list: list,
+          contribution: 200,
+          target: 3000,
+          onScrollEnd: function() {
+            list.splice('items', 0, list.items.length);
+            flush(function() {
+              done(); 
+            });
+          }
+        });
       });
     });
 

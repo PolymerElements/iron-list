@@ -12,7 +12,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <html id="html">
 <head>
 
-  <title>iron-list and paper-scroll-header-panel demo</title>
+  <title>iron-list demo</title>
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=no">
@@ -29,6 +29,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="../../paper-icon-button/paper-icon-button.html">
   <link rel="import" href="../../iron-ajax/iron-ajax.html">
   <link rel="import" href="../../iron-icons/iron-icons.html">
+  <link rel="import" href="../../iron-image/iron-image.html">
   <link rel="import" href="../iron-list.html">
 
   <style is="custom-style">
@@ -75,7 +76,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     iron-list {
-      padding-top: 212px;
+      padding-top: 148px;
+      margin-top: 64px;
       padding-bottom: 16px;
     }
 
@@ -150,13 +152,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <template>
           <div>
             <div class="item" tabindex$="[[tabIndex]]">
-              <img class="avatar" src="[[item.image]]">
+              <iron-image class="avatar" sizing="contain" src="[[item.image]]"></iron-image>
               <div class="pad">
-                <div class="primary">[[item.name]]</div>
+                <div class="primary">[[item.name]] [[index]]</div>
                 <div class="secondary">[[item.shortText]]</div>
                 <div class="secondary dim">[[item.longText]]</div>
               </div>
-              <iron-icon icon$="[[iconForItem(item)]]"></iron-icon>
             </div>
           </div>
         </template>
@@ -164,12 +165,5 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   </template>
 
-  <script>
-
-    document.querySelector('template[is=dom-bind]').iconForItem = function(item) {
-      return item ? (item.integer < 50 ? 'star-border' : 'star') : '';
-    };
-
-  </script>
 </body>
 </html>
