@@ -89,6 +89,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
     });
 
+    test('should not hide the list', function(done) {
+      list.items = buildDataSet(100);
+
+      flush(function() {
+        // this index isn't rendered yet
+        list._focusedIndex = list.items.length-1;
+        list.scrollTarget.addEventListener('scroll', function() {
+          var rect = list.getBoundingClientRect();
+          assert.isTrue(rect.top + rect.height > 0);
+          done();
+        });
+        // trigger the scroll event
+        list._scrollTop = 1000;
+      });
+    });
+
   });
 
 </script>

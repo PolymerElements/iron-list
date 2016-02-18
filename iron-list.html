@@ -822,10 +822,10 @@ will only render 20.
       this._physicalCount = prevPhysicalCount + delta;
 
       // update the physical start if we need to preserve the model of the focused item.
-      // In this situation, the focused item is currently rendered and its model would 
+      // In this situation, the focused item is currently rendered and its model would
       // have changed after increasing the pool if the physical start remained unchanged.
-      if (this._physicalStart > this._physicalEnd && 
-          this._isIndexRendered(this._focusedIndex) && 
+      if (this._physicalStart > this._physicalEnd &&
+          this._isIndexRendered(this._focusedIndex) &&
           this._getPhysicalIndex(this._focusedIndex) < this._physicalEnd) {
         this._physicalStart = this._physicalStart + delta;
       }
@@ -1060,7 +1060,7 @@ will only render 20.
         var inst = el._templateInstance;
         var item = this.items && this.items[vidx];
 
-        if (item !== undefined && item !== null) {
+        if (item != null) {
           inst[this.as] = item;
           inst.__key__ = this._collection.getKey(item);
           inst[this.selectedAs] = /** @type {!ArraySelectorElement} */ (this.$.selector).isSelected(item);
@@ -1068,7 +1068,6 @@ will only render 20.
           inst.tabIndex = this._focusedIndex === vidx ? 0 : -1;
           this._physicalIndexForKey[inst.__key__] = pidx;
           el.removeAttribute('hidden');
-          el.setAttribute('pidx', pidx);
         } else {
           inst.__key__ = null;
           el.setAttribute('hidden', '');
@@ -1252,7 +1251,7 @@ will only render 20.
       var key = this._collection.getKey(item);
       var pidx = this._physicalIndexForKey[key];
 
-      if (pidx !== undefined) {
+      if (pidx != null) {
         return this._physicalItems[pidx]._templateInstance;
       }
       return null;
@@ -1390,7 +1389,7 @@ will only render 20.
       var key = this._collection.getKey(item);
       var pidx = this._physicalIndexForKey[key];
 
-      if (pidx !== undefined) {
+      if (pidx != null) {
         this._updateMetrics([pidx]);
         this._positionItems();
       }
@@ -1477,7 +1476,6 @@ will only render 20.
 
     _createFocusBackfillItem: function() {
       var pidx, fidx = this._focusedIndex;
-
       if (this._offscreenFocusedItem || fidx < 0) {
         return;
       }
@@ -1489,12 +1487,15 @@ will only render 20.
       }
       // get the physical index for the focused index
       pidx = this._getPhysicalIndex(fidx);
-      // set the offcreen focused physical item
-      this._offscreenFocusedItem = this._physicalItems[pidx];
-      // backfill the focused physical item
-      this._physicalItems[pidx] = this._focusBackfillItem;
-      // hide the focused physical
-      this.translate3d(0, HIDDEN_Y, 0, this._offscreenFocusedItem);
+
+      if (pidx != null) {
+        // set the offcreen focused physical item
+        this._offscreenFocusedItem = this._physicalItems[pidx];
+        // backfill the focused physical item
+        this._physicalItems[pidx] = this._focusBackfillItem;
+        // hide the focused physical
+        this.translate3d(0, HIDDEN_Y, 0, this._offscreenFocusedItem);
+      }
     },
 
     _restoreFocusedItem: function() {
@@ -1507,14 +1508,17 @@ will only render 20.
       this._assignModels();
       // get the new physical index for the focused index
       pidx = this._getPhysicalIndex(fidx);
-      // flip the focus backfill
-      this._focusBackfillItem = this._physicalItems[pidx];
-      // restore the focused physical item
-      this._physicalItems[pidx] = this._offscreenFocusedItem;
-      // reset the offscreen focused item
-      this._offscreenFocusedItem = null;
-      // hide the physical item that backfills
-      this.translate3d(0, HIDDEN_Y, 0, this._focusBackfillItem);
+
+      if (pidx != null) {
+        // flip the focus backfill
+        this._focusBackfillItem = this._physicalItems[pidx];
+        // restore the focused physical item
+        this._physicalItems[pidx] = this._offscreenFocusedItem;
+        // reset the offscreen focused item
+        this._offscreenFocusedItem = null;
+        // hide the physical item that backfills
+        this.translate3d(0, HIDDEN_Y, 0, this._focusBackfillItem);
+      }
     },
 
     _didFocus: function(e) {
