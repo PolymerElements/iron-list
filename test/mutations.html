@@ -30,7 +30,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <test-fixture id="trivialListPrimitiveItem">
     <template>
-      <x-list item-prop=""></x-list>
+      <x-list primitive></x-list>
     </template>
   </test-fixture>
 
@@ -234,6 +234,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
       });
 
+      test('should notify path to the right physical item', function(done) {
+        list.items = buildDataSet(100);
+        flush(function() {
+          var idx = list._physicalCount + 1;
+
+          list.scrollToIndex(idx);
+          list.notifyPath('items.1.index', 'bad');
+          assert.equal(getFirstItemFromList(list).textContent, idx);
+          done();
+        });
+      });
     });
 
     suite('mutations of primitive type items', function() {
@@ -242,7 +253,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       setup(function() {
         container = fixture('trivialListPrimitiveItem');
         list = container.list;
-
       });
 
       test('push item = polymer', function(done) {
@@ -252,7 +262,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         flush(function() {
          assert.equal(getFirstItemFromList(list).textContent, 'polymer');
          done();
-        })
+        });
       });
 
       test('push item = 0', function(done) {
@@ -262,7 +272,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         flush(function() {
           assert.equal(getFirstItemFromList(list).textContent, '0');
           done();
-        })
+        });
       });
 
       test('push item = false', function(done) {
@@ -272,9 +282,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         flush(function() {
           assert.equal(getFirstItemFromList(list).textContent, 'false');
           done();
-        })
+        });
       });
-
     });
 
   </script>
