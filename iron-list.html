@@ -921,24 +921,33 @@ will only render 20.
      * responsible for notifying item.<path> changes.
      */
     _forwardItemPath: function(path, value) {
-      if (this._physicalIndexForKey) {
-        var dot = path.indexOf('.');
-        var key = path.substring(0, dot < 0 ? path.length : dot);
-        var idx = this._physicalIndexForKey[key];
-        var el = this._physicalItems[idx];
+      if (!this._physicalIndexForKey) {
+        return;
+      }
+      var inst;
+      var dot = path.indexOf('.');
+      var key = path.substring(0, dot < 0 ? path.length : dot);
+      var idx = this._physicalIndexForKey[key];
+      var el = this._physicalItems[idx];
 
-        if (idx === this._focusedIndex && this._offscreenFocusedItem) {
-          el = this._offscreenFocusedItem;
-        }
-        if (el) {
-          var inst = el._templateInstance;
-          if (dot >= 0) {
-            path = this.as + '.' + path.substring(dot+1);
-            inst.notifyPath(path, value, true);
-          } else {
-            inst[this.as] = value;
-          }
-        }
+
+      if (idx === this._focusedIndex && this._offscreenFocusedItem) {
+        el = this._offscreenFocusedItem;
+      }
+      if (!el) {
+        return;
+      }
+        
+      inst = el._templateInstance;
+
+      if (inst.__key__ !== key) {
+        return;
+      }
+      if (dot >= 0) {
+        path = this.as + '.' + path.substring(dot+1);
+        inst.notifyPath(path, value, true);
+      } else {
+        inst[this.as] = value;
       }
     },
 
