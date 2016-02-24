@@ -814,7 +814,7 @@ will only render 20.
       var nextPhysicalCount = Math.min(
           this._physicalCount + missingItems,
           this._virtualCount - this._virtualStart,
-          this.maxPhysicalCount
+          Math.max(this.maxPhysicalCount, DEFAULT_PHYSICAL_COUNT)
         );
       var prevPhysicalCount = this._physicalCount;
       var delta = nextPhysicalCount - prevPhysicalCount;
