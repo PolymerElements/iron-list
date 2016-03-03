@@ -9,7 +9,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <!doctype html>
-<html id="html">
+<html>
 <head>
 
   <title>Collapsable items using iron-list</title>
@@ -150,7 +150,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <paper-icon-button icon="more-vert" alt="More options"></paper-icon-button>
     </app-toolbar>
 
-    <iron-list id="list" items="[[items]]" as="item" scroll-target="html" selection-enabled multi-selection>
+    <iron-list id="list" items="[[items]]" as="item" selection-enabled multi-selection>
       <template>
         <div>
           <div class$="[[getClassForItem(item, selected)]]" tabindex$="[[tabIndex]]">
@@ -181,6 +181,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: Array
           }
 
+        },
+
+        attached: function() {
+          // Use the document element
+          this.$.list.scrollTarget = this.ownerDocument.documentElement;
         },
 
         iconForItem: function(item) {
