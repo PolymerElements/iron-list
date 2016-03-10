@@ -1253,14 +1253,19 @@ will only render 20.
       if (IOS && Math.abs(this._viewportSize - this._scrollTargetHeight) < 100) {
         return;
       }
-      this._debounceTemplate(function() {
-        this._render();
-        if (this._itemsRendered && this._physicalItems && this._isVisible) {
-          this._resetAverage();
-          this.updateViewportBoundaries();
-          this.scrollToIndex(this.firstVisibleIndex);
-        }
-      });
+      // In Desktop Safari 9.0.3, if the scroll bars are always shown, 
+      // changing the scroll position from a resize handler would result in 
+      // the scroll position being reset. Waiting 1ms fixes the issue. 
+      Polymer.dom.addDebouncer(this.debounce('_debounceTemplate',
+        function() {
+          this._render();
+
+          if (this._itemsRendered && this._physicalItems && this._isVisible) {
+            this._resetAverage();
+            this.updateViewportBoundaries();
+            this.scrollToIndex(this.firstVisibleIndex);
+          }
+        }.bind(this), 1));
     },
 
     _getModelFromItem: function(item) {
