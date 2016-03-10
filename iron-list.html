@@ -286,10 +286,6 @@ will only render 20.
       Polymer.IronScrollTargetBehavior
     ],
 
-    listeners: {
-      'iron-resize': '_resizeHandler'
-    },
-
     keyBindings: {
       'up': '_didMoveUp',
       'down': '_didMoveDown',
@@ -593,10 +589,14 @@ will only render 20.
     attached: function() {
       this.updateViewportBoundaries();
       this._render();
+      // `iron-resize` is fired when the list is attached if the event is added 
+      // before attached causing unnecessary work.
+      this.listen(this, 'iron-resize', '_resizeHandler');
     },
 
     detached: function() {
       this._itemsRendered = false;
+      this.unlisten(this, 'iron-resize', '_resizeHandler');
     },
 
     /**
