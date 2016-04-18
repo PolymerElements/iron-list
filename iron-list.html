@@ -454,12 +454,12 @@ will only render 20.
     /**
      * The width of each grid item
      */
-    _itemWidth: null,
+    _itemWidth: 0,
 
     /**
-     * The width of each grid item
+     * The height of the row in grid layout.
      */
-    _rowHeight: null,
+    _rowHeight: 0,
 
     /**
      * The bottom of the physical content.
@@ -1138,6 +1138,12 @@ will only render 20.
       }
     },
 
+    /**
+     * Returns the virtual index for a given physical index
+     *
+     * @param {number} pidx Physical index
+     * @return {number}
+     */
     _computeVidx: function(pidx) {
       if (pidx >= this._physicalStart) {
         return this._virtualStart + (pidx - this._physicalStart);
@@ -1212,13 +1218,10 @@ will only render 20.
 
     _updateGridMetrics: function() {
       this._viewportWidth = this._scrollTargetWidth;
-
       // Set item width to the value of the _physicalItems offsetWidth
       this._itemWidth = this._physicalCount > 0 ? this._physicalItems[0].offsetWidth : DEFAULT_GRID_SIZE;
-
-      // Set row height ot the value of the _physicalItems offsetHeight
+      // Set row height to the value of the _physicalItems offsetHeight
       this._rowHeight = this._physicalCount > 0 ? this._physicalItems[0].offsetHeight : DEFAULT_GRID_SIZE;
-
       // If in grid mode compute how many items with exist in each row
       this._itemsPerRow = this._itemWidth ? Math.floor(this._viewportWidth / this._itemWidth) : this._itemsPerRow;
     },
@@ -1230,7 +1233,6 @@ will only render 20.
       this._adjustScrollPosition();
 
       var y = this._physicalTop;
-
       var totalItemWidth = this._itemsPerRow * this._itemWidth;
       var rowOffset = (this._viewportWidth - totalItemWidth) / 2;
 
@@ -1239,23 +1241,22 @@ will only render 20.
           var modulus = vidx % this._itemsPerRow;
           var x = Math.floor((modulus * this._itemWidth) + rowOffset);
           this.translate3d(x + 'px', y + 'px', 0, this._physicalItems[pidx]);
+
+          if (this._shouldRenderNextRow(pidx)) {
+            y += this._rowHeight;
+          }
         } else {
           this.translate3d(0, y + 'px', 0, this._physicalItems[pidx]);
-        }
-
-        if (this._shouldRenderNextRow(this.grid ? vidx : pidx)) {
-          var increment = parseInt(this.grid ? this._rowHeight : this._physicalSizes[pidx]);
-          y += isNaN(increment) ? 0 : increment;
+          y += this._physicalSizes[pidx];
         }
       });
     },
 
-     _getPhysicalSizeIncrement: function(pidx, incrementAtEndOfRow) {
+     _getPhysicalSizeIncrement: function(pidx) {
       if (!this.grid) {
         return this._physicalSizes[pidx];
       }
-      var vidx = this._computeVidx(pidx);
-      if (vidx % this._itemsPerRow !== (this._itemsPerRow - 1)) {
+      if (this._computeVidx(pidx) % this._itemsPerRow !== this._itemsPerRow - 1) {
         return 0;
       }
       return this._rowHeight;
@@ -1266,6 +1267,7 @@ will only render 20.
      * whether or not the next index will need
      * to be rendered on a new row.
      *
+     * @param {number} pidx Physical index
      * @return {boolean}
      */
     _shouldRenderNextRow: function(pidx) {
