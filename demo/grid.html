@@ -9,10 +9,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <!doctype html>
-<html id="html">
+<html>
 <head>
-
-  <title>iron-list and paper-scroll-header-panel demo</title>
+  <title>Grid layout using iron-list</title>
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=no">
@@ -25,105 +24,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
   <link rel="import" href="../../app-layout/app-header/app-header.html">
   <link rel="import" href="../../app-layout/app-toolbar/app-toolbar.html">
-  <link rel="import" href="../../app-layout/app-scroll-effects/app-scroll-effects.html">
-  <link rel="import" href="../../paper-icon-button/paper-icon-button.html">
+  <link rel="import" href="../../app-layout/app-scroll-effects/effects/waterfall.html">
   <link rel="import" href="../../iron-ajax/iron-ajax.html">
-  <link rel="import" href="../../iron-icons/iron-icons.html">
+  <link rel="import" href="../../iron-image/iron-image.html">
+  <link rel="import" href="../../iron-scroll-threshold/iron-scroll-threshold.html">
+  <link rel="import" href="../../paper-spinner/paper-spinner.html">
   <link rel="import" href="../iron-list.html">
 
-  <style is="custom-style">
+  <style>
+
     body {
-      @apply(--layout-fullbleed);
+      margin: 0;
+      background-color: #f6f6f6;
       font-family: 'Roboto', 'Noto', sans-serif;
-      background-color: #eee;
-    }
-
-    app-header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1;
-      background-color: #0b8043;
-      color: white;
-      --app-header-background-front-layer: {
-        background-color: #4285f4;
-      };
-    }
-
-    app-header paper-icon-button {
-      --paper-icon-button-ink-color: white;
-    }
-
-    [title] {
-      font-weight: 400;
-      margin: 0 0 0 50px;
-    }
-
-    [condensed-title] {
-      font-weight: 400;
-      margin-left: 30px;
-    }
-
-    [condensed-title] i {
-      font-style: normal;
-      font-weight: 100;
-    }
-
-    app-toolbar.tall {
-      height: 148px;
-    }
-
-    iron-list {
-      padding-top: 212px;
-      padding-bottom: 16px;
-    }
-
-    .item {
-      @apply(--layout-horizontal);
-      padding: 20px;
-      border-radius: 8px;
-      background-color: white;
-      border: 1px solid #ddd;
-      width: 200px;
-      height: 50px;
-      margin: 16px auto 0 auto;
-    }
-
-    .item:focus {
-      outline: 0;
-      border-color: #333;
-    }
-
-    .avatar {
-      height: 40px;
-      width: 40px;
-      border-radius: 20px;
-      box-sizing: border-box;
-      background-color: #DDD;
-    }
-
-    .pad {
-      padding: 0 16px;
-      @apply(--layout-flex);
-      @apply(--layout-vertical);
-    }
-
-    .primary {
-      font-size: 30px;
-      font-weight: bold;
-    }
-
-    .secondary {
-      font-size: 14px;
-    }
-
-    .dim {
-      color: gray;
-    }
-
-    .spacer {
-      @apply(--layout-flex);
     }
 
   </style>
@@ -131,44 +44,257 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 </head>
 <body unresolved>
 
-  <template is="dom-bind">
-    <iron-ajax url="data/contacts.json" last-response="{{data}}" auto></iron-ajax>
+  <dom-module id="x-grid">
+    <template>
+      <style>
 
-      <app-header condenses fixed effects="resize-title blend-background waterfall">
+        :host {
+          display: block;
+          @apply(--paper-font-common-base);
+        }
+
+        app-header {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 1;
+          background-color: #4285f4;
+          color: white;
+        }
+
+        iron-list {
+          margin-top: 90px;
+          padding-bottom: 16px;
+        }
+
+        .photoContent {
+          @apply(--layout);
+          background-color: #ddd;
+          position: relative;
+          width: 300px;
+          height: 300px;
+          margin: 8px;
+        }
+
+        .photoContent:hover .detail{
+          opacity: 1;
+        }
+
+        .photoContent > iron-image {
+          @apply(--layout-flex);
+        }
+
+        .photoContent > .detail {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%);
+          color: white;
+          font-weight: 100;
+          padding: 20px;
+          opacity: 0;
+          transition: opacity 0.1s;
+        }
+
+        .searchInput {
+          font-size: 20px;
+          padding: 10px 20px;
+          border: none;
+          @apply(--layout-flex);
+          background-color: rgba(255, 255, 255, 0.2);
+          color: white;
+          -webkit-appearance: none;
+          border-radius: 0px;
+        }
+
+        .searchInput:hover {
+          background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .searchInput:focus {
+          background-color: white;
+          outline: none;
+          color: black;
+        }
+
+        .loadingIndicator {
+          text-align: center;
+          height: 60px;
+        }
+
+        .loadingIndicator paper-spinner {
+          margin-right: 20px;
+          vertical-align: middle;
+        }
+
+        @media (max-width: 800px) {
+          .photoContainer {
+            width: calc(50% - 16px);
+          }
+
+          .photoContent {
+            width: auto;
+          }
+        }
+
+        @media (max-width: 400px) {
+          iron-list {
+            margin-top: 72px;
+          }
+
+          .photoContainer {
+            width: 100%;
+          }
+
+          .photoContent > .detail {
+            opacity: 1;
+          }
+        }
+
+        ::-webkit-input-placeholder {
+          color: rgba(255, 255, 255, 0.5);
+        }
+
+        ::-moz-placeholder {
+          color: rgba(255, 255, 255, 0.5);
+        }
+
+        :-ms-input-placeholder {
+          color: rgba(255, 255, 255, 0.5);
+        }
+
+        ::-ms-input-placeholder {
+          color: rgba(255, 255, 255, 0.5);
+        }
+
+      </style>
+
+      <iron-ajax id="ajax" loading="{{loadingPhotos}}" url="[[_getAPIEndpoint(apiKey, searchText, page)]]"
+          handle-as="text" on-response="_didReceiveResponse"></iron-ajax>
+
+      <app-header fixed effects="waterfall">
         <app-toolbar>
-          <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
-          <h4 condensed-title>iron-list <i>&mdash; Demo</i></h4>
-          <paper-icon-button icon="search"></paper-icon-button>
-          <paper-icon-button icon="more-vert"></paper-icon-button>
-        </app-toolbar>
-        <app-toolbar class="tall">
-          <h1 title>iron-list</h1>
+          <input class="searchInput" type="search" placeholder="Search on Flikr" value="{{searchText::input}}">
         </app-toolbar>
       </app-header>
 
-      <!-- iron-list using the document scroll -->
-      <iron-list items="[[data]]" as="item" scroll-target="html" grid>
+      <iron-list items="[[photos]]" as="photo" scroll-target="document" grid>
         <template>
-          <div>
-            <div class="item" tabindex$="[[tabIndex]]">
-              <img class="avatar" src="[[item.image]]">
-              <div class="pad">
-                <div class="primary">[[item.index]]</div>
-              </div>
-              <iron-icon icon$="[[iconForItem(item)]]"></iron-icon>
+          <div class="photoContainer">
+            <div class="photoContent" tabindex$="[[tabIndex]]">
+              <iron-image sizing="cover"
+                  src="https://farm[[photo.farm]].staticflickr.com/[[photo.server]]/[[photo.id]]_[[photo.secret]].jpg">
+              </iron-image>
+              <div class="detail">[[photo.title]]</div>
             </div>
           </div>
         </template>
       </iron-list>
 
-  </template>
+      <div class="loadingIndicator" hidden$="[[!loadingPhotos]]">
+        <paper-spinner active$="[[loadingPhotos]]"></paper-spinner> Fetching photos for <b>[[searchText]]</b>
+      </div>
+
+      <!-- this element loads more photos when the user scrolls down and reached the lower threshold -->
+      <iron-scroll-threshold id="scrollTheshold"
+        lower-threshold="500"
+        on-lower-threshold="_loadMorePhotos"
+        scroll-target="document">
+      </iron-scroll-threshold>
+
+    </template>
+  </dom-module>
 
   <script>
 
-    document.querySelector('template[is=dom-bind]').iconForItem = function(item) {
-      return item ? (item.integer < 50 ? 'star-border' : 'star') : '';
-    };
+    HTMLImports.whenReady(function() {
+
+      Polymer({
+
+        is: 'x-grid',
+
+        properties: {
+
+          apiKey: {
+            type: String,
+            value: 'c304f1096a06486d3c1e7ab271bf7f3f'
+          },
+
+          photos: Array,
+
+          perPage: {
+            type: Number,
+            value: 100
+          },
+
+          page: {
+            type: Number,
+            value: 1
+          },
+
+          searchText: {
+            type: String,
+            value: 'Big Sur'
+          },
+
+          loadingPhotos: Boolean
+        },
+
+        observers: [
+          '_resetPhotos(searchText)'
+        ],
+
+        _getAPIEndpoint: function(apiKey, searchText, page) {
+          return 'https://api.flickr.com/services/rest/?method=flickr.photos.search' +
+              '&api_key=' + apiKey +
+              '&safe_search=1&sort=interestingness-desc'+
+              '&text=' + encodeURIComponent(searchText) +
+              '&page=' + page +
+              '&format=json' +
+              '&per_page=' + this.perPage;
+        },
+
+        _didReceiveResponse: function(e) {
+          var payload = JSON.parse(e.detail.response.match('jsonFlickrApi\\((.*)\\)')[1]);
+
+          if (!payload || !payload.photos || !payload.photos.photo) {
+            return;
+          }
+
+          payload.photos.photo.forEach(function(photo) {
+            this.push('photos', photo);
+          }, this);
+
+          this.$.scrollTheshold.clearTriggers();
+        },
+
+        _loadMorePhotos: function() {
+          if (this.$.ajax.lastRequest) {
+            this.$.ajax.lastRequest.abort();
+          }
+
+          this.page++;
+          this.$.ajax.generateRequest();
+        },
+
+        _resetPhotos: function(searchText) {
+          this.page = 1;
+          this.photos = [];
+
+          if (searchText.trim() !== '') {
+            this.debounce('_loadPhotos', this._loadMorePhotos, 400);
+          }
+        }
+
+      });
+
+    });
 
   </script>
+
+  <x-grid></x-grid>
+
 </body>
 </html>
