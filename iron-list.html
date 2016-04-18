@@ -1237,7 +1237,7 @@ will only render 20.
       this._iterateItems(function(pidx, vidx) {
         if (this.grid) {
           var modulus = vidx % this._itemsPerRow;
-          var x = ((modulus * this._itemWidth) + rowOffset);
+          var x = Math.floor((modulus * this._itemWidth) + rowOffset);
           this.translate3d(x + 'px', y + 'px', 0, this._physicalItems[pidx]);
         } else {
           this.translate3d(0, y + 'px', 0, this._physicalItems[pidx]);
@@ -1348,7 +1348,7 @@ will only render 20.
       this._updateMetrics();
 
       // estimate new physical offset
-      var estPhysicalTop = Math.ceil(this._virtualStart / this._itemsPerRow)  * this._physicalAverage;
+      var estPhysicalTop = Math.floor(this._virtualStart / this._itemsPerRow)  * this._physicalAverage;
       this._physicalTop = estPhysicalTop;
 
       var currentTopItem = this._physicalStart;
