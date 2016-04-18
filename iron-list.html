@@ -239,8 +239,8 @@ will only render 20.
       },
 
       /**
-       * When true, `iron-list` will render the items in a fixed-width grid. 
-       * The width of each item will be determined from the offsetWidth of 
+       * When true, `iron-list` will render the items in a fixed-width grid.
+       * The width of each item will be determined from the offsetWidth of
        * the provided template DOM
        */
       grid: {
@@ -1265,8 +1265,8 @@ will only render 20.
      * Returns, based on the current index,
      * whether or not the next index will need
      * to be rendered on a new row.
-
-     * @return {(Boolean)}
+     *
+     * @return {boolean}
      */
     _shouldRenderNextRow: function(pidx) {
       return pidx % this._itemsPerRow === this._itemsPerRow - 1;
@@ -1346,7 +1346,7 @@ will only render 20.
       this._assignModels();
       // measure the new sizes
       this._updateMetrics();
-      
+
       // estimate new physical offset
       var estPhysicalTop = Math.ceil(this._virtualStart / this._itemsPerRow)  * this._physicalAverage;
       this._physicalTop = estPhysicalTop;
@@ -1392,9 +1392,9 @@ will only render 20.
       if (IOS && Math.abs(this._viewportHeight - this._scrollTargetHeight) < 100) {
         return;
       }
-      // In Desktop Safari 9.0.3, if the scroll bars are always shown, 
-      // changing the scroll position from a resize handler would result in 
-      // the scroll position being reset. Waiting 1ms fixes the issue. 
+      // In Desktop Safari 9.0.3, if the scroll bars are always shown,
+      // changing the scroll position from a resize handler would result in
+      // the scroll position being reset. Waiting 1ms fixes the issue.
       Polymer.dom.addDebouncer(this.debounce('_debounceTemplate',
         function() {
           this._render();
