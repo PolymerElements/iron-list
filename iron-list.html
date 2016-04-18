@@ -138,6 +138,7 @@ will only render 20.
 @demo demo/selection.html Items selection
 @demo demo/collapse.html Collapsable items
 @demo demo/scroll-threshold.html Scroll thesholds
+@demo demo/grid.html Grid layout
 @demo demo/basic.html Basic list
 
 -->
@@ -1716,7 +1717,9 @@ will only render 20.
       this._focusPhysicalItem(this._focusedIndex - 1);
     },
 
-    _didMoveDown: function() {
+    _didMoveDown: function(e) {
+      // disable scroll when pressing the down key
+      e.detail.keyboardEvent.preventDefault();
       this._focusPhysicalItem(this._focusedIndex + 1);
     },
 
