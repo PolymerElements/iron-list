@@ -1,9 +1,11 @@
 language: node_js
 sudo: required
 before_script:
-  - npm install -g bower polylint web-component-tester
+  - npm install -g bower polylint web-component-tester gulp
+  - npm install
   - bower install
   - polylint
+  - gulp compile
 env:
   global:
     - secure: qC9ustzA7LUlOLi34bsHNYQRkTMd8/KLNTXGGscSgWmSTb2bgyngdWOuIjA6qVvfaHrB/CygMiy17QJn0IeKD18yfGJHu17vYxDy4WW628An3C3VIgXO4F4+LzyDFuoHfK3eQYHrBKh6M8JvG6CVU/QYdOrzuwDtcOkZIEA72N8rj5bROcPygmHZsa/0cjz7Q29lseiI1qpPxcQPMADoJfD4BvnMD7kyJJTkLyq4UDySaWmC8GT6C8PIXeZI8uLQFOc47TQqFnGJg3H6luQoOC5wQ3uv4gBWbek5pY/GAXieDNvuXAdi7cvRziCuW4oG+cYg8NYZCBI7VkMcYhEA7wNzhhcb+OPt5eOgV0YPZjyVRhXktc+ikRQYi2UU9ig66UlJFMRuNcz9al6AAKa4La5Msalv8dJnLc896qebs9eWTN5uAn4QvOJ3KHtuBNppJtJVDi1GLdIWDZgad0paklGyyln0FRwBiQauiOsuvynJBk2H97f/45l95ExEpTNPzpu3rVXkSd5xF8UYzFvw0Fb1gYQa3kNKM10leHQvr+WfQ9t1xfpGpCkPC1YOVFS9HSipBLKGmeFkl3Xa+bMSF+lrEPSHMNTN02Tq1FfIJGOlHTeRhahLldWw0REZZ5xXyzdGa8HKt7gA0aktrkYbFbJNjciN68I+bGqMt3U2KZw=
