@@ -81,6 +81,14 @@ bound from the model object provided to the template scope):
 </template>
 ```
 
+### Grid layout
+
+`iron-list` supports a grid layout in addition to linear layout by setting
+the `grid` attribute.  In this case, the list template item must have both fixed
+width and height (e.g. via CSS), with the desired width of each grid item
+specified by the `width` attribute. Based on this, the number of items
+per row are determined automatically based on the size of the list viewport.
+
 ### Accessibility
 
 `iron-list` automatically manages the focus state for the items. It also provides
