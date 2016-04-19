@@ -713,7 +713,7 @@ will only render 20.
 
       this._viewportHeight = this._scrollTargetHeight;
       if (this.grid) {
-        this._updateGridMetrics(true);
+        this._updateGridMetrics();
       }
     },
 
@@ -876,8 +876,8 @@ will only render 20.
      * @return {boolean} True if the pool was increased.
      */
     _increasePoolIfNeeded: function() {
-      // Base case 1: the list has no size.
-      if (this._viewportSize === 0) {
+      // Base case 1: the list has no height.
+      if (this._viewportHeight === 0) {
         return false;
       }
       // Base case 2: If the physical size is optimal and the list's client height is full
@@ -1427,16 +1427,15 @@ will only render 20.
       // In Desktop Safari 9.0.3, if the scroll bars are always shown,
       // changing the scroll position from a resize handler would result in
       // the scroll position being reset. Waiting 1ms fixes the issue.
-      Polymer.dom.addDebouncer(this.debounce('_debounceTemplate',
-        function() {
-          this._render();
+      Polymer.dom.addDebouncer(this.debounce('_debounceTemplate', function() {
+        this.updateViewportBoundaries();
+        this._render();
 
-          if (this._itemsRendered && this._physicalItems && this._isVisible) {
-            this._resetAverage();
-            this.updateViewportBoundaries();
-            this.scrollToIndex(this.firstVisibleIndex);
-          }
-        }.bind(this), 1));
+        if (this._itemsRendered && this._physicalItems && this._isVisible) {
+          this._resetAverage();
+          this.scrollToIndex(this.firstVisibleIndex);
+        }
+      }.bind(this), 1));
     },
 
     _getModelFromItem: function(item) {
