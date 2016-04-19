@@ -1233,26 +1233,34 @@ will only render 20.
       this._adjustScrollPosition();
 
       var y = this._physicalTop;
-      var totalItemWidth = this._itemsPerRow * this._itemWidth;
-      var rowOffset = (this._viewportWidth - totalItemWidth) / 2;
 
-      this._iterateItems(function(pidx, vidx) {
-        if (this.grid) {
+      if (this.grid) {
+        var totalItemWidth = this._itemsPerRow * this._itemWidth;
+        var rowOffset = (this._viewportWidth - totalItemWidth) / 2;
+
+        this._iterateItems(function(pidx, vidx) {
+
           var modulus = vidx % this._itemsPerRow;
           var x = Math.floor((modulus * this._itemWidth) + rowOffset);
+
           this.translate3d(x + 'px', y + 'px', 0, this._physicalItems[pidx]);
 
-          if (this._shouldRenderNextRow(pidx)) {
+          if (this._shouldRenderNextRow(vidx)) {
             y += this._rowHeight;
           }
-        } else {
+
+        });
+      } else {
+        this._iterateItems(function(pidx, vidx) {
+
           this.translate3d(0, y + 'px', 0, this._physicalItems[pidx]);
           y += this._physicalSizes[pidx];
-        }
-      });
+
+        });
+      }
     },
 
-     _getPhysicalSizeIncrement: function(pidx) {
+    _getPhysicalSizeIncrement: function(pidx) {
       if (!this.grid) {
         return this._physicalSizes[pidx];
       }
@@ -1267,11 +1275,11 @@ will only render 20.
      * whether or not the next index will need
      * to be rendered on a new row.
      *
-     * @param {number} pidx Physical index
+     * @param {number} vidx Virtual index
      * @return {boolean}
      */
-    _shouldRenderNextRow: function(pidx) {
-      return pidx % this._itemsPerRow === this._itemsPerRow - 1;
+    _shouldRenderNextRow: function(vidx) {
+      return vidx % this._itemsPerRow === this._itemsPerRow - 1;
     },
 
     /**
