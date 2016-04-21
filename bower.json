@@ -26,6 +26,7 @@
     "iron-scroll-target-behavior": "PolymerElements/iron-scroll-target-behavior#^1.0.0"
   },
   "devDependencies": {
+    "polymer-exters": "PolymerExterns/polymer-externs#master",
     "app-layout": "PolymerLabs/app-layout#master",
     "iron-flex-layout": "polymerelements/iron-flex-layout#^1.0.0",
     "iron-component-page": "polymerelements/iron-component-page#^1.0.0",
