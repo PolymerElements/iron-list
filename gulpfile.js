@@ -24,7 +24,7 @@ gulp.task('compile', function () {
           hide_warnings_for: jsDeps,
           language_in: 'ECMASCRIPT6_STRICT',
           language_out: 'ECMASCRIPT5_STRICT',
-          externs: 'externs/polymer-externs.js',
+          externs: 'bower_components/polymer-externs/polymer-externs.js',
           polymer_pass: true,
           jscomp_error: [
               "checkTypes",
