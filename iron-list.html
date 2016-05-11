@@ -81,7 +81,8 @@ bound from the model object provided to the template scope):
 
 `iron-list` supports a grid layout in addition to linear layout by setting
 the `grid` attribute.  In this case, the list template item must have both fixed
-width and height (e.g. via CSS). Based on this, the number of items
+width and height (e.g. via CSS), with the desired width of each grid item
+specified by the `width` attribute. Based on this, the number of items
 per row are determined automatically based on the size of the list viewport.
 
 ### Accessibility
@@ -215,6 +216,13 @@ will only render 20.
        */
       items: {
         type: Array
+      },
+
+      defaultItem: {
+        type: Object,
+        value: function() {
+          return {};
+        }
       },
 
       /**
@@ -712,7 +720,7 @@ will only render 20.
 
       this._viewportHeight = this._scrollTargetHeight;
       if (this.grid) {
-        this._updateGridMetrics();
+        this._updateGridMetrics(true);
       }
     },
 
@@ -875,8 +883,8 @@ will only render 20.
      * @return {boolean} True if the pool was increased.
      */
     _increasePoolIfNeeded: function() {
-      // Base case 1: the list has no height.
-      if (this._viewportHeight === 0) {
+      // Base case 1: the list has no size.
+      if (this._viewportSize === 0) {
         return false;
       }
       // Base case 2: If the physical size is optimal and the list's client height is full
@@ -1182,8 +1190,8 @@ will only render 20.
         var inst = el._templateInstance;
         var item = this.items && this.items[vidx];
 
-        if (item != null) {
-          inst[this.as] = item;
+        if (item != null || (!!this.defaultItem && vidx < this.items.length)) {
+          inst[this.as] = item || this.defaultItem;
           inst.__key__ = this._collection.getKey(item);
           inst[this.selectedAs] = /** @type {!ArraySelectorElement} */ (this.$.selector).isSelected(item);
           inst[this.indexAs] = vidx;
@@ -1426,15 +1434,16 @@ will only render 20.
       // In Desktop Safari 9.0.3, if the scroll bars are always shown,
       // changing the scroll position from a resize handler would result in
       // the scroll position being reset. Waiting 1ms fixes the issue.
-      Polymer.dom.addDebouncer(this.debounce('_debounceTemplate', function() {
-        this.updateViewportBoundaries();
-        this._render();
+      Polymer.dom.addDebouncer(this.debounce('_debounceTemplate',
+        function() {
+          this._render();
 
-        if (this._itemsRendered && this._physicalItems && this._isVisible) {
-          this._resetAverage();
-          this.scrollToIndex(this.firstVisibleIndex);
-        }
-      }.bind(this), 1));
+          if (this._itemsRendered && this._physicalItems && this._isVisible) {
+            this._resetAverage();
+            this.updateViewportBoundaries();
+            this.scrollToIndex(this.firstVisibleIndex);
+          }
+        }.bind(this), 1));
     },
 
     _getModelFromItem: function(item) {
