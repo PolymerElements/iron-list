@@ -1238,7 +1238,7 @@ will only render 20.
     },
 
     _updateGridMetrics: function() {
-      this._viewportWidth = this._scrollTargetWidth;
+      this._viewportWidth = this.$.items.offsetWidth;
       // Set item width to the value of the _physicalItems offsetWidth
       this._itemWidth = this._physicalCount > 0 ? this._physicalItems[0].offsetWidth : DEFAULT_GRID_SIZE;
       // Set row height to the value of the _physicalItems offsetHeight
