@@ -1349,16 +1349,26 @@ will only render 20.
         this._scrollHeight = this._estScrollHeight;
       }
     },
+
     /**
      * Scroll to a specific item in the virtual list regardless
      * of the physical items in the DOM tree.
      *
-     * @method scrollToIndex
-     * @param {number} idx The index of the item
+     * @method scrollToItem
+     * @param {(Object|number)} item The item object or its index
      */
-    scrollToIndex: function(idx) {
-      if (typeof idx !== 'number') {
-        return;
+    scrollToItem: function(item){
+      var idx = null;
+
+      if (typeof item === 'number') {
+        idx = item;
+      } else {
+        idx = this.items.indexOf(item);
+      }
+
+      //check if item is in the list
+      if(typeof idx === 'undefined' || idx < 0 || idx > this.items.length - 1){
+        return false;
       }
 
       Polymer.dom.flush();
@@ -1401,6 +1411,19 @@ will only render 20.
       // clear cached visible index
       this._firstVisibleIndexVal = null;
       this._lastVisibleIndexVal = null;
+
+      return true;
+    },
+
+    /**
+     * Scroll to a specific index in the virtual list regardless
+     * of the physical items in the DOM tree.
+     *
+     * @method scrollToIndex
+     * @param {number} idx The index of the item
+     */
+    scrollToIndex: function(idx) {
+      return this.scrollToItem(idx);
     },
 
     /**
