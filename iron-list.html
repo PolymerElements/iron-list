@@ -1023,30 +1023,21 @@ will only render 20.
       if (!this._physicalIndexForKey) {
         return;
       }
-      var inst;
       var dot = path.indexOf('.');
       var key = path.substring(0, dot < 0 ? path.length : dot);
       var idx = this._physicalIndexForKey[key];
-      var el = this._physicalItems[idx];
+      var offscreenItem = this._offscreenFocusedItem;
+      var el = offscreenItem && offscreenItem._templateInstance.__key__ === key ?
+          offscreenItem : this._physicalItems[idx];
 
-
-      if (idx === this._focusedIndex && this._offscreenFocusedItem) {
-        el = this._offscreenFocusedItem;
-      }
-      if (!el) {
-        return;
-      }
-
-      inst = el._templateInstance;
-
-      if (inst.__key__ !== key) {
+      if (!el || el._templateInstance.__key__ !== key) {
         return;
       }
       if (dot >= 0) {
         path = this.as + '.' + path.substring(dot+1);
-        inst.notifyPath(path, value, true);
+        el._templateInstance.notifyPath(path, value, true);
       } else {
-        inst[this.as] = value;
+        el._templateInstance[this.as] = value;
       }
     },
 
