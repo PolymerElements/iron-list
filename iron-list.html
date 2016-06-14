@@ -1042,12 +1042,16 @@ will only render 20.
       if (inst.__key__ !== key) {
         return;
       }
+
+      this.updateSizeForItem(el._templateInstance[this.as]);
+
       if (dot >= 0) {
         path = this.as + '.' + path.substring(dot+1);
         inst.notifyPath(path, value, true);
       } else {
         inst[this.as] = value;
       }
+
     },
 
     /**
@@ -1369,9 +1373,8 @@ will only render 20.
      * @param {number} idx The index of the item
      */
     scrollToIndex: function(idx) {
-      //check if item is in the list
-      if(typeof idx === 'undefined' || idx < 0 || idx > this.items.length - 1){
-        return false;
+      if (typeof idx !== 'number' || idx < 0 || idx > this.items.length - 1) {
+        return;
       }
 
       Polymer.dom.flush();
@@ -1414,8 +1417,6 @@ will only render 20.
       // clear cached visible index
       this._firstVisibleIndexVal = null;
       this._lastVisibleIndexVal = null;
-
-      return true;
     },
 
     /**
