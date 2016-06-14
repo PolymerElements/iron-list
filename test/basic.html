@@ -150,6 +150,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }, 100);
     });
 
+    test('scroll to item', function() {
+      list.items = buildDataSet(100);
+
+      setTimeout(function() {
+        list.scrollToItem(list.items[30]);
+        assert.equal(list.firstVisibleIndex, 30);
+
+        list.scrollToItem(list.items[0]);
+        assert.equal(list.firstVisibleIndex, 0);
+      }, 100);
+    });
+
     test('scroll to top', function(done) {
       list.items = buildDataSet(100);
       Polymer.dom.flush();
