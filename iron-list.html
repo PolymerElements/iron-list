@@ -1228,9 +1228,9 @@ will only render 20.
     },
 
     _updateGridMetrics: function() {
-      this._viewportWidth = this._scrollTargetWidth;
+      this._viewportWidth = this.$.items.offsetWidth;
       // Set item width to the value of the _physicalItems offsetWidth
-      this._itemWidth = this._physicalCount > 0 ? this._physicalItems[0].offsetWidth : DEFAULT_GRID_SIZE;
+      this._itemWidth = this._physicalCount > 0 ? this._physicalItems[0].getBoundingClientRect().width : DEFAULT_GRID_SIZE;
       // Set row height to the value of the _physicalItems offsetHeight
       this._rowHeight = this._physicalCount > 0 ? this._physicalItems[0].offsetHeight : DEFAULT_GRID_SIZE;
       // If in grid mode compute how many items with exist in each row
