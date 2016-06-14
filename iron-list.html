@@ -1042,9 +1042,7 @@ will only render 20.
       if (inst.__key__ !== key) {
         return;
       }
-
-      this.updateSizeForItem(el._templateInstance[this.as]);
-
+      
       if (dot >= 0) {
         path = this.as + '.' + path.substring(dot+1);
         inst.notifyPath(path, value, true);
