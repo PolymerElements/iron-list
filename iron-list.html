@@ -1033,14 +1033,24 @@ will only render 20.
       if (!el || el._templateInstance.__key__ !== key) {
         return;
       }
-      
       if (dot >= 0) {
         path = this.as + '.' + path.substring(dot+1);
         el._templateInstance.notifyPath(path, value, true);
       } else {
+        // Update selection if needed
+        var currentItem = el._templateInstance[this.as];
+        if (Array.isArray(this.selectedItems)) {
+          for (var i = 0; i < this.selectedItems.length; i++) {
+            if (this.selectedItems[i] === currentItem) {
+              this.set('selectedItems.' + i, value);
+              break;
+            }
+          }
+        } else if (this.selectedItem === currentItem) {
+          this.set('selectedItem', value);
+        }
         el._templateInstance[this.as] = value;
       }
-
     },
 
     /**
