@@ -398,6 +398,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         assert.equal(list.selectedItems.length, 0);
       });
 
+      test('tapping on a focusable child should not change the selection', function() {
+        list.items = buildDataSet(1);
+        list.selectionEnabled = true;
+        Polymer.dom.flush();
+        var node = document.createElement('div');
+        node.innerText = 'focusable';
+        node.tabIndex = 0;
+        Polymer.dom(getFirstItemFromList(list)).appendChild(node);
+        Polymer.dom.flush();
+        node.focus();
+        MockInteractions.tap(node);
+        assert.isNull(list.selectedItem);
+      });
     });
 
   </script>
