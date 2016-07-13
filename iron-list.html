@@ -1260,7 +1260,7 @@ will only render 20.
           var modulus = vidx % this._itemsPerRow;
           var x = Math.floor((modulus * this._itemWidth) + rowOffset);
 
-          this.translate3d(x + 'px', y + 'px', 0, this._physicalItems[pidx]);
+          this.transform('translate(' + x + 'px,' + y + 'px)', this._physicalItems[pidx]);
 
           if (this._shouldRenderNextRow(vidx)) {
             y += this._rowHeight;
@@ -1270,7 +1270,7 @@ will only render 20.
       } else {
         this._iterateItems(function(pidx, vidx) {
 
-          this.translate3d(0, y + 'px', 0, this._physicalItems[pidx]);
+          this.transform('translate(0,' + y + 'px)', this._physicalItems[pidx]);
           y += this._physicalSizes[pidx];
 
         });
@@ -1711,7 +1711,7 @@ will only render 20.
         // backfill the focused physical item
         this._physicalItems[pidx] = this._focusBackfillItem;
         // hide the focused physical
-        this.translate3d(0, HIDDEN_Y, 0, this._offscreenFocusedItem);
+        this.transform('translate(0,' + HIDDEN_Y + ')',  this._offscreenFocusedItem);
       }
     },
 
@@ -1734,7 +1734,7 @@ will only render 20.
         // reset the offscreen focused item
         this._offscreenFocusedItem = null;
         // hide the physical item that backfills
-        this.translate3d(0, HIDDEN_Y, 0, this._focusBackfillItem);
+        this.transform('translate(0,' + HIDDEN_Y + ')',  this._focusBackfillItem);
       }
     },
 
