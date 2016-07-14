@@ -13,33 +13,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../iron-list.html">
 
 <dom-module id="x-list">
-
-  <style>
-    :host {
-      @apply(--layout-fit);
-      @apply(--layout-vertical);
-
-      display: block;
-    }
-
-    .item {
-      color: white;
-    }
-
-    .item:nth-child(odd) {
-      background-color: green;
-    }
-
-    .item:nth-child(even) {
-      background-color: red;
-    }
-
-    iron-list {
-      overflow: hidden;
-    }
-  </style>
-
   <template>
+    <style>
+      :host {
+        @apply(--layout-fit);
+        @apply(--layout-vertical);
+
+        display: block;
+      }
+
+      .item {
+        color: white;
+      }
+
+      .item:nth-child(odd) {
+        background-color: green;
+      }
+
+      .item:nth-child(even) {
+        background-color: red;
+      }
+
+      iron-list {
+        overflow: hidden;
+      }
+    </style>
+
     <iron-list style$="[[_computedListHeight(listHeight)]]" items="[[data]]" as="item" id="list">
       <template>
         <div class="item" tabindex$="[[tabIndex]]">
