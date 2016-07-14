@@ -13,21 +13,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../iron-list.html">
 
 <dom-module id="x-grid">
-
-  <style>
-    :host {
-      @apply(--layout-fit);
-      @apply(--layout-vertical);
-
-      display: block;
-    }
-
-    iron-list {
-      overflow: hidden;
-    }
-  </style>
-
   <template>
+    <style>
+      :host {
+        @apply(--layout-fit);
+        @apply(--layout-vertical);
+
+        display: block;
+      }
+
+      iron-list {
+        overflow: hidden;
+      }
+    </style>
+    
     <iron-list style$="[[_computedListSize(listSize)]]" items="[[data]]" as="item" id="list" grid>
       <template>
         <div class="item">
