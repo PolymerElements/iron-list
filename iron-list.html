@@ -1185,11 +1185,13 @@ will only render 20.
         var el = this._physicalItems[pidx];
         var inst = el._templateInstance;
         var item = this.items && this.items[vidx];
+		var selected = true;
 
         if (item != null || (!!this.defaultItem && vidx < this.items.length)) {
           inst[this.as] = item || this.defaultItem;
           inst.__key__ = this._collection.getKey(item);
-          inst[this.selectedAs] = /** @type {!ArraySelectorElement} */ (this.$.selector).isSelected(item);
+		  selected = (typeof item !== 'undefined') && /** @type {!ArraySelectorElement} */ (this.$.selector).isSelected(item);
+          inst[this.selectedAs] = selected;
           inst[this.indexAs] = vidx;
           inst.tabIndex = this._focusedIndex === vidx ? 0 : -1;
           this._physicalIndexForKey[inst.__key__] = pidx;
