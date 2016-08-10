@@ -202,7 +202,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <!-- this element loads more photos when the user scrolls down and reached the lower threshold -->
       <iron-scroll-threshold id="scrollTheshold"
         lower-threshold="500"
-        on-lower-threshold="_loadMorePhotos"
+        on-lower-threshold="_onLowerThreshold"
         scroll-target="document">
       </iron-scroll-threshold>
 
@@ -233,7 +233,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           page: {
             type: Number,
-            value: 1
+            value: 0
           },
 
           searchText: {
@@ -272,17 +272,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.$.scrollTheshold.clearTriggers();
         },
 
+        _onLowerThreshold: function() {
+          this.debounce('_loadPhotos', this._loadMorePhotos, 60);
+        },
+
         _loadMorePhotos: function() {
           if (this.$.ajax.lastRequest) {
             this.$.ajax.lastRequest.abort();
           }
-
           this.page++;
           this.$.ajax.generateRequest();
         },
 
         _resetPhotos: function(searchText) {
-          this.page = 1;
+          this.page = 0;
           this.photos = [];
 
           if (searchText.trim() !== '') {
