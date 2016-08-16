@@ -194,7 +194,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <app-drawer-layout fullbleed>
         <div class="content">
           <app-toolbar class="pink-toolbar">
-            <div title>Selection using iron-list</div>
+            <div main-title>Selection using iron-list</div>
             <div>
               <paper-icon-button icon="star" alt="Starred" drawer-toggle></paper-icon-button>
               <paper-badge label$="[[selectedItems.length]]"></paper-badge>
@@ -222,7 +222,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <app-drawer align="right">
           <div class="content">
             <app-toolbar class="white-toolbar">
-              <div title>[[_getFormattedCount(selectedItems.length)]] Selected contacts</div>
+              <div main-title>[[_getFormattedCount(selectedItems.length)]] Selected contacts</div>
             </app-toolbar>
             <template is="dom-if" if="[[!selectedItems.length]]">
               <div class="no-selection">Select a contact</div>
