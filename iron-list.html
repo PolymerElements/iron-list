@@ -1583,9 +1583,10 @@ will only render 20.
       model.tabIndex = SECRET_TABINDEX;
       activeElTabIndex = activeEl ? activeEl.tabIndex : -1;
       model.tabIndex = modelTabIndex;
+
       // Only select the item if the tap wasn't on a focusable child
       // or the element bound to `tabIndex`
-      if (activeEl && physicalItem.contains(activeEl) && activeElTabIndex !== SECRET_TABINDEX) {
+      if (activeEl && physicalItem !== activeEl && physicalItem.contains(activeEl) && activeElTabIndex !== SECRET_TABINDEX) {
         return;
       }
       this.toggleSelectionForItem(model[this.as]);
