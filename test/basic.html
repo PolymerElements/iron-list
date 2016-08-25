@@ -150,6 +150,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }, 100);
     });
 
+    test('scroll to index while not attached', function() {
+      var tmpList = document.createElement('iron-list');
+      Polymer.dom(tmpList).appendChild(document.createElement('template'));
+      tmpList.items = buildDataSet(100);
+      assert.equal(tmpList._virtualStart, 0);
+      tmpList.scrollToIndex(50);
+      assert.equal(tmpList._virtualStart, 0);
+    });
+
     test('scroll to item', function(done) {
       list.items = buildDataSet(100);
 
