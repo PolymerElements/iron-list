@@ -508,12 +508,6 @@ will only render 20.
     _collection: null,
 
     /**
-     * True if the current item list was rendered for the first time
-     * after attached.
-     */
-    _itemsRendered: false,
-
-    /**
      * The max number of pages to render. One page is equivalent to the height of the list.
      */
     _maxPages: 3,
@@ -555,7 +549,9 @@ will only render 20.
      */
     _rowHeight: 0,
 
-
+    /**
+     * The cost of stamping a template in ms.
+     */
     _templateCost: 0,
 
     /**
@@ -975,7 +971,7 @@ will only render 20.
       // Polymer/issues/3895
       Polymer.dom.addDebouncer({
         complete: function() {
-          g.cancelIdleCallback ? g.cancelIdleCallback(handle) : g.clearInterval(handle);
+          g.cancelIdleCallback ? g.cancelIdleCallback(handle) : g.clearTimeout(handle);
           cb();
         }
       });
