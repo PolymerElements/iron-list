@@ -963,18 +963,18 @@ will only render 20.
         this._increasePool(maxPoolSize);
         return true;
       }
-      this.yield(function() {
+      this._yield(function() {
         self._increasePool(Math.min(maxPoolSize, Math.max(1, Math.round(50 / self._templateCost))));
       });
       return true;
     },
 
-    yield: function(cb) {
+    _yield: function(cb) {
       var g = window;
       var handle = g.requestIdleCallback ? g.requestIdleCallback(cb) : g.setTimeout(cb, 16);
       // Polymer/issues/3895
       Polymer.dom.addDebouncer({
-        complete: function()  {
+        complete: function() {
           g.cancelIdleCallback ? g.cancelIdleCallback(handle) : g.clearInterval(handle);
           cb();
         }
