@@ -956,7 +956,7 @@ will only render 20.
       var maxPoolSize = Math.round(this._physicalCount * 0.5);
       // Increase the pool synchronously until the client is filled.
       if (!isClientFull) {
-        this._increasePool(maxPoolSize);
+        this._debounceTemplate(this._increasePool.bind(this, maxPoolSize));
         return true;
       }
       this._yield(function() {
