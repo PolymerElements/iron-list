@@ -969,12 +969,12 @@ will only render 20.
       var g = window;
       var handle = g.requestIdleCallback ? g.requestIdleCallback(cb) : g.setTimeout(cb, 16);
       // Polymer/issues/3895
-      Polymer.dom.addDebouncer({
+      Polymer.dom.addDebouncer(/** @type {!Polymer.Debouncer} */({
         complete: function() {
           g.cancelIdleCallback ? g.cancelIdleCallback(handle) : g.clearTimeout(handle);
           cb();
         }
-      });
+      }));
     },
 
     /**
