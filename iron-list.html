@@ -988,7 +988,7 @@ will only render 20.
         );
       var prevPhysicalCount = this._physicalCount;
       var delta = nextPhysicalCount - prevPhysicalCount;
-      var ts = performance.now();
+      var ts = window.performance.now();
 
       if (delta <= 0) {
         return;
@@ -1006,7 +1006,7 @@ will only render 20.
         this._physicalStart = this._physicalStart + delta;
       }
       this._update();
-      this._templateCost = (performance.now() - ts) / delta;
+      this._templateCost = (window.performance.now() - ts) / delta;
     },
 
     /**
