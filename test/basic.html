@@ -150,6 +150,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }, 100);
     });
 
+    test('scroll to index while not attached', function() {
+      var tmpList = document.createElement('iron-list');
+      Polymer.dom(tmpList).appendChild(document.createElement('template'));
+      tmpList.items = buildDataSet(100);
+      assert.equal(tmpList._virtualStart, 0);
+      tmpList.scrollToIndex(50);
+      assert.equal(tmpList._virtualStart, 0);
+    });
+
     test('scroll to item', function(done) {
       list.items = buildDataSet(100);
 
@@ -203,24 +212,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }, 100);
     });
 
-    test('reset items', function(done) {
+    test('reset items', function() {
       list.items = buildDataSet(100);
+      Polymer.dom.flush();
+      assert.equal(getFirstItemFromList(list).textContent, '0');
+      list.items = null;
+      Polymer.dom.flush();
+      assert.notEqual(getFirstItemFromList(list).textContent, '0');
+      list.items = buildDataSet(100);
+      Polymer.dom.flush();
+      assert.equal(getFirstItemFromList(list).textContent, '0');
+    });
 
-      flush(function() {
-        assert.equal(getFirstItemFromList(list).textContent, '0');
-
-        list.items = null;
-
-        flush(function() {
-          assert.notEqual(getFirstItemFromList(list).textContent, '0');
-          list.items = buildDataSet(100);
-
-          flush(function() {
-            assert.equal(getFirstItemFromList(list).textContent, '0');
-            done();
-          });
-        });
-      });
+    test('visibility', function() {
+      list.items = buildDataSet(100);
+      Polymer.dom.flush();
+      assert.isTrue(list._isVisible);
+      list.style.display = 'none';
+      assert.isFalse(list._isVisible);
+      // Use main document scrolling
+      list.style.display = '';
+      list.scrollTarget = list.ownerDocument.documentElement;
+      assert.isTrue(list._isVisible);
+      list.style.display = 'none';
+      assert.isFalse(list._isVisible);
+      list.style.display = '';
+      // what if the list is using document scroll, but no template has been stamped.
+      list.style.height = '0px';
+      assert.isTrue(list._isVisible);
     });
 
   });

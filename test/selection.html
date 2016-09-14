@@ -411,6 +411,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         MockInteractions.tap(node);
         assert.isNull(list.selectedItem);
       });
+
+      test('try to select active element', function() {
+        container.useTabIndex = false;
+        list.items = buildDataSet(1);
+        list.selectionEnabled = true;
+        Polymer.dom.flush();
+
+        var item = list._physicalItems[0];
+        item.focus();
+        MockInteractions.tap(item);
+        assert.isNotNull(list.selectedItem);
+      });
     });
 
   </script>
