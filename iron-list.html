@@ -833,33 +833,43 @@ will only render 20.
       var virtualEnd = this._virtualEnd;
       var physicalCount = this._physicalCount;
       var physicalTop = this._physicalTop;
+      var scrollTop = this._scrollTop;
+      var scrollBottom = this._scrollBottom;
 
       if (fromTop) {
         ith = this._physicalStart;
         lastIth = this._physicalEnd;
-        offsetContent = this._scrollTop - this._physicalTop;
+        offsetContent = scrollTop - physicalTop;
       } else {
         ith = this._physicalEnd;
         lastIth = this._physicalStart;
-        offsetContent = this._physicalBottom - this._scrollBottom;
+        offsetContent = this._physicalBottom - scrollBottom;
       }
-
       while (true) {
         physicalItemHeight = this._getPhysicalSizeIncrement(ith);
         offsetContent = offsetContent - physicalItemHeight;
-
         if (idxs.length >= physicalCount || offsetContent <= protectedOffsetContent) {
           break;
         }
         if (fromTop) {
+          // Check that index is within the valid range.
           if (virtualEnd + idxs.length + 1 >= this._virtualCount) {
+            break;
+          }
+          // Check that the index is not visible.
+          if (physicalTop + physicalItemHeight >= scrollTop) {
             break;
           }
           idxs.push(ith);
           physicalTop = physicalTop + physicalItemHeight;
           ith = (ith + 1) % physicalCount;
         } else {
+          // Check that index is within the valid range.
           if (virtualStart - idxs.length <= 0) {
+            break;
+          }
+          // Check that the index is not visible.
+          if (physicalTop + this._physicalSize - physicalItemHeight <= scrollBottom) {
             break;
           }
           idxs.push(ith);
@@ -876,6 +886,9 @@ will only render 20.
      * @param {!Array<number>=} movingUp
      */
     _update: function(itemSet, movingUp) {
+      if (itemSet && itemSet.length === 0) {
+        return;
+      }
       this._manageFocus();
       this._assignModels(itemSet);
       this._updateMetrics(itemSet);
@@ -994,6 +1007,13 @@ will only render 20.
         if (this._physicalCount === 0) {
           this._increasePool(DEFAULT_PHYSICAL_COUNT);
         } else {
+          // Try to recycle nodes
+          var reusables = this._getReusables(true);
+          this._physicalTop = reusables.physicalTop;
+          console.log('reusables: ', reusables.indexes.slice());
+          this._virtualStart = this._virtualStart + reusables.indexes.length;
+          this._physicalStart = this._physicalStart + reusables.indexes.length;
+          this._update(reusables.indexes);
           this._update();
         }
       }
@@ -1129,12 +1149,7 @@ will only render 20.
       } else if (change.path === 'items.splices') {
         this._adjustVirtualIndex(change.value.indexSplices);
         this._virtualCount = this.items ? this.items.length : 0;
-        // Try to recycle nodes
-        var reusables = this._getReusables(true);
-        this._physicalTop = reusables.physicalTop;
-        this._virtualStart = this._virtualStart + reusables.indexes.length;
-        this._physicalStart = this._physicalStart + reusables.indexes.length;
-        this._update(reusables.indexes);
+        
         this._debounceTemplate(this._render);
 
       } else {
@@ -1229,7 +1244,6 @@ will only render 20.
         var el = this._physicalItems[pidx];
         var inst = el._templateInstance;
         var item = this.items && this.items[vidx];
-
         if (item != null) {
           inst[this.as] = item;
           inst.__key__ = this._collection.getKey(item);
@@ -1626,7 +1640,6 @@ will only render 20.
       model.tabIndex = SECRET_TABINDEX;
       activeElTabIndex = activeEl ? activeEl.tabIndex : -1;
       model.tabIndex = modelTabIndex;
-
       // Only select the item if the tap wasn't on a focusable child
       // or the element bound to `tabIndex`
       if (activeEl && physicalItem !== activeEl && physicalItem.contains(activeEl) && activeElTabIndex !== SECRET_TABINDEX) {
@@ -1707,7 +1720,6 @@ will only render 20.
       var physicalItem = this._physicalItems[this._getPhysicalIndex(idx)];
       var model = physicalItem._templateInstance;
       var focusable;
-
       // set a secret tab index
       model.tabIndex = SECRET_TABINDEX;
       // check if focusable element is the physical item
