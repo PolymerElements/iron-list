@@ -385,6 +385,19 @@ will only render 20.
       multiSelection: {
         type: Boolean,
         value: false
+      },
+
+      /**
+       * The function that determinates the height of the item. 
+       * By default, the height is determinated by reading the `offsetHeight` property, 
+       * but in many cases that isn't neccesary if the height is known upfront.
+       *
+       * This function receives a reference to the DOM node that 
+       * would represent the item.
+       */
+      itemHeight: {
+        type: Function,
+        observer: '_itemHeightChanged'
       }
     },
 
@@ -739,6 +752,7 @@ will only render 20.
       return Math.ceil(this._physicalCount / this._itemsPerRow);
     },
 
+
     ready: function() {
       this.addEventListener('focus', this._didFocus.bind(this), true);
     },
@@ -755,6 +769,16 @@ will only render 20.
 
     detached: function() {
       this.unlisten(this, 'iron-resize', '_resizeHandler');
+    },
+
+    _itemHeightFn: function(node) {
+      return node.offsetHeight;
+    },
+
+    _itemHeightChanged: function(itemHeight) {
+      var dataHost = this._getRootDataHost();
+      this._itemHeightFn = itemHeight && (typeof itemHeight == 'function' ? itemHeight :
+        function() { return dataHost[itemHeight].apply(dataHost, arguments); });
     },
 
     /**
@@ -1010,7 +1034,6 @@ will only render 20.
           // Try to recycle nodes
           var reusables = this._getReusables(true);
           this._physicalTop = reusables.physicalTop;
-          console.log('reusables: ', reusables.indexes.slice());
           this._virtualStart = this._virtualStart + reusables.indexes.length;
           this._physicalStart = this._physicalStart + reusables.indexes.length;
           this._update(reusables.indexes);
@@ -1149,7 +1172,6 @@ will only render 20.
       } else if (change.path === 'items.splices') {
         this._adjustVirtualIndex(change.value.indexSplices);
         this._virtualCount = this.items ? this.items.length : 0;
-        
         this._debounceTemplate(this._render);
 
       } else {
@@ -1275,12 +1297,10 @@ will only render 20.
       var prevPhysicalAvg = this._physicalAverage;
 
       this._iterateItems(function(pidx, vidx) {
-
         oldPhysicalSize += this._physicalSizes[pidx] || 0;
-        this._physicalSizes[pidx] = this._physicalItems[pidx].offsetHeight;
+        this._physicalSizes[pidx] = this._itemHeightFn(this._physicalItems[pidx]);
         newPhysicalSize += this._physicalSizes[pidx];
         this._physicalAverageCount += this._physicalSizes[pidx] ? 1 : 0;
-
       }, itemSet);
 
       this._viewportHeight = this._scrollTargetHeight;
@@ -1290,7 +1310,6 @@ will only render 20.
       } else {
         this._physicalSize = this._physicalSize + newPhysicalSize - oldPhysicalSize;
       }
-
       // Update the average if it measured something.
       if (this._physicalAverageCount !== prevAvgCount) {
         this._physicalAverage = Math.round(

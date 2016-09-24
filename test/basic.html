@@ -279,6 +279,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       test = 1;
     });
 
+    test('itemHeight', function() {
+      var itemHeight = 10;
+      list.itemHeight = function(node) {
+        return itemHeight;
+      };
+      list.items = buildDataSet(100);
+      Polymer.dom.flush();
+      assert.equal(getLastItemFromList(list).textContent, Math.round(list.offsetHeight / itemHeight) - 1);
+    });
+
   });
 </script>
 
