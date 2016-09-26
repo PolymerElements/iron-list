@@ -813,7 +813,7 @@ will only render 20.
       // random access
       if (Math.abs(delta) > this._physicalSize) {
         this._physicalTop += delta;
-        recycledTiles =  Math.round(delta / this._physicalAverage);
+        recycledTiles =  Math.round(delta / this._physicalAverage) * this._itemsPerRow;
       }
       // scroll up
       else if (delta < 0) {
