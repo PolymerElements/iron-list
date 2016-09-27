@@ -266,6 +266,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             test = 3;
           } else {
             assert.isTrue(scrollerSpy.called, 'should call the scroll handler when the list is rendered 2');
+            document.body.style.height = '';
+            window.scrollTo(0, 0);
             done();
           }
         });
