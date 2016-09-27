@@ -278,7 +278,8 @@ will only render 20.
   var IOS_TOUCH_SCROLLING = IOS && IOS[1] >= 8;
   var DEFAULT_PHYSICAL_COUNT = 3;
   var HIDDEN_Y = '-10000px';
-  var DEFAULT_GRID_SIZE = 200;
+  var ITEM_WIDTH = 0;
+  var ITEM_HEIGHT = 1;
   var SECRET_TABINDEX = -100;
 
   Polymer({
@@ -395,9 +396,9 @@ will only render 20.
        * This function receives a reference to the DOM node that 
        * would represent the item.
        */
-      itemHeight: {
+      itemSize: {
         type: Function,
-        observer: '_itemHeightChanged'
+        observer: '_itemSizeChanged'
       }
     },
 
@@ -752,13 +753,11 @@ will only render 20.
       return Math.ceil(this._physicalCount / this._itemsPerRow);
     },
 
-
     ready: function() {
       this.addEventListener('focus', this._didFocus.bind(this), true);
     },
 
     attached: function() {
-      this.updateViewportBoundaries();
       if (this._physicalCount === 0) {
         this._debounceTemplate(this._render);
       }
@@ -771,14 +770,18 @@ will only render 20.
       this.unlisten(this, 'iron-resize', '_resizeHandler');
     },
 
-    _itemHeightFn: function(node) {
-      return node.offsetHeight;
+    _itemSizeFn: function(node, is, list) {
+      if (is === ITEM_WIDTH) {
+        return list.grid ? node.getBoundingClientRect().width : node.offsetWidth;
+      } else {
+        return list.grid ? node.getBoundingClientRect().height : node.offsetHeight;
+      }
     },
 
-    _itemHeightChanged: function(itemHeight) {
+    _itemSizeChanged: function(itemSize) {
       var dataHost = this._getRootDataHost();
-      this._itemHeightFn = itemHeight && (typeof itemHeight == 'function' ? itemHeight :
-        function() { return dataHost[itemHeight].apply(dataHost, arguments); });
+      this._itemSizeFn = itemSize && (typeof itemSize == 'function' ? itemSize :
+        function() { return dataHost[itemSize].apply(dataHost, arguments); });
     },
 
     /**
@@ -798,11 +801,8 @@ will only render 20.
     updateViewportBoundaries: function() {
       this._scrollerPaddingTop = this.scrollTarget === this ? 0 :
           parseInt(window.getComputedStyle(this)['padding-top'], 10);
-
       this._viewportHeight = this._scrollTargetHeight;
-      if (this.grid) {
-        this._updateGridMetrics();
-      }
+      this.grid && this._updateGridMetrics();
     },
 
     /**
@@ -1024,11 +1024,12 @@ will only render 20.
     },
 
     /**
-     * Render a new list of items.
+     * Renders the a new list.
      */
     _render: function() {
       if (this.isAttached && this._isVisible) {
         if (this._physicalCount === 0) {
+          this.updateViewportBoundaries();
           this._increasePool(DEFAULT_PHYSICAL_COUNT);
         } else {
           // Try to recycle nodes
@@ -1298,12 +1299,10 @@ will only render 20.
 
       this._iterateItems(function(pidx, vidx) {
         oldPhysicalSize += this._physicalSizes[pidx] || 0;
-        this._physicalSizes[pidx] = this._itemHeightFn(this._physicalItems[pidx]);
+        this._physicalSizes[pidx] = this._itemSizeFn(this._physicalItems[pidx], ITEM_HEIGHT, this);
         newPhysicalSize += this._physicalSizes[pidx];
         this._physicalAverageCount += this._physicalSizes[pidx] ? 1 : 0;
       }, itemSet);
-
-      this._viewportHeight = this._scrollTargetHeight;
       if (this.grid) {
         this._updateGridMetrics();
         this._physicalSize = Math.ceil(this._physicalCount / this._itemsPerRow) * this._rowHeight;
@@ -1320,11 +1319,8 @@ will only render 20.
 
     _updateGridMetrics: function() {
       this._viewportWidth = this.$.items.offsetWidth;
-      // Set item width to the value of the _physicalItems offsetWidth
-      this._itemWidth = this._physicalCount > 0 ? this._physicalItems[0].getBoundingClientRect().width : DEFAULT_GRID_SIZE;
-      // Set row height to the value of the _physicalItems offsetHeight
-      this._rowHeight = this._physicalCount > 0 ? this._physicalItems[0].offsetHeight : DEFAULT_GRID_SIZE;
-      // If in grid mode compute how many items with exist in each row
+      this._itemWidth = this._physicalCount > 0 ? this._itemSizeFn(this._physicalItems[0], ITEM_WIDTH, this) : 200;
+      this._rowHeight = this._physicalCount > 0 ? this._itemSizeFn(this._physicalItems[0], ITEM_HEIGHT, this) : 200;
       this._itemsPerRow = this._itemWidth ? Math.floor(this._viewportWidth / this._itemWidth) : this._itemsPerRow;
     },
 
