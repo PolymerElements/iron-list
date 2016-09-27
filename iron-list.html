@@ -278,7 +278,8 @@ will only render 20.
   var IOS_TOUCH_SCROLLING = IOS && IOS[1] >= 8;
   var DEFAULT_PHYSICAL_COUNT = 3;
   var HIDDEN_Y = '-10000px';
-  var DEFAULT_GRID_SIZE = 200;
+  var ITEM_WIDTH = 0;
+  var ITEM_HEIGHT = 1;
   var SECRET_TABINDEX = -100;
 
   Polymer({
@@ -744,7 +745,6 @@ will only render 20.
     },
 
     attached: function() {
-      this.updateViewportBoundaries();
       if (this._physicalCount === 0) {
         this._debounceTemplate(this._render);
       }
@@ -774,11 +774,8 @@ will only render 20.
     updateViewportBoundaries: function() {
       this._scrollerPaddingTop = this.scrollTarget === this ? 0 :
           parseInt(window.getComputedStyle(this)['padding-top'], 10);
-
       this._viewportHeight = this._scrollTargetHeight;
-      if (this.grid) {
-        this._updateGridMetrics();
-      }
+      this.grid && this._updateGridMetrics();
     },
 
     /**
@@ -1000,11 +997,12 @@ will only render 20.
     },
 
     /**
-     * Render a new list of items.
+     * Renders the a new list.
      */
     _render: function() {
       if (this.isAttached && this._isVisible) {
         if (this._physicalCount === 0) {
+          this.updateViewportBoundaries();
           this._increasePool(DEFAULT_PHYSICAL_COUNT);
         } else {
           // Try to recycle nodes
@@ -1149,7 +1147,7 @@ will only render 20.
       } else if (change.path === 'items.splices') {
         this._adjustVirtualIndex(change.value.indexSplices);
         this._virtualCount = this.items ? this.items.length : 0;
-        
+
         this._debounceTemplate(this._render);
 
       } else {
@@ -1275,22 +1273,18 @@ will only render 20.
       var prevPhysicalAvg = this._physicalAverage;
 
       this._iterateItems(function(pidx, vidx) {
-
         oldPhysicalSize += this._physicalSizes[pidx] || 0;
         this._physicalSizes[pidx] = this._physicalItems[pidx].offsetHeight;
         newPhysicalSize += this._physicalSizes[pidx];
         this._physicalAverageCount += this._physicalSizes[pidx] ? 1 : 0;
-
       }, itemSet);
-
-      this._viewportHeight = this._scrollTargetHeight;
+      
       if (this.grid) {
         this._updateGridMetrics();
         this._physicalSize = Math.ceil(this._physicalCount / this._itemsPerRow) * this._rowHeight;
       } else {
         this._physicalSize = this._physicalSize + newPhysicalSize - oldPhysicalSize;
       }
-
       // Update the average if it measured something.
       if (this._physicalAverageCount !== prevAvgCount) {
         this._physicalAverage = Math.round(
@@ -1301,11 +1295,8 @@ will only render 20.
 
     _updateGridMetrics: function() {
       this._viewportWidth = this.$.items.offsetWidth;
-      // Set item width to the value of the _physicalItems offsetWidth
-      this._itemWidth = this._physicalCount > 0 ? this._physicalItems[0].getBoundingClientRect().width : DEFAULT_GRID_SIZE;
-      // Set row height to the value of the _physicalItems offsetHeight
-      this._rowHeight = this._physicalCount > 0 ? this._physicalItems[0].offsetHeight : DEFAULT_GRID_SIZE;
-      // If in grid mode compute how many items with exist in each row
+      this._itemWidth = this._physicalCount > 0 ? this._physicalItems[0].getBoundingClientRect().width : 200;
+      this._rowHeight = this._physicalCount > 0 ? this._physicalItems[0].offsetHeight : 200;
       this._itemsPerRow = this._itemWidth ? Math.floor(this._viewportWidth / this._itemWidth) : this._itemsPerRow;
     },
 
