@@ -1493,10 +1493,12 @@ will only render 20.
       Polymer.dom.addDebouncer(this.debounce('_debounceTemplate', function() {
         this.updateViewportBoundaries();
         this._render();
-        if (this._physicalCount > 0 && this._isVisible) {
+        if (this._isVisible) {
           this.toggleScrollListener(true);
-          this._resetAverage();
-          this.scrollToIndex(this.firstVisibleIndex);
+          if (this._physicalCount > 0) {
+            this._resetAverage();
+            this.scrollToIndex(this.firstVisibleIndex);
+          }
         } else {
           this.toggleScrollListener(false);
         }
