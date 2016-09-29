@@ -389,12 +389,12 @@ will only render 20.
       },
 
       /**
-       * The function that determinates the height of the item. 
-       * By default, the height is determinated by reading the `offsetHeight` property, 
-       * but in many cases that isn't neccesary if the height is known upfront.
+       * The function that determinates the size of the item.
+       * By default, the size of an item is determinated by reading the `offsetWidth/offsetHeight`
+       * property, but in many cases that isn't neccesary if the size is known upfront.
        *
-       * This function receives a reference to the DOM node that 
-       * would represent the item.
+       * This function receives a reference to the item's DOM node, a measurement type
+       * _(0 for width and 1 for height)_, and a reference to the list itself.
        */
       itemSize: {
         type: Function,
