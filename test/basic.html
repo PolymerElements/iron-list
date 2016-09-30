@@ -121,33 +121,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       assert.equal(list.lastVisibleIndex, ((list._scrollTop + container.listHeight) / container.itemHeight) - 1);
     });
 
-    test('scroll to index', function(done) {
+    test('scroll to index', function() {
       list.items = buildDataSet(100);
 
-      setTimeout(function() {
-        list.scrollToIndex(30);
-        assert.equal(list.firstVisibleIndex, 30);
+      Polymer.dom.flush();
+      list.scrollToIndex(30);
+      assert.equal(list.firstVisibleIndex, 30);
 
-        list.scrollToIndex(0);
-        assert.equal(list.firstVisibleIndex, 0);
+      list.scrollToIndex(0);
+      assert.equal(list.firstVisibleIndex, 0);
 
-        var rowHeight = getFirstItemFromList(list).offsetHeight;
-        var viewportHeight = list.offsetHeight;
-        var itemsPerViewport = Math.floor(viewportHeight/rowHeight);
+      var rowHeight = getFirstItemFromList(list).offsetHeight;
+      var viewportHeight = list.offsetHeight;
+      var itemsPerViewport = Math.floor(viewportHeight/rowHeight);
 
-        list.scrollToIndex(99);
-        assert.equal(list.firstVisibleIndex, list.items.length - itemsPerViewport);
+      list.scrollToIndex(99);
+      assert.equal(list.firstVisibleIndex, list.items.length - itemsPerViewport);
 
-        // make the height of the viewport same as the height of the row
-        // and scroll to the last item
-        list.style.height = list._physicalItems[0].offsetHeight + 'px';
+      // make the height of the viewport same as the height of the row
+      // and scroll to the last item
+      list.style.height = list._physicalItems[0].offsetHeight + 'px';
+      list.fire('iron-resize');
+      Polymer.dom.flush();
+      list.scrollToIndex(99);
 
-        setTimeout(function() {
-          list.scrollToIndex(99);
-          assert.equal(list.firstVisibleIndex, 99);
-          done();
-        }, 100);
-      }, 100);
+      assert.equal(list.firstVisibleIndex, 99);      
     });
 
     test('scroll to index while not attached', function() {
@@ -159,33 +157,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       assert.equal(tmpList._virtualStart, 0);
     });
 
-    test('scroll to item', function(done) {
+    test('scroll to item', function() {
       list.items = buildDataSet(100);
 
-      setTimeout(function() {
-        list.scrollToItem(list.items[30]);
-        assert.equal(list.firstVisibleIndex, 30);
+      Polymer.dom.flush();
+      list.scrollToItem(list.items[30]);
+      assert.equal(list.firstVisibleIndex, 30);
 
-        list.scrollToItem(list.items[0]);
-        assert.equal(list.firstVisibleIndex, 0);
+      list.scrollToItem(list.items[0]);
+      assert.equal(list.firstVisibleIndex, 0);
 
-        var rowHeight = getFirstItemFromList(list).offsetHeight;
-        var viewportHeight = list.offsetHeight;
-        var itemsPerViewport = Math.floor(viewportHeight/rowHeight);
+      var rowHeight = getFirstItemFromList(list).offsetHeight;
+      var viewportHeight = list.offsetHeight;
+      var itemsPerViewport = Math.floor(viewportHeight/rowHeight);
 
-        list.scrollToItem(list.items[99]);
-        assert.equal(list.firstVisibleIndex, list.items.length - itemsPerViewport);
+      list.scrollToItem(list.items[99]);
+      assert.equal(list.firstVisibleIndex, list.items.length - itemsPerViewport);
 
-        // make the height of the viewport same as the height of the row
-        // and scroll to the last item
-        list.style.height = list._physicalItems[0].offsetHeight + 'px';
-
-        setTimeout(function() {
-          list.scrollToItem(list.items[99]);
-          assert.equal(list.firstVisibleIndex, 99);
-          done();
-        }, 100);
-      }, 100);
+      // make the height of the viewport same as the height of the row
+      // and scroll to the last item
+      list.style.height = list._physicalItems[0].offsetHeight + 'px';
+      list.fire('iron-resize');
+      Polymer.dom.flush();
+      list.scrollToItem(list.items[99]);
+      assert.equal(list.firstVisibleIndex, 99);
     });
 
     test('scroll to top', function(done) {
@@ -271,6 +266,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             test = 3;
           } else {
             assert.isTrue(scrollerSpy.called, 'should call the scroll handler when the list is rendered 2');
+            document.body.style.height = '';
+            window.scrollTo(0, 0);
             done();
           }
         });
