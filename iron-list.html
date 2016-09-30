@@ -1010,7 +1010,6 @@ will only render 20.
           // Try to recycle nodes
           var reusables = this._getReusables(true);
           this._physicalTop = reusables.physicalTop;
-          console.log('reusables: ', reusables.indexes.slice());
           this._virtualStart = this._virtualStart + reusables.indexes.length;
           this._physicalStart = this._physicalStart + reusables.indexes.length;
           this._update(reusables.indexes);
