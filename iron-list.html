@@ -1244,6 +1244,15 @@ will only render 20.
         var item = this.items && this.items[vidx];
         if (item != null) {
           inst[this.as] = item;
+
+          if(item && typeof item === 'object' && !Array.isArray(item)) {
+            for(var prop in item) {
+              if(item.hasOwnProperty(prop)) {
+                inst.set([this.as, prop], item[prop]);
+              }
+            }
+          }
+
           inst.__key__ = this._collection.getKey(item);
           inst[this.selectedAs] = /** @type {!ArraySelectorElement} */ (this.$.selector).isSelected(item);
           inst[this.indexAs] = vidx;
