@@ -830,7 +830,7 @@ will only render 20.
       var virtualStart = this._virtualStart;
       var virtualEnd = this._virtualEnd;
       var physicalCount = this._physicalCount;
-      var physicalTop = this._physicalTop;
+      var physicalTop = this._physicalTop + this._scrollerPaddingTop;
       var scrollTop = this._scrollTop;
       var scrollBottom = this._scrollBottom;
 
@@ -875,7 +875,7 @@ will only render 20.
           ith = (ith === 0) ? physicalCount - 1 : ith - 1;
         }
       }
-      return { indexes: idxs, physicalTop: physicalTop };
+      return { indexes: idxs, physicalTop: physicalTop - this._scrollerPaddingTop };
     },
 
     /**
@@ -1278,7 +1278,7 @@ will only render 20.
         newPhysicalSize += this._physicalSizes[pidx];
         this._physicalAverageCount += this._physicalSizes[pidx] ? 1 : 0;
       }, itemSet);
-      
+
       if (this.grid) {
         this._updateGridMetrics();
         this._physicalSize = Math.ceil(this._physicalCount / this._itemsPerRow) * this._rowHeight;
