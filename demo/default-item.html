@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+
+  <title>iron-list demo</title>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+  <link rel="import" href="../../polymer/polymer.html">
+  <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
+  <link rel="import" href="../../iron-ajax/iron-ajax.html">
+  <link rel="import" href="../iron-list.html">
+
+  <style is="custom-style">
+
+    iron-list {
+      @apply(--layout-fit);
+    }
+
+    .item {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+
+  </style>
+
+</head>
+<body>
+
+	<template is="dom-bind" id="list">
+		<iron-list
+			items="[[items]]"
+			default-item="[[defaultItem]]">
+				<template>
+					<div>
+						<h2>[[item.title]]</h2>
+						<p>[[item.description]]</p>
+					</div>
+				</template>
+		</iron-list>
+	</template>
+
+	<script>
+	(function(){
+		var list = document.querySelector('#list');
+		list.defaultItem = {
+			title: 'Loading...',
+			description: 'This item will be available soon, please wait.'
+		};
+		var items = Array(1000);
+		items[0] = {
+			title: 'This Item is Loaded',
+			description:
+				'We hope that it is everything for which you could have hoped.'
+		};
+		items[1] = {
+			title: 'This Item is Also Loaded',
+			description: 'Are the returns on this endeavor deminishing?'
+		};
+		list.items = items;
+	})();
+	</script>
+
+</body>
+</html>
