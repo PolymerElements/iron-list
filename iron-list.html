@@ -1523,10 +1523,10 @@ will only render 20.
       if (this._collection.getKey(item) === undefined) {
         if (typeof item === 'number') {
           item = this.items[item];
-          if (!item) {
+          if (!item && !this.defaultItem) {
             throw new RangeError('<item> not found');
           }
-          return item;
+          return item || this.defaultItem;
         }
         throw new TypeError('<item> should be a valid item');
       }
@@ -1630,6 +1630,11 @@ will only render 20.
       var target = Polymer.dom(e).path[0];
       var activeEl = Polymer.dom(this.domHost ? this.domHost.root : document).activeElement;
       var physicalItem = this._physicalItems[this._getPhysicalIndex(model[this.indexAs])];
+	  // Don't select when the item is displaying this.defaultItem
+	  // meaning there is no way to reference a physical item
+	  if (typeof physicalItem === 'undefined') {
+		  return;
+	  }
       // Safari does not focus certain form controls via mouse
       // https://bugs.webkit.org/show_bug.cgi?id=118043
       if (target.localName === 'input' ||
