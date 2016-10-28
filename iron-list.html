@@ -1253,8 +1253,8 @@ will only render 20.
         var item = this.items && this.items[vidx];
         var selected = true;
 
-        if (item != null || (!!this.defaultItem && vidx < this.items.length)) {
-          inst[this.as] = item || this.defaultItem;
+        if (item != null || (typeof this.items !== 'undefined' && this.items != null && !!this.defaultItem && vidx < this.items.length)) {
+          inst[this.as] = (typeof item !== 'undefined') ? item : this.defaultItem;
           inst.__key__ = this._collection.getKey(item);
           selected = (typeof item !== 'undefined') && /** @type {!ArraySelectorElement} */ (this.$.selector).isSelected(item);
           inst[this.selectedAs] = selected;
@@ -1522,12 +1522,12 @@ will only render 20.
      */
     _getNormalizedItem: function(item) {
       if (this._collection.getKey(item) === undefined) {
-        if (typeof item === 'number') {
+        if (typeof item === 'number' && item < this.items.length) {
           item = this.items[item];
           if (!item && !this.defaultItem) {
             throw new RangeError('<item> not found');
           }
-          return item || this.defaultItem;
+          return typeof item !== 'undefined' ? item : this.defaultItem;
         }
         throw new TypeError('<item> should be a valid item');
       }
