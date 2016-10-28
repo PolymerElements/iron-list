@@ -1483,7 +1483,8 @@ will only render 20.
      */
     _resizeHandler: function() {
       // iOS fires the resize event when the address bar slides up
-      if (IOS && Math.abs(this._viewportHeight - this._scrollTargetHeight) < 100) {
+      var delta = Math.abs(this._viewportHeight - this._scrollTargetHeight);
+      if (IOS && delta > 0 && delta < 100) {
         return;
       }
       // In Desktop Safari 9.0.3, if the scroll bars are always shown,
