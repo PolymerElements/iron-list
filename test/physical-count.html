@@ -92,7 +92,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         list.fire('iron-resize');
         
         flush(function() {
-          assert.isFalse(list._increasePoolIfNeeded());
+          assert.equal(list._physicalCount, 0);
           done();
         });
       });
