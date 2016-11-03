@@ -663,7 +663,7 @@ will only render 20.
       if (this.grid) {
         return this._estRowsInView * this._rowHeight * this._maxPages;
       }
-      return this._viewportHeight * this._maxPages;
+      return this._viewportHeight === 0 ? Infinity : this._viewportHeight * this._maxPages;
     },
 
    /**
@@ -928,10 +928,6 @@ will only render 20.
      * @return {boolean} True if the pool was increased.
      */
     _increasePoolIfNeeded: function() {
-      // Base case 1: the list has no height.
-      if (this._viewportHeight === 0) {
-        return false;
-      }
       var self = this;
       var isClientFull = this._physicalBottom >= this._scrollBottom &&
           this._physicalTop <= this._scrollPosition;
