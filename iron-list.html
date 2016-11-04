@@ -1474,7 +1474,7 @@ will only render 20.
       // In Desktop Safari 9.0.3, if the scroll bars are always shown,
       // changing the scroll position from a resize handler would result in
       // the scroll position being reset. Waiting 1ms fixes the issue.
-      Polymer.dom.addDebouncer(this.debounce('_debounceTemplate', function() {
+      this._debounceTemplate(function() {
         this.updateViewportBoundaries();
         this._render();
         if (this._isVisible) {
@@ -1486,7 +1486,7 @@ will only render 20.
         } else {
           this.toggleScrollListener(false);
         }
-      }.bind(this), 1));
+      }.bind(this));
     },
 
     _getModelFromItem: function(item) {
