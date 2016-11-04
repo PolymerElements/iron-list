@@ -1417,7 +1417,6 @@ will only render 20.
       if (typeof idx !== 'number' || idx < 0 || idx > this.items.length - 1) {
         return;
       }
-
       Polymer.dom.flush();
       // Items should have been rendered prior scrolling to an index.
       if (this._physicalCount === 0) {
@@ -1473,14 +1472,11 @@ will only render 20.
         if (('ontouchstart' in window || navigator.maxTouchPoints > 0) && delta > 0 && delta < 100) {
           return;
         }
-        this._render();
         if (this._isVisible) {
           // Reinstall the scroll event listener.
           this.toggleScrollListener(true);
-          if (this._physicalCount > 0) {
-            this._resetAverage();
-            this.scrollToIndex(this.firstVisibleIndex);
-          }
+          this._resetAverage();
+          this._render();
         } else {
           // Uninstall the scroll event listener.
           this.toggleScrollListener(false);
