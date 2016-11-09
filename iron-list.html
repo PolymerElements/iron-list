@@ -1136,7 +1136,9 @@ will only render 20.
         this._physicalItems = this._physicalItems || [];
         this._physicalSizes = this._physicalSizes || [];
         this._physicalStart = 0;
-        this._resetScrollPosition(0);
+        if (this._scrollTop > this._scrollerPaddingTop) {
+          this._resetScrollPosition(0);
+        }
         this._removeFocusedItem();
         this._debounceTemplate(this._render);
 
