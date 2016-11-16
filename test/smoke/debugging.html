@@ -95,30 +95,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 </head>
 <body unresolved>
 
-  <template is="dom-bind">
-    <h1>debuging</h1>
-    <div class="group">
-      <p>100 items, 50px tall</p>
-      <div class="wrapper">
-          <div id="scroller">
-            <div class="fake-content"></div>
-          </div>
-          <iron-list id="list1" as="item" items="[[items]]" scroll-target="scroller">
-            <template>
-              <div class="item" style$="[[_getStyle(item)]]"><span>[[index]]</span> height: <span>[[item]]</span>
-              <div>
-                <paper-button raised>Test</paper-button>
-                <paper-button raised>Test</paper-button>
-                <paper-button raised>Test</paper-button>
-                <paper-button raised>Test</paper-button>
-              </div>
-              </div>
-            </template>
-          </iron-list>
+  <dom-bind>
+    <template>
+      <h1>debuging</h1>
+      <div class="group">
+        <p>100 items, 50px tall</p>
+        <div class="wrapper">
+            <div id="scroller">
+              <div class="fake-content"></div>
+            </div>
+            <iron-list id="list1" as="item" items="[[items]]" scroll-target="scroller">
+              <template>
+                <div class="item" style$="[[_getStyle(item)]]"><span>[[index]]</span> height: <span>[[item]]</span>
+                <div>
+                  <paper-button raised>Test</paper-button>
+                  <paper-button raised>Test</paper-button>
+                  <paper-button raised>Test</paper-button>
+                  <paper-button raised>Test</paper-button>
+                </div>
+                </div>
+              </template>
+            </iron-list>
 
+        </div>
       </div>
-    </div>
-  </template>
+    </template>
+  </dom-bind>
 
   <script>
     function arrayFill(size, value) {
@@ -139,7 +141,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     }
 
-    document.querySelector('template[is=dom-bind]')._getStyle = function(item) {
+    document.querySelector('dom-bind')._getStyle = function(item) {
       return 'height:' + item + 'px; ';
     };
 

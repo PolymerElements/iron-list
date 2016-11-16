@@ -25,36 +25,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
   <link rel="import" href="../../iron-ajax/iron-ajax.html">
   <link rel="import" href="../iron-list.html">
+  
+  <custom-style>
+    <style is="custom-style">
 
-  <style is="custom-style">
+      iron-list {
+        @apply --layout-fit;
+      }
 
-    iron-list {
-      @apply(--layout-fit);
-    }
+      .item {
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+      }
 
-    .item {
-      padding: 10px;
-      border-bottom: 1px solid #ccc;
-    }
-
-  </style>
+    </style>
+  </custom-style>
 
 </head>
 <body>
 
-  <template is="dom-bind">
-    <iron-ajax url="data/contacts.json" last-response="{{data}}" auto></iron-ajax>
-
-    <iron-list items="[[data]]" as="item">
-      <template>
-        <div class="item">
-        <b>#[[index]] - [[item.name]]</b>
-        <p>[[item.longText]]</p>
-        </div>
-      </template>
-    </iron-list>
-
-  </template>
+  <dom-bind>
+    <template>
+      <iron-ajax url="data/contacts.json" last-response="{{data}}" auto></iron-ajax>
+      <iron-list items="[[data]]" as="item" id="list">
+        <template>
+          <div class="item">
+            <b>#[[index]] - [[item.index]] - [[item.name]]</b>
+            <p>[[item.longText]]</p>
+          </div>
+        </template>
+      </iron-list>
+    </template>
+  </dom-bind>
 
 </body>
 </html>
