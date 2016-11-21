@@ -672,7 +672,7 @@ will only render 20.
       if (this.grid) {
         return this._estRowsInView * this._rowHeight * this._maxPages;
       }
-      return this._viewportHeight * this._maxPages;
+      return this._viewportHeight === 0 ? Infinity : this._viewportHeight * this._maxPages;
     },
 
    /**
@@ -937,10 +937,6 @@ will only render 20.
      * @return {boolean} True if the pool was increased.
      */
     _increasePoolIfNeeded: function() {
-      // Base case 1: the list has no height.
-      if (this._viewportHeight === 0) {
-        return false;
-      }
       var self = this;
       var isClientFull = this._physicalBottom >= this._scrollBottom &&
           this._physicalTop <= this._scrollPosition;
@@ -1149,7 +1145,9 @@ will only render 20.
         this._physicalItems = this._physicalItems || [];
         this._physicalSizes = this._physicalSizes || [];
         this._physicalStart = 0;
-        this._resetScrollPosition(0);
+        if (this._scrollTop > this._scrollerPaddingTop) {
+          this._resetScrollPosition(0);
+        }
         this._removeFocusedItem();
         this._debounceTemplate(this._render);
 
@@ -1433,7 +1431,6 @@ will only render 20.
       if (typeof idx !== 'number' || idx < 0 || idx > this.items.length - 1) {
         return;
       }
-
       Polymer.dom.flush();
       // Items should have been rendered prior scrolling to an index.
       if (this._physicalCount === 0) {
@@ -1482,27 +1479,23 @@ will only render 20.
      * when the element is resized.
      */
     _resizeHandler: function() {
-      // iOS fires the resize event when the address bar slides up
-      var delta = Math.abs(this._viewportHeight - this._scrollTargetHeight);
-      if (IOS && delta > 0 && delta < 100) {
-        return;
-      }
-      // In Desktop Safari 9.0.3, if the scroll bars are always shown,
-      // changing the scroll position from a resize handler would result in
-      // the scroll position being reset. Waiting 1ms fixes the issue.
-      Polymer.dom.addDebouncer(this.debounce('_debounceTemplate', function() {
+      this._debounceTemplate(function() {
+        // Skip the resize event on touch devices when the address bar slides up.
+        var delta = Math.abs(this._viewportHeight - this._scrollTargetHeight);
         this.updateViewportBoundaries();
-        this._render();
+        if (('ontouchstart' in window || navigator.maxTouchPoints > 0) && delta > 0 && delta < 100) {
+          return;
+        }
         if (this._isVisible) {
+          // Reinstall the scroll event listener.
           this.toggleScrollListener(true);
-          if (this._physicalCount > 0) {
-            this._resetAverage();
-            this.scrollToIndex(this.firstVisibleIndex);
-          }
+          this._resetAverage();
+          this._render();
         } else {
+          // Uninstall the scroll event listener.
           this.toggleScrollListener(false);
         }
-      }.bind(this), 1));
+      }.bind(this));
     },
 
     _getModelFromItem: function(item) {
@@ -1756,27 +1749,24 @@ will only render 20.
     },
 
     _createFocusBackfillItem: function() {
-      var pidx, fidx = this._focusedIndex;
-      if (this._offscreenFocusedItem || fidx < 0) {
+      var fidx = this._focusedIndex;
+      var pidx = this._getPhysicalIndex(fidx);
+
+      if (this._offscreenFocusedItem || pidx == null || fidx < 0) {
         return;
       }
       if (!this._focusBackfillItem) {
-        // create a physical item, so that it backfills the focused item.
+        // Create a physical item.
         var stampedTemplate = this.stamp(null);
         this._focusBackfillItem = stampedTemplate.root.querySelector('*');
         Polymer.dom(this).appendChild(stampedTemplate.root);
       }
-      // get the physical index for the focused index
-      pidx = this._getPhysicalIndex(fidx);
-
-      if (pidx != null) {
-        // set the offcreen focused physical item
-        this._offscreenFocusedItem = this._physicalItems[pidx];
-        // backfill the focused physical item
-        this._physicalItems[pidx] = this._focusBackfillItem;
-        // hide the focused physical
-        this.translate3d(0, HIDDEN_Y, 0, this._offscreenFocusedItem);
-      }
+      // Set the offcreen focused physical item.
+      this._offscreenFocusedItem = this._physicalItems[pidx];
+      this._offscreenFocusedItem._templateInstance.tabIndex = 0;
+      this._physicalItems[pidx] = this._focusBackfillItem;
+      // Hide the focused physical.
+      this.translate3d(0, HIDDEN_Y, 0, this._offscreenFocusedItem);
     },
 
     _restoreFocusedItem: function() {
@@ -1785,19 +1775,20 @@ will only render 20.
       if (!this._offscreenFocusedItem || this._focusedIndex < 0) {
         return;
       }
-      // assign models to the focused index
+      // Assign models to the focused index.
       this._assignModels();
-      // get the new physical index for the focused index
+      // Get the new physical index for the focused index.
       pidx = this._getPhysicalIndex(fidx);
 
       if (pidx != null) {
-        // flip the focus backfill
+        // Flip the focus backfill.
         this._focusBackfillItem = this._physicalItems[pidx];
-        // restore the focused physical item
+        this._focusBackfillItem._templateInstance.tabIndex = -1;
+        // Restore the focused physical item.
         this._physicalItems[pidx] = this._offscreenFocusedItem;
-        // reset the offscreen focused item
+        // Reset the offscreen focused item.
         this._offscreenFocusedItem = null;
-        // hide the physical item that backfills
+        // Hide the physical item that backfills.
         this.translate3d(0, HIDDEN_Y, 0, this._focusBackfillItem);
       }
     },
@@ -1825,7 +1816,6 @@ will only render 20.
         fidx = targetModel[this.indexAs];
         this._focusedIndex = fidx;
         this._focusedItem = this._physicalItems[this._getPhysicalIndex(fidx)];
-
         if (hasOffscreenFocusedItem && !this._offscreenFocusedItem) {
           this._update();
         }
