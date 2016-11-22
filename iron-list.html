@@ -297,6 +297,15 @@ will only render 20.
       },
 
       /**
+       * The default item to use when items is inited with 'undefiend' members.
+       */
+      defaultItem: {
+        type: Number,
+        value: function() {
+          return {};
+    	}
+      },
+      /**
        * The max count of physical items the pool can extend to.
        */
       maxPhysicalCount: {
@@ -1240,10 +1249,13 @@ will only render 20.
         var el = this._physicalItems[pidx];
         var inst = el._templateInstance;
         var item = this.items && this.items[vidx];
-        if (item != null) {
-          inst[this.as] = item;
+        var selected = true;
+
+        if (item != null || (typeof this.items !== 'undefined' && this.items != null && !!this.defaultItem && vidx < this.items.length)) {
+          inst[this.as] = (typeof item !== 'undefined') ? item : this.defaultItem;
           inst.__key__ = this._collection.getKey(item);
-          inst[this.selectedAs] = /** @type {!ArraySelectorElement} */ (this.$.selector).isSelected(item);
+          selected = (typeof item !== 'undefined') && /** @type {!ArraySelectorElement} */ (this.$.selector).isSelected(item);
+          inst[this.selectedAs] = selected;
           inst[this.indexAs] = vidx;
           inst.tabIndex = this._focusedIndex === vidx ? 0 : -1;
           this._physicalIndexForKey[inst.__key__] = pidx;
@@ -1503,12 +1515,12 @@ will only render 20.
      */
     _getNormalizedItem: function(item) {
       if (this._collection.getKey(item) === undefined) {
-        if (typeof item === 'number') {
+        if (typeof item === 'number' && item < this.items.length) {
           item = this.items[item];
-          if (!item) {
+          if (!item && !this.defaultItem) {
             throw new RangeError('<item> not found');
           }
-          return item;
+          return typeof item !== 'undefined' ? item : this.defaultItem;
         }
         throw new TypeError('<item> should be a valid item');
       }
@@ -1612,6 +1624,11 @@ will only render 20.
       var target = Polymer.dom(e).path[0];
       var activeEl = Polymer.dom(this.domHost ? this.domHost.root : document).activeElement;
       var physicalItem = this._physicalItems[this._getPhysicalIndex(model[this.indexAs])];
+	  // Don't select when the item is displaying this.defaultItem
+	  // meaning there is no way to reference a physical item
+	  if (typeof physicalItem === 'undefined') {
+		  return;
+	  }
       // Safari does not focus certain form controls via mouse
       // https://bugs.webkit.org/show_bug.cgi?id=118043
       if (target.localName === 'input' ||
