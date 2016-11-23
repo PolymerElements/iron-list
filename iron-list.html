@@ -876,13 +876,13 @@ will only render 20.
         // First element child is item; Safari doesn't support children[0]
         // on a doc fragment. Test this to see if it still matters.
         physicalItems[i] = inst.root.querySelector('*');
-        this.appendChild(inst.root);
+        Polymer.dom(this._template.parentNode).appendChild(inst.root);
       }
       return physicalItems;
     },
 
     _isClientFull: function() {
-      return this._physicalBottom >= this._scrollBottom &&
+      return this._scrollBottom != 0 && this._physicalBottom >= this._scrollBottom &&
           this._physicalTop <= this._scrollPosition;
     },
 
@@ -914,14 +914,14 @@ will only render 20.
       if (this._physicalCount === 0) {
         return;
       }
-      var maxPoolSize = Math.round(this._physicalCount * 0.5);
+      var nextIncrease = Math.round(this._physicalCount * 0.5);
       if (!this._isClientFull()) {
         // Yield and increase the pool synchronously until the client is filled.
-        this._debounceRender(this._increasePoolIfNeeded.bind(this, maxPoolSize), Polymer.XAsync.microTask);
+        this._debounceRender(this._increasePoolIfNeeded.bind(this, nextIncrease), Polymer.XAsync.microTask);
       } else if (this._physicalSize < this._optPhysicalSize) {
         // Yield and increase the pool during idle time until the physical size is optimal.
         this._debounceRender(this._increasePoolIfNeeded.bind(this,
-            this._clamp(Math.round(50 / this._templateCost), 1, maxPoolSize)), Polymer.XAsync.rIC);
+            this._clamp(Math.round(50 / this._templateCost), 1, nextIncrease)), Polymer.XAsync.rIC);
       }
     },
 
@@ -931,7 +931,7 @@ will only render 20.
     _render: function() {
       if (this.isAttached && this._isVisible) {
         if (this._physicalCount === 0) {
-          if (this.items) {
+          if (this._virtualCount > 0) {
             // Initial render
             this.updateViewportBoundaries();
             this._increasePoolIfNeeded(DEFAULT_PHYSICAL_COUNT);
@@ -973,7 +973,7 @@ will only render 20.
       if (this._ctor) {
         return;
       }
-      this._template = Polymer.dom(this).querySelector('template');
+      this._template = this.queryEffectiveChildren('template');
       if (!this._template) {
         console.warn('iron-list requires a template to be provided in light-dom');
       }
@@ -1014,12 +1014,13 @@ will only render 20.
         this._adjustVirtualIndex(change.value.indexSplices);
         this._virtualCount = this.items ? this.items.length : 0;
         // Render only if the affected index is rendered.
-        if (change.value.indexSplices.reduce(function(prev, splice) {
+        if (!this._isClientFull() || change.value.indexSplices
+          .reduce(function(prev, splice) {
             return prev || this._isIndexRendered(splice.index);
          }.bind(this), false)) {
-          this._debounceRender(this._render.bind(this), Polymer.XAsync.rAF);
-        }
-      } else {
+         this._debounceRender(this._render.bind(this), Polymer.XAsync.rAF);
+       }
+      } else if (change.path !== 'items.length') {
         this._forwardItemPath(change.path, change.value);
       }
     },
@@ -1027,7 +1028,7 @@ will only render 20.
     _forwardItemPath: function(path, value) {
       path = path.slice(6); // 'items.'.length == 6
       var dot = path.indexOf('.');
-      var idx = dot < 0 ? ~~path : ~~path.substring(0, dot);
+      var idx = parseInt(dot < 0 ? path : path.substring(0, dot), 10);
       var offscreenItem = this._offscreenFocusedItem;
       var isIndexRendered = this._isIndexRendered(idx);
       var inst;
@@ -1582,7 +1583,7 @@ will only render 20.
         // Create a physical item.
         var inst = new this._ctor(this);
         this._focusBackfillItem = inst.root.querySelector('*');
-        Polymer.dom(this).appendChild(inst.root);
+        Polymer.dom(this._template.parentNode).appendChild(inst.root);
       }
       // Set the offcreen focused physical item.
       this._offscreenFocusedItem = this._physicalItems[pidx];
@@ -1684,7 +1685,7 @@ will only render 20.
     },
 
     _clamp: function(v, min, max) {
-      return Math.max(min, Math.min(max, v));
+      return Math.min(max, Math.max(min, v));
     },
 
     _debounceRender: function(cb, timing) {

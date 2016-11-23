@@ -29,8 +29,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <custom-style>
     <style is="custom-style">
 
-      iron-list {
-        @apply --layout-fit;
+      body, html {
+        margin: 0;
+      }
+
+      x-list {
+        width: 100vw;
+        height: 100vh;
       }
 
       .item {
@@ -44,17 +49,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 </head>
 <body>
 
+  <dom-module id="x-list">
+    <template>
+      <style>
+        :host {
+          display: block;
+        }
+
+        iron-list {
+          width: 100%;
+          height: 100%;
+        }
+      </style>
+      <iron-list items="[[items]]" as="[[as]]">
+        <slot></slot>
+      </iron-list>
+    </template>
+    <script>
+      Polymer({
+        is: 'x-list',
+        properties: {
+          items: Array,
+          as: {
+            type: String,
+            value: 'item'
+          }
+        }
+      });
+    </script>
+  </dom-module>
+
   <dom-bind>
     <template>
       <iron-ajax url="data/contacts.json" last-response="{{items}}" auto></iron-ajax>
-      <iron-list items="[[items]]" as="item">
+      <x-list items="[[items]]" as="item">
         <template>
           <div class="item">
             <b>#[[index]] - [[item.index]] - [[item.name]]</b>
             <p>[[item.longText]]</p>
           </div>
         </template>
-      </iron-list>
+      </x-list>
     </template>
   </dom-bind>
 
