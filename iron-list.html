@@ -233,7 +233,6 @@ will only render 20.
     <style>
       :host {
         display: block;
-        position: relative;
       }
 
       @media only screen and (-webkit-max-device-pixel-ratio: 1) {
@@ -773,7 +772,7 @@ will only render 20.
           this._physicalStart = this._physicalStart - reusables.indexes.length;
         }
         this._update(reusables.indexes, isScrollingDown ? null : reusables.indexes);
-        this._increasePoolIfNeeded();
+        this._increasePoolIfNeeded(0);
       }
     },
 
@@ -911,11 +910,10 @@ will only render 20.
         this._update();
         this._templateCost = (window.performance.now() - ts) / delta;
       }
-      if (this._physicalCount === 0) {
-        return;
-      }
       var nextIncrease = Math.round(this._physicalCount * 0.5);
-      if (!this._isClientFull()) {
+      if (this._virtualEnd === this._virtualCount-1 || nextIncrease === 0) {
+        // Do nothing
+      } else if (!this._isClientFull()) {
         // Yield and increase the pool synchronously until the client is filled.
         this._debounceRender(this._increasePoolIfNeeded.bind(this, nextIncrease), Polymer.XAsync.microTask);
       } else if (this._physicalSize < this._optPhysicalSize) {
@@ -944,7 +942,7 @@ will only render 20.
           this._physicalStart = this._physicalStart + reusables.indexes.length;
           this._update(reusables.indexes);
           this._update();
-          this._increasePoolIfNeeded();
+          this._increasePoolIfNeeded(0);
         }
       }
     },
@@ -1343,7 +1341,7 @@ will only render 20.
       this._updateScrollerSize(true);
       this._positionItems();
       this._resetScrollPosition(this._physicalTop + this._scrollerPaddingTop + targetOffsetTop);
-      this._increasePoolIfNeeded();
+      this._increasePoolIfNeeded(0);
       // clear cached visible index.
       this._firstVisibleIndexVal = null;
       this._lastVisibleIndexVal = null;
