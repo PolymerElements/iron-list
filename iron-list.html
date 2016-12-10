@@ -1630,6 +1630,49 @@ will only render 20.
         return;
       }
       this.toggleSelectionForItem(model[this.as]);
+    /**
+     * Updates the models of all physical items 
+     */
+    _updatePhysicalItemModels: function() {
+      this._physicalItems.map(function(el) {
+        return this.modelForElement(el);
+      }.bind(this)).forEach(function(model) {
+        model[this.selectedAs] = (this.$.selector).isSelected(this.items[model[this.indexAs]]);
+      }.bind(this));
+    },
+
+    /**
+     * UnSelect all items in a certain range (inclusive of both start and end)
+     */
+    _deselectRange: function(start, end) {
+      this.items.slice(start, end + 1)
+        .map(function(item) {
+          return this._getNormalizedItem(item);
+        }.bind(this))
+        .filter(function(item) {
+          return (this.$.selector).isSelected(item);
+        }.bind(this))
+        .forEach(function(item) {
+          this.$.selector.deselect(item);
+        }.bind(this));
+      this._updatePhysicalItemModels();
+    },
+
+    /**
+     * Select all items in a certain range (inclusive of both start and end)
+     */
+    _selectRange: function(start, end) {
+      this.items.slice(start, end + 1)
+        .map(function(item) {
+          return this._getNormalizedItem(item);
+        }.bind(this))
+        .filter(function(item) {
+          return !(this.$.selector).isSelected(item);
+        }.bind(this))
+        .forEach(function(item) {
+          this.$.selector.select(item);
+        }.bind(this));
+      this._updatePhysicalItemModels();
     },
 
     _multiSelectionChanged: function(multiSelection) {
