@@ -1297,6 +1297,10 @@ will only render 20.
       this._itemsPerRow = this._itemWidth ? Math.floor(this._viewportWidth / this._itemWidth) : this._itemsPerRow;
     },
 
+    _isRTL: function() {
+      return window.getComputedStyle(this).direction === 'rtl';
+    },
+
     /**
      * Updates the position of the physical items.
      */
@@ -1312,6 +1316,9 @@ will only render 20.
         this._iterateItems(function(pidx, vidx) {
           var modulus = vidx % this._itemsPerRow;
           var x = Math.floor((modulus * this._itemWidth) + rowOffset);
+          if (this._isRTL()) {
+            x = x * -1;
+          }
           this.translate3d(x + 'px', y + 'px', 0, this._physicalItems[pidx]);
           if (this._shouldRenderNextRow(vidx)) {
             y += this._rowHeight;
