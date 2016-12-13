@@ -772,8 +772,10 @@ will only render 20.
      * @method updateViewportBoundaries
      */
     updateViewportBoundaries: function() {
-      this._scrollerPaddingTop = this.scrollTarget === this ? 0 :
-          parseInt(window.getComputedStyle(this)['padding-top'], 10);
+      var styles = window.getComputedStyle(this);
+      this._scrollerPaddingTop =
+          this.scrollTarget === this ? 0 : parseInt(styles['padding-top'], 10);
+      this._isRTL = Boolean(styles.direction === 'rtl');
       this._viewportWidth = this.$.items.offsetWidth;
       this._viewportHeight = this._scrollTargetHeight;
       this.grid && this._updateGridMetrics();
@@ -1312,6 +1314,9 @@ will only render 20.
         this._iterateItems(function(pidx, vidx) {
           var modulus = vidx % this._itemsPerRow;
           var x = Math.floor((modulus * this._itemWidth) + rowOffset);
+          if (this._isRTL) {
+            x = x * -1;
+          }
           this.translate3d(x + 'px', y + 'px', 0, this._physicalItems[pidx]);
           if (this._shouldRenderNextRow(vidx)) {
             y += this._rowHeight;
