@@ -259,6 +259,12 @@ will only render 20.
       }
     </style>
 
+    <array-selector
+        id="selector"
+        items="{{items}}"
+        selected="{{selectedItems}}"
+        selected-item="{{selectedItem}}"></array-selector>
+
     <div id="items">
       <slot></slot>
     </div>
@@ -1072,8 +1078,7 @@ will only render 20.
     },
 
     _removeItem: function(item) {
-      console.error('unimplemented');
-      // this.$.selector.deselect(item);
+      this.$.selector.deselect(item);
       // remove the current focused item
       if (this._focusedItem && this._focusedItem._templateInstance[this.as] === item) {
         this._removeFocusedItem();
@@ -1137,10 +1142,10 @@ will only render 20.
         var item = this.items && this.items[vidx];
         if (item != null) {
           var inst = el._templateInstance;
-          inst.forwardProperty(this.as, item);
-          inst.forwardProperty(this.selectedAs, false);
+          inst.forwardProperty(this.as, item); 
+          inst.forwardProperty(this.selectedAs, this.$.selector.isSelected(item));
           inst.forwardProperty(this.indexAs, vidx);
-          inst.forwardProperty(this.tabIndex, this._focusedIndex === vidx ? 0 : -1);
+          inst.forwardProperty('tabIndex', this._focusedIndex === vidx ? 0 : -1);
           inst.flushProperties();
           el.removeAttribute('hidden');
         } else {
@@ -1377,41 +1382,44 @@ will only render 20.
     },
 
     _getModelFromItem: function(item) {
-      console.error('unimplemented');
-      return null;
-    },
-
-    /**
-     * Gets a valid item instance from its index or the object value.
-     *
-     * @param {(Object|number)} item The item object or its index
-     */
-    _getNormalizedItem: function(item) {
-      console.error('unimplemented');
-      return null;
+      var idx = this.items.indexOf(item);
+      if (!this._isIndexRendered(idx)) {
+        return null;
+      }
+      return this._physicalItems[this._getPhysicalIndex(idx)]._templateInstance;
     },
 
     /**
      * Select the list item at the given index.
      *
      * @method selectItem
-     * @param {(Object|number)} item The item object or its index
+     * @param {Object} item The item instance.
      */
     selectItem: function(item) {
-      console.error('unimplemented');
-      return null;
+      var model = this._getModelFromItem(item);
+      if (!this.multiSelection && this.selectedItem) {
+        this.deselectItem(this.selectedItem);
+      }
+      if (model) {
+        model[this.selectedAs] = true;
+      }
+      this.$.selector.select(item);
+      this.updateSizeForItem(item);
     },
 
     /**
      * Deselects the given item list if it is already selected.
      *
-
      * @method deselect
-     * @param {(Object|number)} item The item object or its index
+     * @param {Object} item The item instance.
      */
     deselectItem: function(item) {
-      console.error('unimplemented');
-      return null;
+      var model = this._getModelFromItem(item);
+      if (model) {
+        model[this.selectedAs] = false;
+      }
+      this.$.selector.deselect(item);
+      this.updateSizeForItem(item);
     },
 
     /**
@@ -1419,11 +1427,14 @@ will only render 20.
      * has already been selected.
      *
      * @method toggleSelectionForItem
-     * @param {(Object|number)} item The item object or its index
+     * @param {Object} item The item object
      */
     toggleSelectionForItem: function(item) {
-      console.error('unimplemented');
-      return null;
+      if (this.$.selector.isSelected(item)) {
+        this.deselectItem(item);
+      } else {
+        this.selectItem(item);
+      }
     },
 
     /**
@@ -1432,8 +1443,18 @@ will only render 20.
      * @method clearSelection
      */
     clearSelection: function() {
-      console.error('unimplemented');
-      return null;
+      function unselect(item) {
+        var model = this._getModelFromItem(item);
+        if (model) {
+          model[this.selectedAs] = false;
+        }
+      }
+      if (Array.isArray(this.selectedItems)) {
+        this.selectedItems.forEach(unselect, this);
+      } else if (this.selectedItem) {
+        unselect.call(this, this.selectedItem);
+      }
+      this.$.selector.clearSelection();
     },
 
     /**
@@ -1478,8 +1499,9 @@ will only render 20.
     },
 
     _multiSelectionChanged: function(multiSelection) {
-      console.error('unimplemented');
       this.clearSelection();
+      // this.$.selector.multi = multiSelection;
+      console.warn('this.$.selector.multi is broken');
     },
 
     /**
@@ -1489,7 +1511,12 @@ will only render 20.
      * @param {(Object|number)} item The item object or its index
      */
     updateSizeForItem: function(item) {
-      console.error('unimplemented');
+      var idx = this.items.indexOf(item);
+      if (!this._isIndexRendered(idx)) {
+        return null;
+      }
+      this._updateMetrics([this._getPhysicalIndex(idx)]);
+      this._positionItems();
       return null;
     },
 
