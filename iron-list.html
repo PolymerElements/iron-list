@@ -1063,11 +1063,13 @@ will only render 20.
      * notifying parent path change on each row.
      */
     _forwardParentProp: function(prop, value) {
-      if (this._physicalItems) {
-        this._physicalItems.forEach(function(item) {
-          item._templateInstance[prop] = value;
-        }, this);
-      }
+      (this._physicalItems || [])
+              .concat([this._offscreenFocusedItem, this._focusBackfillItem])
+              .forEach(function(item) {
+                if (item) {
+                  item._templateInstance[prop] = value;
+                }
+              });
     },
 
     /**
@@ -1076,11 +1078,13 @@ will only render 20.
      * notifying parent.<path> path change on each row.
      */
     _forwardParentPath: function(path, value) {
-      if (this._physicalItems) {
-        this._physicalItems.forEach(function(item) {
-          item._templateInstance.notifyPath(path, value, true);
-        }, this);
-      }
+      (this._physicalItems || [])
+              .concat([this._offscreenFocusedItem, this._focusBackfillItem])
+              .forEach(function(item) {
+                if (item) {
+                  item._templateInstance.notifyPath(path, value, true);
+                }
+              });
     },
 
     /**
