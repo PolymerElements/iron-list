@@ -1028,7 +1028,23 @@ will only render 20.
         props[this.selectedAs] = true;
         props.tabIndex = true;
         this._instanceProps = props;
-        this._userTemplate = Polymer.dom(this).querySelector('template');
+
+        // Add "content" tag support:
+        // https://gist.github.com/robdodson/9acfe6865de2e4fb6732
+        // but also maintain old "template" tag.
+        var content = Polymer.dom(this).querySelector("content");
+        if (content) {
+            var items = Polymer.dom(content).getDistributedNodes();
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].tagName &&
+                    String(items[i].tagName).toLowerCase() === "template") {
+                    this._userTemplate = items[i];
+                    break;
+                }
+            }
+        } else {
+            this._userTemplate = Polymer.dom(this).querySelector("template");
+        }
 
         if (this._userTemplate) {
           this.templatize(this._userTemplate);
