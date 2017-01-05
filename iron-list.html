@@ -861,18 +861,19 @@ will only render 20.
       var virtualStart = this._virtualStart;
       var virtualEnd = this._virtualEnd;
       var physicalCount = this._physicalCount;
-      var physicalTop = this._physicalTop + this._scrollOffset;
+      var top = this._physicalTop + this._scrollOffset;
+      var bottom = this._physicalBottom + this._scrollOffset;
       var scrollTop = this._scrollTop;
       var scrollBottom = this._scrollBottom;
 
       if (fromTop) {
         ith = this._physicalStart;
         lastIth = this._physicalEnd;
-        offsetContent = scrollTop - physicalTop;
+        offsetContent = scrollTop - top;
       } else {
         ith = this._physicalEnd;
         lastIth = this._physicalStart;
-        offsetContent = this._physicalBottom - scrollBottom;
+        offsetContent = bottom - scrollBottom;
       }
       while (true) {
         physicalItemHeight = this._getPhysicalSizeIncrement(ith);
@@ -886,11 +887,11 @@ will only render 20.
             break;
           }
           // Check that the index is not visible.
-          if (physicalTop + physicalItemHeight >= scrollTop) {
+          if (top + physicalItemHeight >= scrollTop - this._scrollOffset) {
             break;
           }
           idxs.push(ith);
-          physicalTop = physicalTop + physicalItemHeight;
+          top = top + physicalItemHeight;
           ith = (ith + 1) % physicalCount;
         } else {
           // Check that index is within the valid range.
@@ -898,15 +899,15 @@ will only render 20.
             break;
           }
           // Check that the index is not visible.
-          if (physicalTop + this._physicalSize - physicalItemHeight <= scrollBottom) {
+          if (top + this._physicalSize - physicalItemHeight <= scrollBottom) {
             break;
           }
           idxs.push(ith);
-          physicalTop = physicalTop - physicalItemHeight;
+          top = top - physicalItemHeight;
           ith = (ith === 0) ? physicalCount - 1 : ith - 1;
         }
       }
-      return { indexes: idxs, physicalTop: physicalTop - this._scrollOffset };
+      return { indexes: idxs, physicalTop: top - this._scrollOffset };
     },
 
     /**
@@ -960,9 +961,8 @@ will only render 20.
      */
     _increasePoolIfNeeded: function() {
       var self = this;
-      var isClientFull = this._physicalBottom >= this._scrollBottom &&
-          this._physicalTop <= this._scrollPosition;
-
+      var isClientFull = this._physicalBottom + this._scrollOffset >= this._scrollBottom &&
+          this._physicalTop <= Math.max(0, this._scrollPosition - this._scrollOffset);
       // Base case 1: if the physical size is optimal and the list's client height is full
       // with physical items, don't increase the pool.
       if (this._physicalSize >= this._optPhysicalSize && isClientFull) {
