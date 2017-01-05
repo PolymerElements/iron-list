@@ -385,6 +385,20 @@ will only render 20.
       multiSelection: {
         type: Boolean,
         value: false
+      },
+
+      /**
+       * The offset top from the scrolling element to the iron-list element.
+       * This value can be computed using the position returned by `getBoundingClientRect()`
+       * although it's preferred to use a constant value when possible.
+       *
+       * This property is useful when an external scrolling element is used and there's
+       * some offset between the scrolling element and the list.
+       * For example: a header is placed above the list.
+       */
+      scrollOffset: {
+        type: Number,
+        value: 0
       }
     },
 
@@ -392,7 +406,7 @@ will only render 20.
       '_itemsChanged(items.*)',
       '_selectionEnabledChanged(selectionEnabled)',
       '_multiSelectionChanged(multiSelection)',
-      '_setOverflow(scrollTarget)'
+      '_setOverflow(scrollTarget, scrollOffset)'
     ],
 
     behaviors: [
@@ -594,7 +608,7 @@ will only render 20.
      * The maximum scroll top value.
      */
     get _maxScrollTop() {
-      return this._estScrollHeight - this._viewportHeight + this._scrollerPaddingTop;
+      return this._estScrollHeight - this._viewportHeight + this._scrollOffset;
     },
 
     /**
@@ -685,23 +699,24 @@ will only render 20.
      * @type {number}
      */
     get firstVisibleIndex() {
-      if (this._firstVisibleIndexVal === null) {
-        var physicalOffset = Math.floor(this._physicalTop + this._scrollerPaddingTop);
+      var idx = this._firstVisibleIndexVal;
+      if (idx == null) {
+        var physicalOffset = this._physicalTop + this._scrollOffset;
 
-        this._firstVisibleIndexVal = this._iterateItems(
-          function(pidx, vidx) {
-            physicalOffset += this._getPhysicalSizeIncrement(pidx);
+        idx = this._iterateItems(function(pidx, vidx) {
+          physicalOffset += this._getPhysicalSizeIncrement(pidx);
 
-            if (physicalOffset > this._scrollPosition) {
-              return this.grid ? vidx - (vidx % this._itemsPerRow) : vidx;
-            }
-            // Handle a partially rendered final row in grid mode
-            if (this.grid && this._virtualCount - 1 === vidx) {
-              return vidx - (vidx % this._itemsPerRow);
-            }
-          }) || 0;
+          if (physicalOffset > this._scrollPosition) {
+            return this.grid ? vidx - (vidx % this._itemsPerRow) : vidx;
+          }
+          // Handle a partially rendered final row in grid mode
+          if (this.grid && this._virtualCount - 1 === vidx) {
+            return vidx - (vidx % this._itemsPerRow);
+          }
+        }) || 0;
+        this._firstVisibleIndexVal = idx;
       }
-      return this._firstVisibleIndexVal;
+      return idx;
     },
 
     /**
@@ -710,24 +725,23 @@ will only render 20.
      * @type {number}
      */
     get lastVisibleIndex() {
-      if (this._lastVisibleIndexVal === null) {
+      var idx = this._lastVisibleIndexVal;
+      if (idx == null) {
         if (this.grid) {
-          var lastIndex = this.firstVisibleIndex + this._estRowsInView * this._itemsPerRow - 1;
-          this._lastVisibleIndexVal = Math.min(this._virtualCount, lastIndex);
+          idx = Math.min(this._virtualCount,
+              this.firstVisibleIndex + this._estRowsInView * this._itemsPerRow - 1);
         } else {
-          var physicalOffset = this._physicalTop;
+          var physicalOffset = this._physicalTop + this._scrollOffset;
           this._iterateItems(function(pidx, vidx) {
             if (physicalOffset < this._scrollBottom) {
-              this._lastVisibleIndexVal = vidx;
-            } else {
-              // Break _iterateItems
-              return true;
+              idx = vidx;
             }
             physicalOffset += this._getPhysicalSizeIncrement(pidx);
           });
         }
+        this._lastVisibleIndexVal = idx;
       }
-      return this._lastVisibleIndexVal;
+      return idx;
     },
 
     get _defaultScrollTarget() {
@@ -744,6 +758,10 @@ will only render 20.
 
     get _physicalRows() {
       return Math.ceil(this._physicalCount / this._itemsPerRow);
+    },
+
+    get _scrollOffset() {
+      return this._scrollerPaddingTop + this.scrollOffset;
     },
 
     ready: function() {
@@ -769,6 +787,10 @@ will only render 20.
     _setOverflow: function(scrollTarget) {
       this.style.webkitOverflowScrolling = scrollTarget === this ? 'touch' : '';
       this.style.overflow = scrollTarget === this ? 'auto' : '';
+      // Clear cache.
+      this._lastVisibleIndexVal = null;
+      this._firstVisibleIndexVal = null;
+      this._debounceTemplate(this._render);
     },
 
     /**
@@ -779,8 +801,8 @@ will only render 20.
      */
     updateViewportBoundaries: function() {
       var styles = window.getComputedStyle(this);
-      this._scrollerPaddingTop =
-          this.scrollTarget === this ? 0 : parseInt(styles['padding-top'], 10);
+      this._scrollerPaddingTop = this.scrollTarget === this ? 0 :
+          parseInt(styles['padding-top'], 10);
       this._isRTL = Boolean(styles.direction === 'rtl');
       this._viewportWidth = this.$.items.offsetWidth;
       this._viewportHeight = this._scrollTargetHeight;
@@ -802,7 +824,8 @@ will only render 20.
 
       // Random access.
       if (Math.abs(delta) > this._physicalSize) {
-        var idxAdjustment =  Math.round(delta / this._physicalAverage) * this._itemsPerRow
+        delta = delta - this._scrollOffset;
+        var idxAdjustment = Math.round(delta / this._physicalAverage) * this._itemsPerRow;
         this._physicalTop = this._physicalTop + delta;
         this._virtualStart = this._virtualStart + idxAdjustment;
         this._physicalStart = this._physicalStart + idxAdjustment;
@@ -838,7 +861,7 @@ will only render 20.
       var virtualStart = this._virtualStart;
       var virtualEnd = this._virtualEnd;
       var physicalCount = this._physicalCount;
-      var physicalTop = this._physicalTop + this._scrollerPaddingTop;
+      var physicalTop = this._physicalTop + this._scrollOffset;
       var scrollTop = this._scrollTop;
       var scrollBottom = this._scrollBottom;
 
@@ -883,7 +906,7 @@ will only render 20.
           ith = (ith === 0) ? physicalCount - 1 : ith - 1;
         }
       }
-      return { indexes: idxs, physicalTop: physicalTop - this._scrollerPaddingTop };
+      return { indexes: idxs, physicalTop: physicalTop - this._scrollOffset };
     },
 
     /**
@@ -940,7 +963,7 @@ will only render 20.
       var isClientFull = this._physicalBottom >= this._scrollBottom &&
           this._physicalTop <= this._scrollPosition;
 
-      // Base case 2: if the physical size is optimal and the list's client height is full
+      // Base case 1: if the physical size is optimal and the list's client height is full
       // with physical items, don't increase the pool.
       if (this._physicalSize >= this._optPhysicalSize && isClientFull) {
         return false;
@@ -1070,12 +1093,12 @@ will only render 20.
      */
     _forwardParentProp: function(prop, value) {
       (this._physicalItems || [])
-              .concat([this._offscreenFocusedItem, this._focusBackfillItem])
-              .forEach(function(item) {
-                if (item) {
-                  item._templateInstance[prop] = value;
-                }
-              });
+        .concat([this._offscreenFocusedItem, this._focusBackfillItem])
+        .forEach(function(item) {
+          if (item) {
+            item._templateInstance[prop] = value;
+          }
+        });
     },
 
     /**
@@ -1085,12 +1108,12 @@ will only render 20.
      */
     _forwardParentPath: function(path, value) {
       (this._physicalItems || [])
-              .concat([this._offscreenFocusedItem, this._focusBackfillItem])
-              .forEach(function(item) {
-                if (item) {
-                  item._templateInstance.notifyPath(path, value, true);
-                }
-              });
+        .concat([this._offscreenFocusedItem, this._focusBackfillItem])
+        .forEach(function(item) {
+          if (item) {
+            item._templateInstance.notifyPath(path, value, true);
+          }
+        });
     },
 
     /**
@@ -1148,7 +1171,7 @@ will only render 20.
         this._physicalItems = this._physicalItems || [];
         this._physicalSizes = this._physicalSizes || [];
         this._physicalStart = 0;
-        if (this._scrollTop > this._scrollerPaddingTop) {
+        if (this._scrollTop > this._scrollOffset) {
           this._resetScrollPosition(0);
         }
         this._removeFocusedItem();
@@ -1159,7 +1182,6 @@ will only render 20.
         this._virtualCount = this.items ? this.items.length : 0;
 
         this._debounceTemplate(this._render);
-
       } else {
         this._forwardItemPath(change.path.split('.').slice(1).join('.'), change.value);
       }
@@ -1462,7 +1484,7 @@ will only render 20.
       }
       this._updateScrollerSize(true);
       this._positionItems();
-      this._resetScrollPosition(this._physicalTop + this._scrollerPaddingTop + targetOffsetTop);
+      this._resetScrollPosition(this._physicalTop + this._scrollOffset + targetOffsetTop);
       this._increasePoolIfNeeded();
       // clear cached visible index.
       this._firstVisibleIndexVal = null;
