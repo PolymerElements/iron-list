@@ -20,7 +20,7 @@
   "license": "http://polymer.github.io/LICENSE.txt",
   "ignore": [],
   "dependencies": {
-    "polymer": "Polymer/polymer#4154-kschaaf-array-selector",
+    "polymer": "Polymer/polymer#2.0-preview",
     "iron-resizable-behavior": "PolymerElements/iron-resizable-behavior#2.0-preview",
     "iron-a11y-keys-behavior": "PolymerElements/iron-a11y-keys-behavior#2.0-preview",
     "iron-scroll-target-behavior": "PolymerElements/iron-scroll-target-behavior#2.0-preview"
@@ -46,7 +46,7 @@
     "web-component-tester": "^4.0.0"
   },
   "resolutions": {
-    "polymer": "4154-kschaaf-array-selector",
+    "polymer": "2.0-preview",
     "test-fixture": "custom-elements-v1",
     "webcomponentsjs": "v1"
   }
