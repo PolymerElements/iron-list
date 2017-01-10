@@ -52,7 +52,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         .content {
-          @apply(--layout-vertical);
+          @apply --layout-vertical;
           height: 100%;
         }
 
@@ -152,7 +152,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         paper-item {
           white-space: nowrap;
           cursor: pointer;
-          position: relative;
         }
 
         paper-item:hover::after {
@@ -214,7 +213,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </template>
           </iron-list>
         </div>
-        <app-drawer align="right">
+        <app-drawer slot="drawer" align="right">
           <div class="content">
             <app-toolbar class="white-toolbar">
               <div main-title>[[_getFormattedCount(selectedItems.length)]] Selected contacts</div>

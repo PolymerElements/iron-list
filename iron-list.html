@@ -898,26 +898,27 @@ will only render 20.
       var nextPhysicalCount = this._clamp(this._physicalCount + count,
           DEFAULT_PHYSICAL_COUNT, this._virtualCount - this._virtualStart);
       var delta = nextPhysicalCount - this._physicalCount;
-
-      if (delta > 0) {
-        var ts = window.performance.now();
-        // Concat arrays in place.
-        [].push.apply(this._physicalItems, this._createPool(delta));
-        [].push.apply(this._physicalSizes, new Array(delta));
-        this._physicalCount = this._physicalCount + delta;
-        // Update the physical start if it needs to preserve the model of the focused item.
-        // In this situation, the focused item is currently rendered and its model would
-        // have changed after increasing the pool if the physical start remained unchanged.
-        if (this._physicalStart > this._physicalEnd &&
-            this._isIndexRendered(this._focusedIndex) &&
-            this._getPhysicalIndex(this._focusedIndex) < this._physicalEnd) {
-          this._physicalStart = this._physicalStart + delta;
-        }
-        this._update();
-        this._templateCost = (window.performance.now() - ts) / delta;
+      if (delta <= 0) {
+        return;
       }
+      var ts = window.performance.now();
+      // Concat arrays in place.
+      [].push.apply(this._physicalItems, this._createPool(delta));
+      [].push.apply(this._physicalSizes, new Array(delta));
+      this._physicalCount = this._physicalCount + delta;
+      // Update the physical start if it needs to preserve the model of the focused item.
+      // In this situation, the focused item is currently rendered and its model would
+      // have changed after increasing the pool if the physical start remained unchanged.
+      if (this._physicalStart > this._physicalEnd &&
+          this._isIndexRendered(this._focusedIndex) &&
+          this._getPhysicalIndex(this._focusedIndex) < this._physicalEnd) {
+        this._physicalStart = this._physicalStart + delta;
+      }
+      this._update();
+      this._templateCost = (window.performance.now() - ts) / delta;
       var nextIncrease = Math.round(this._physicalCount * 0.5);
-      if (this._virtualEnd === this._virtualCount-1 || nextIncrease === 0) {
+
+      if (this._virtualEnd === this._virtualCount - 1 || nextIncrease === 0) {
         // Do nothing
       } else if (!this._isClientFull()) {
         // Yield and increase the pool synchronously until the client is filled.
@@ -933,23 +934,21 @@ will only render 20.
      * Renders the a new list.
      */
     _render: function() {
-      if (this.isAttached && this._isVisible) {
-        if (this._physicalCount === 0) {
-          if (this._virtualCount > 0) {
-            // Initial render
-            this.updateViewportBoundaries();
-            this._increasePoolIfNeeded(DEFAULT_PHYSICAL_COUNT);
-          }
-        } else {
-          // Try to recycle nodes
-          var reusables = this._getReusables(true);
-          this._physicalTop = reusables.physicalTop;
-          this._virtualStart = this._virtualStart + reusables.indexes.length;
-          this._physicalStart = this._physicalStart + reusables.indexes.length;
-          this._update(reusables.indexes);
-          this._update();
-          this._increasePoolIfNeeded(0);
-        }
+      if (!this.isAttached || !this._isVisible) {
+        return;
+      }
+      if (this._physicalCount !== 0) {
+        var reusables = this._getReusables(true);
+        this._physicalTop = reusables.physicalTop;
+        this._virtualStart = this._virtualStart + reusables.indexes.length;
+        this._physicalStart = this._physicalStart + reusables.indexes.length;
+        this._update(reusables.indexes);
+        this._update();
+        this._increasePoolIfNeeded(0);
+      } else if (this._virtualCount > 0) {
+        // Initial render
+        this.updateViewportBoundaries();
+        this._increasePoolIfNeeded(DEFAULT_PHYSICAL_COUNT);
       }
     },
 
@@ -1142,7 +1141,7 @@ will only render 20.
         var item = this.items && this.items[vidx];
         if (item != null) {
           var inst = el._templateInstance;
-          inst.forwardProperty(this.as, item); 
+          inst.forwardProperty(this.as, item);
           inst.forwardProperty(this.selectedAs, this.$.selector.isSelected(item));
           inst.forwardProperty(this.indexAs, vidx);
           inst.forwardProperty('tabIndex', this._focusedIndex === vidx ? 0 : -1);
@@ -1500,8 +1499,7 @@ will only render 20.
 
     _multiSelectionChanged: function(multiSelection) {
       this.clearSelection();
-      // this.$.selector.multi = multiSelection;
-      console.warn('this.$.selector.multi is broken');
+      this.$.selector.multi = multiSelection;
     },
 
     /**
