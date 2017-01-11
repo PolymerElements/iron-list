@@ -47,7 +47,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <dom-bind>
     <template>
       <iron-ajax url="data/contacts.json" last-response="{{items}}" auto></iron-ajax>
-      <iron-list items="[[items]]" as="item">
+      <iron-list items="[[items]]" as="item" style="display: none;">
         <template>
           <div class="item">
             <b>#[[index]] - [[item.index]] - [[item.name]]</b>

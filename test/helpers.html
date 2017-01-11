@@ -70,6 +70,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     scrollHandler();
   }
 
+  function deepElementFromPoint(x, y) {
+    var r, el;
+    var root = document;
+    while (root && root.elementFromPoint) {
+      el = root.elementFromPoint(x, y);
+      r = el || r;
+      root = el ? el.shadowRoot : null;
+    }
+    return r;
+  }
+
   function getGridRowFromIndex(grid, index) {
     return Math.floor(index / grid._itemsPerRow);
   }
@@ -79,17 +90,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var gridRect = grid.getBoundingClientRect();
     var x = gridRect.left + ((n % grid._itemsPerRow) * itemSize) + (itemSize / 2);
     var y = gridRect.top + (Math.floor(n / grid._itemsPerRow) * itemSize) + (itemSize / 2);
-    return document.elementFromPoint(x, y);
+    return deepElementFromPoint(x, y);
   }
 
   function getFirstItemFromList(list) {
     var listRect = list.getBoundingClientRect();
-    return document.elementFromPoint(listRect.left + 100, listRect.top + 1);
+    return deepElementFromPoint(listRect.left + 100, listRect.top + 1);
   }
 
   function getLastItemFromList(list) {
     var listRect = list.getBoundingClientRect();
-    return document.elementFromPoint(listRect.left + 100, listRect.top + listRect.height - 1);
+    return deepElementFromPoint(listRect.left + 100, listRect.top + listRect.height - 1);
   }
 
   function isFullOfItems(list) {
@@ -99,7 +110,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // IE 10 & 11 doesn't render propertly :(
     var badPixels = 0;
     while (y < listHeight) {
-      item = document.elementFromPoint(listRect.left + 100, y);
+      item = deepElementFromPoint(listRect.left + 100, y);
       if (!item || (item.parentNode && !item.parentNode._templateInstance)) {
         badPixels++;
       }
@@ -120,7 +131,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var itemKey;
       var y = listRect.top;
       while (y < listHeight) {
-        item = document.elementFromPoint(listRect.left + 100, y + 2);
+        item = deepElementFromPoint(listRect.left + 100, y + 2);
         itemKey = item.textContent || item.innerText;
 
         if (item.parentNode && item.parentNode._templateInstance) {

@@ -68,7 +68,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var list, container;
 
       setup(function() {
-        container = fixture('trivialListSmall');
+        container = fixture('trivialList');
         list = container.list;
         list.style.display = 'none';
         list.items = buildDataSet(200);
@@ -78,21 +78,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         flush(function() {
           list.style.display = '';
           assert.notEqual(getFirstItemFromList(list).textContent, '0', 'Item should not be rendered');
-
           list.fire('iron-resize');
-
-          flush(function() {
-            assert.equal(getFirstItemFromList(list).textContent, '0', 'Item should be rendered');
-            done();
-          });
+          Polymer.dom.flush();
+          assert.equal(getFirstItemFromList(list).textContent, '0', 'Item should be rendered');
+          done();
         });
       });
 
       test('pool should not increase if the list has no size', function(done) {
-        container.style.display = 'none';
-        list.fire('iron-resize');
-        
         flush(function() {
+          container.style.display = 'none';
+          list.fire('iron-resize');
+          Polymer.dom.flush();
           assert.equal(list._physicalCount, 0);
           done();
         });

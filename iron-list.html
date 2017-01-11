@@ -1380,79 +1380,103 @@ will only render 20.
       }.bind(this), Polymer.XAsync.rAF);
     },
 
-    _getModelFromItem: function(item) {
-      var idx = this.items.indexOf(item);
-      if (!this._isIndexRendered(idx)) {
-        return null;
-      }
-      return this._physicalItems[this._getPhysicalIndex(idx)]._templateInstance;
-    },
-
     /**
-     * Select the list item at the given index.
+     * Selects the given item.
      *
      * @method selectItem
      * @param {Object} item The item instance.
      */
     selectItem: function(item) {
-      var model = this._getModelFromItem(item);
-      if (!this.multiSelection && this.selectedItem) {
-        this.deselectItem(this.selectedItem);
-      }
-      if (model) {
-        model[this.selectedAs] = true;
-      }
-      this.$.selector.select(item);
-      this.updateSizeForItem(item);
+      return this.selectIndex(this.items.indexOf(item));
     },
 
     /**
-     * Deselects the given item list if it is already selected.
+     * Selects the item at the given index in the items array.
+     *
+     * @method selectIndex
+     * @param {Object} index The item instance.
+     */
+    selectIndex(index) {
+      if (index < 0 || index >= this._virtualCount) {
+        return;
+      }
+      if (!this.multiSelection && this.selectedItem) {
+       this.clearSelection();
+      }
+      if (this._isIndexRendered(index)) {
+        var model = this._physicalItems[this._getPhysicalIndex(index)]._templateInstance;
+        if (model) {
+          model[this.selectedAs] = true;
+        }
+        this.updateSizeForIndex(index);
+      }
+      this.$.selector.selectIndex(index);
+    },
+
+    /**
+     * Deselects the given item.
      *
      * @method deselect
      * @param {Object} item The item instance.
      */
     deselectItem: function(item) {
-      var model = this._getModelFromItem(item);
-      if (model) {
-        model[this.selectedAs] = false;
-      }
-      this.$.selector.deselect(item);
-      this.updateSizeForItem(item);
+      return this.deselectIndex(this.items.indexOf(item));
     },
 
     /**
-     * Select or deselect a given item depending on whether the item
+     * Deselects the item at the given index in the items array.
+     *
+     * @method deselectIndex
+     * @param {number} index The index of the item in the items array.
+     */
+    deselectIndex: function(index) {
+      if (index < 0 || index >= this._virtualCount) {
+        return;
+      }
+      if (this._isIndexRendered(index)) {
+        var model = this._physicalItems[this._getPhysicalIndex(index)]._templateInstance;
+        model[this.selectedAs] = false;
+        this.updateSizeForIndex(index);
+      }
+      this.$.selector.deselectIndex(index);
+    },
+
+    /**
+     * Selects or deselects a given item depending on whether the item
      * has already been selected.
      *
      * @method toggleSelectionForItem
-     * @param {Object} item The item object
+     * @param {Object} item The item object.
      */
     toggleSelectionForItem: function(item) {
-      if (this.$.selector.isSelected(item)) {
-        this.deselectItem(item);
+      return this.toggleSelectionForIndex(this.items.indexOf(item));
+    },
+
+    /**
+     * Selects or deselects the item at the given index in the items array 
+     * depending on whether the item has already been selected.
+     *
+     * @method toggleSelectionForIndex
+     * @param {Object} index The index of the item in the items array.
+     */
+    toggleSelectionForIndex: function(index) {
+      if (this.$.selector.isIndexSelected(index)) {
+        this.deselectIndex(index);
       } else {
-        this.selectItem(item);
+        this.selectIndex(index);
       }
     },
 
     /**
-     * Clears the current selection state of the list.
+     * Clears the current selection in the list.
      *
      * @method clearSelection
      */
     clearSelection: function() {
-      function unselect(item) {
-        var model = this._getModelFromItem(item);
-        if (model) {
-          model[this.selectedAs] = false;
-        }
-      }
-      if (Array.isArray(this.selectedItems)) {
-        this.selectedItems.forEach(unselect, this);
-      } else if (this.selectedItem) {
-        unselect.call(this, this.selectedItem);
-      }
+      this._iterateItems(function(pidx, vidx) {
+        var el = this._physicalItems[pidx];
+        el._templateInstance.forwardProperty(this.selectedAs, false);
+      });
       this.$.selector.clearSelection();
     },
 
@@ -1503,17 +1527,26 @@ will only render 20.
     },
 
     /**
-     * Updates the size of an item.
+     * Updates the size of a given list item.
      *
      * @method updateSizeForItem
-     * @param {(Object|number)} item The item object or its index
+     * @param {Object} item The item instance.
      */
     updateSizeForItem: function(item) {
-      var idx = this.items.indexOf(item);
-      if (!this._isIndexRendered(idx)) {
+      return this.updateSizeForIndex(this.items.indexOf(item));
+    },
+
+     /**
+     * Updates the size of the item at the given index in the items array.
+     *
+     * @method updateSizeForIndex
+     * @param {number} index The index of the item in the items array.
+     */
+    updateSizeForIndex(index) {
+      if (!this._isIndexRendered(index)) {
         return null;
       }
-      this._updateMetrics([this._getPhysicalIndex(idx)]);
+      this._updateMetrics([this._getPhysicalIndex(index)]);
       this._positionItems();
       return null;
     },
@@ -1665,27 +1698,6 @@ will only render 20.
           this._update();
         }
       }
-      // Restore accessibility tree
-      // var pidx = this._getPhysicalIndex(this._focusedIndex);
-      // if (pidx === this._physicalCount - 1) {
-      //   this._increasePoolIfNeeded(1);
-      // }
-      // if (this._physicalItems[pidx]) {
-      //   var nextPidx = this._getPhysicalIndex(this._focusedIndex + 1);
-      //   var prevPidx = this._getPhysicalIndex(this._focusedIndex - 1);
-      //   if (this._physicalItems[nextPidx]) {
-      //     if (this._physicalItems[pidx].nextElementSibling !== this._physicalItems[nextPidx]) {
-      //       Polymer.dom(this).insertBefore(this._physicalItems[nextPidx], this._physicalItems[pidx].nextSibling);
-      //       console.log('next restored');
-      //     }
-      //   }
-      //   if (this._physicalItems[prevPidx]) {
-      //     if (this._physicalItems[pidx].previousElementSibling !== this._physicalItems[prevPidx]) {
-      //       Polymer.dom(this).insertBefore(this._physicalItems[prevPidx], this._physicalItems[pidx]);
-      //       console.log('prev restored');
-      //     }
-      //   }
-      // }
     },
 
     _keydownHandler: function(e) {

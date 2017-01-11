@@ -26,7 +26,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <test-fixture id="trivialList">
     <template>
-      <x-list hidden></x-list>
+      <x-list style="display: none;"></x-list>
     </template>
   </test-fixture>
 
@@ -52,10 +52,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       test('iron-resize', function(done) {
         list.items = buildDataSet(100);
         list.fire('iron-resize');
-
         assert.notEqual(getFirstItemFromList(list).textContent, '0');
-        Polymer.RenderStatus.whenReady(function() {
-          container.removeAttribute('hidden');
+        requestAnimationFrame(function() {
+          container.style.display = '';
           assert.notEqual(getFirstItemFromList(list).textContent, '0');
           list.fire('iron-resize');
           flush(function() {
