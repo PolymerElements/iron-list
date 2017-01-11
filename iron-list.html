@@ -585,6 +585,13 @@ will only render 20.
     },
 
     /**
+     * The parent node for the _userTemplate.
+     */
+    get _itemsParent() {
+      return Polymer.dom(Polymer.dom(this._userTemplate).parentNode);
+    },
+
+    /**
      * The maximum scroll top value.
      */
     get _maxScrollTop() {
@@ -919,7 +926,7 @@ will only render 20.
         // First element child is item; Safari doesn't support children[0]
         // on a doc fragment.
         physicalItems[i] = inst.root.querySelector('*');
-        Polymer.dom(this).appendChild(inst.root);
+        this._itemsParent.appendChild(inst.root);
       }
       return physicalItems;
     },
@@ -1028,7 +1035,7 @@ will only render 20.
         props[this.selectedAs] = true;
         props.tabIndex = true;
         this._instanceProps = props;
-        this._userTemplate = Polymer.dom(this).querySelector('template');
+        this._userTemplate = this.queryEffectiveChildren('template');
 
         if (this._userTemplate) {
           this.templatize(this._userTemplate);
@@ -1619,7 +1626,8 @@ will only render 20.
       }
       var modelTabIndex, activeElTabIndex;
       var target = Polymer.dom(e).path[0];
-      var activeEl = Polymer.dom(this.domHost ? this.domHost.root : document).activeElement;
+      var itemsHost = this._itemsParent.node.domHost;
+      var activeEl = Polymer.dom(itemsHost ? itemsHost.root : document).activeElement;
       var physicalItem = this._physicalItems[this._getPhysicalIndex(model[this.indexAs])];
       // Safari does not focus certain form controls via mouse
       // https://bugs.webkit.org/show_bug.cgi?id=118043
@@ -1732,7 +1740,7 @@ will only render 20.
 
     _removeFocusedItem: function() {
       if (this._offscreenFocusedItem) {
-        Polymer.dom(this).removeChild(this._offscreenFocusedItem);
+        this._itemsParent.removeChild(this._offscreenFocusedItem);
       }
       this._offscreenFocusedItem = null;
       this._focusBackfillItem = null;
@@ -1751,7 +1759,7 @@ will only render 20.
         // Create a physical item.
         var stampedTemplate = this.stamp(null);
         this._focusBackfillItem = stampedTemplate.root.querySelector('*');
-        Polymer.dom(this).appendChild(stampedTemplate.root);
+        this._itemsParent.appendChild(stampedTemplate.root);
       }
       // Set the offcreen focused physical item.
       this._offscreenFocusedItem = this._physicalItems[pidx];
