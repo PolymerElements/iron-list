@@ -16,10 +16,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template>
     <style>
       :host {
-        @apply(--layout-fit);
-        @apply(--layout-vertical);
-
-        display: block;
+        @apply --layout-fit;
+        @apply --layout-vertical;
       }
 
       .item {
@@ -100,11 +98,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     _computedListHeight: function(listHeight) {
-      return 'height: ' + (listHeight) + 'px; overflow: hidden;';
+      return 'height: ' + listHeight + 'px; overflow: hidden;';
     },
 
     _computedTabIndex: function(tabIndex, useTabIndex) {
       return useTabIndex ? tabIndex : undefined;
     }
   });
+
+  // Polymer/web-component-tester/issues/475
+  Polymer.dom._flush = Polymer.dom.flush;
+  Polymer.dom.flush = function() {
+    Polymer.Templatizer.flush();
+    Polymer.dom._flush();
+  };
 </script>

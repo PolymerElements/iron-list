@@ -43,11 +43,12 @@
     "test-fixture": "PolymerElements/test-fixture#custom-elements-v1",
     "iron-test-helpers": "PolymerElements/iron-test-helpers#2.0-preview",
     "webcomponentsjs": "webcomponents/webcomponentsjs#v1",
-    "web-component-tester": "^4.0.0"
+    "web-component-tester": "^5.0.0"
   },
   "resolutions": {
     "polymer": "2.0-preview",
     "test-fixture": "custom-elements-v1",
-    "webcomponentsjs": "v1"
+    "webcomponentsjs": "v1",
+    "mocha": "^3.1.2"
   }
 }

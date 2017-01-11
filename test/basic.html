@@ -13,10 +13,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta charset="UTF-8">
   <title>iron-list test</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
-
+  <script src="../../test-fixture/test-fixture-mocha.js"></script>
   <link rel="import" href="helpers.html">
   <link rel="import" href="x-list.html">
 </head>
@@ -50,7 +49,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     test('check items length', function(done) {
       container.data = buildDataSet(100);
-
       flush(function() {
         assert.equal(list.items.length, container.data.length);
         done();
@@ -59,14 +57,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     test('check physical item heights', function(done) {
       container.data = buildDataSet(100);
-
       flush(function() {
         var rowHeight = list._physicalItems[0].offsetHeight;
-
         list._physicalItems.forEach(function(item) {
           assert.equal(item.offsetHeight, rowHeight);
         });
-
         done();
       });
     });
@@ -74,7 +69,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     test('check physical item size', function(done) {
       var setSize = 10;
       container.data = buildDataSet(setSize);
-
       flush(function() {
         assert.equal(list.items.length, setSize);
         done();
@@ -123,11 +117,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     test('scroll to index', function() {
       list.items = buildDataSet(100);
-
       Polymer.dom.flush();
       list.scrollToIndex(30);
       assert.equal(list.firstVisibleIndex, 30);
-
       list.scrollToIndex(0);
       assert.equal(list.firstVisibleIndex, 0);
 
@@ -137,15 +129,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       list.scrollToIndex(99);
       assert.equal(list.firstVisibleIndex, list.items.length - itemsPerViewport);
-
-      // make the height of the viewport same as the height of the row
+      // Make the height of the viewport same as the height of the row
       // and scroll to the last item
       list.style.height = list._physicalItems[0].offsetHeight + 'px';
       list.fire('iron-resize');
       Polymer.dom.flush();
       list.scrollToIndex(99);
 
-      assert.equal(list.firstVisibleIndex, 99);      
+      assert.equal(list.firstVisibleIndex, 99);
     });
 
     test('scroll to index while not attached', function() {
