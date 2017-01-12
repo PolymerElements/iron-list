@@ -88,32 +88,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
       });
 
-
-      test('throw if the item is invalid', function(done) {
-        list.items = buildDataSet(100);
-
-        flush(function() {
-          var firstItem = getFirstItemFromList(list);
-          var initHeight = firstItem.offsetHeight;
-          var throws = 0;
-
-          try {
-            list.updateSizeForItem(100);
-          } catch (error) {
-            throws++;
-          }
-
-          try {
-            list.updateSizeForItem({});
-          } catch (error) {
-            throws++;
-          }
-
-          assert.equal(throws, 2);
-          done();
-        });
-      });
-
     });
 
   </script>

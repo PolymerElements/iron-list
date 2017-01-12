@@ -129,7 +129,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       list.fire('iron-resize');
 
       list.scrollToIndex(99);
-      assert.equal(list.firstVisibleIndex, 99);
+      assert.equal(list.firstVisibleIndex, 98);
     });
 
     test('reset items', function(done) {
@@ -137,14 +137,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       flush(function() {
         assert.equal(getNthItemFromGrid(list, 0).textContent, '0');
-
         list.items = null;
-
-        flush(function() {
+        requestAnimationFrame(function() {
           assert.notEqual(getNthItemFromGrid(list, 0).textContent, '0');
           list.items = buildDataSet(100);
-
-          flush(function() {
+          requestAnimationFrame(function() {
             assert.equal(getNthItemFromGrid(list, 0).textContent, '0');
             done();
           });

@@ -887,7 +887,7 @@ will only render 20.
     },
 
     _isClientFull: function() {
-      return this._scrollBottom != 0 && this._physicalBottom >= this._scrollBottom &&
+      return this._scrollBottom != 0 && this._physicalBottom-1 >= this._scrollBottom &&
           this._physicalTop <= this._scrollPosition;
     },
 
@@ -898,28 +898,31 @@ will only render 20.
       var nextPhysicalCount = this._clamp(this._physicalCount + count,
           DEFAULT_PHYSICAL_COUNT, this._virtualCount - this._virtualStart);
       var delta = nextPhysicalCount - this._physicalCount;
-      if (delta <= 0) {
-        return;
-      }
-      var ts = window.performance.now();
-      // Concat arrays in place.
-      [].push.apply(this._physicalItems, this._createPool(delta));
-      [].push.apply(this._physicalSizes, new Array(delta));
-      this._physicalCount = this._physicalCount + delta;
-      // Update the physical start if it needs to preserve the model of the focused item.
-      // In this situation, the focused item is currently rendered and its model would
-      // have changed after increasing the pool if the physical start remained unchanged.
-      if (this._physicalStart > this._physicalEnd &&
-          this._isIndexRendered(this._focusedIndex) &&
-          this._getPhysicalIndex(this._focusedIndex) < this._physicalEnd) {
-        this._physicalStart = this._physicalStart + delta;
-      }
-      this._update();
-      this._templateCost = (window.performance.now() - ts) / delta;
       var nextIncrease = Math.round(this._physicalCount * 0.5);
 
+      if (delta < 0) {
+        return;
+      }
+      if (delta > 0) {
+        var ts = window.performance.now();
+        // Concat arrays in place.
+        [].push.apply(this._physicalItems, this._createPool(delta));
+        [].push.apply(this._physicalSizes, new Array(delta));
+        this._physicalCount = this._physicalCount + delta;
+        // Update the physical start if it needs to preserve the model of the focused item.
+        // In this situation, the focused item is currently rendered and its model would
+        // have changed after increasing the pool if the physical start remained unchanged.
+        if (this._physicalStart > this._physicalEnd &&
+            this._isIndexRendered(this._focusedIndex) &&
+            this._getPhysicalIndex(this._focusedIndex) < this._physicalEnd) {
+          this._physicalStart = this._physicalStart + delta;
+        }
+        this._update();
+        this._templateCost = (window.performance.now() - ts) / delta;
+        nextIncrease = Math.round(this._physicalCount * 0.5);
+      }
       if (this._virtualEnd === this._virtualCount - 1 || nextIncrease === 0) {
-        // Do nothing
+
       } else if (!this._isClientFull()) {
         // Yield and increase the pool synchronously until the client is filled.
         this._debounceRender(this._increasePoolIfNeeded.bind(this, nextIncrease), Polymer.XAsync.microTask);
@@ -1040,7 +1043,8 @@ will only render 20.
         inst = this._physicalItems[this._getPhysicalIndex(idx)]._templateInstance;
       } else if (offscreenItem) {
         // This is only needed for hybrid mode.
-        inst = offscreenItem._templateInstance[this.indexAs] === idx ? offscreenItem._templateInstance : null;
+        inst = offscreenItem._templateInstance[this.indexAs] === idx ?
+            offscreenItem._templateInstance : null;
       }
       if (!inst) {
         return;
@@ -1453,7 +1457,7 @@ will only render 20.
     },
 
     /**
-     * Selects or deselects the item at the given index in the items array 
+     * Selects or deselects the item at the given index in the items array
      * depending on whether the item has already been selected.
      *
      * @method toggleSelectionForIndex
