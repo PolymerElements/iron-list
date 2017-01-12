@@ -43,7 +43,7 @@
     "test-fixture": "PolymerElements/test-fixture#^2.0.0",
     "iron-test-helpers": "PolymerElements/iron-test-helpers#2.0-preview",
     "webcomponentsjs": "webcomponents/webcomponentsjs#v1",
-    "web-component-tester": "^4.0.0"
+    "web-component-tester": "^5.0.0"
   },
   "resolutions": {
     "polymer": "2.0-preview",
