@@ -40,14 +40,14 @@
     "paper-button": "PolymerElements/paper-button#2.0-preview",
     "paper-badge": "PolymerElements/paper-badge#2.0-preview",
     "paper-spinner": "PolymerElements/paper-spinner#2.0-preview",
-    "test-fixture": "PolymerElements/test-fixture#custom-elements-v1",
+    "test-fixture": "PolymerElements/test-fixture#^2.0.0",
     "iron-test-helpers": "PolymerElements/iron-test-helpers#2.0-preview",
     "webcomponentsjs": "webcomponents/webcomponentsjs#v1",
     "web-component-tester": "^5.0.0"
   },
   "resolutions": {
     "polymer": "2.0-preview",
-    "test-fixture": "custom-elements-v1",
+    "test-fixture": "^2.0.0",
     "webcomponentsjs": "v1",
     "mocha": "^3.1.2"
   }
