@@ -1254,6 +1254,7 @@ will only render 20.
         var inst = el._templateInstance;
         var item = this.items && this.items[vidx];
         if (item != null) {
+          inst[this.as] = {};
           inst[this.as] = item;
           inst.__key__ = this._collection.getKey(item);
           inst[this.selectedAs] = /** @type {!ArraySelectorElement} */ (this.$.selector).isSelected(item);
