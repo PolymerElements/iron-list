@@ -24,7 +24,8 @@
     "iron-resizable-behavior": "PolymerElements/iron-resizable-behavior#2.0-preview",
     "iron-a11y-keys-behavior": "PolymerElements/iron-a11y-keys-behavior#2.0-preview",
     "iron-scroll-target-behavior": "PolymerElements/iron-scroll-target-behavior#2.0-preview"
-  },
+  }
+  ,
   "devDependencies": {
     "app-layout": "PolymerElements/app-layout#2.0-preview",
     "iron-flex-layout": "PolymerElements/iron-flex-layout#2.0-preview",
@@ -45,12 +46,6 @@
     "webcomponentsjs": "webcomponents/webcomponentsjs#v1",
     "web-component-tester": "v6.0.0-prerelease.5"
   },
-  "resolutions": {
-    "polymer": "2.0-preview",
-    "test-fixture": "^2.0.0",
-    "webcomponentsjs": "v1",
-    "mocha": "^3.1.2"
-  },
   "variants": {
     "1.x": {
       "dependencies": {
@@ -60,7 +55,7 @@
         "iron-scroll-target-behavior": "PolymerElements/iron-scroll-target-behavior#^1.0.0"
       },
       "devDependencies": {
-        "app-layout": "PolymerElements/app-layout#^1.0.0",
+        "app-layout": "PolymerElements/app-layout#^0.10.0",
         "iron-flex-layout": "PolymerElements/iron-flex-layout#^1.0.0",
         "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
         "iron-ajax": "PolymerElements/iron-ajax#^1.0.0",
@@ -76,7 +71,8 @@
         "paper-spinner": "PolymerElements/paper-spinner#^1.0.0",
         "test-fixture": "PolymerElements/test-fixture#^1.0.0",
         "iron-test-helpers": "PolymerElements/iron-test-helpers#^1.0.0",
-        "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+        "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0",
+        "web-component-tester": "^4.0.0"
       }
     }
   }
