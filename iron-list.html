@@ -962,7 +962,7 @@ will only render 20.
     _increasePoolIfNeeded: function() {
       var self = this;
       var isClientFull = this._physicalBottom + this._scrollOffset >= this._scrollBottom &&
-          this._physicalTop <= Math.max(0, this._scrollPosition - this._scrollOffset);
+          this._physicalTop - this._scrollOffset <= this._scrollPosition;
       // Base case 1: if the physical size is optimal and the list's client height is full
       // with physical items, don't increase the pool.
       if (this._physicalSize >= this._optPhysicalSize && isClientFull) {
