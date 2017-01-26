@@ -13,6 +13,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
 <link rel="import" href="../iron-scroll-target-behavior/iron-scroll-target-behavior.html">
 <link rel="import" href="xdebounce.html">
+<link rel="import" href="templatizer.html">
 
 <!--
 
@@ -275,7 +276,6 @@ will only render 20.
 <script>
 
 (function() {
-  var templatizer = new Polymer.Templatizer();
   var IOS = navigator.userAgent.match(/iP(?:hone|ad;(?: U;)? CPU) OS (\d+)/);
   var IOS_TOUCH_SCROLLING = IOS && IOS[1] >= 8;
   var DEFAULT_PHYSICAL_COUNT = 3;
@@ -399,6 +399,7 @@ will only render 20.
     ],
 
     behaviors: [
+      Polymer.Templatizer,
       Polymer.IronResizableBehavior,
       Polymer.IronScrollTargetBehavior
     ],
@@ -532,9 +533,6 @@ will only render 20.
      * The height of the row in grid layout.
      */
     _rowHeight: 0,
-
-
-    _template: null,
 
     /**
      * The cost of stamping a template in ms.
@@ -876,12 +874,12 @@ will only render 20.
       var i, inst;
       var physicalItems = new Array(size);
       for (i = 0; i < size; i++) {
-        inst = new this._ctor(this);
+        inst = this.stamp(null);
         // TODO(blasten):
         // First element child is item; Safari doesn't support children[0]
         // on a doc fragment. Test this to see if it still matters.
         physicalItems[i] = inst.root.querySelector('*');
-        Polymer.dom(this._template.parentNode).appendChild(inst.root);
+        Polymer.dom(this._userTemplate.parentNode).appendChild(inst.root);
       }
       return physicalItems;
     },
@@ -955,22 +953,22 @@ will only render 20.
       }
     },
 
-    _fwdHostPropToInstance: function(template, prop, value) {
-      this._physicalItems.forEach(function(physicalItem) {
-        physicalItem._templateInstance.forwardProperty(prop, value, template);
-      });
-    },
+    // _fwdHostPropToInstance: function(template, prop, value) {
+    //   this._physicalItems.forEach(function(physicalItem) {
+    //     physicalItem._templateInstance.forwardProperty(prop, value, template);
+    //   });
+    // },
 
-    _fwdInstancePropToHost: function(inst, prop, value) {
-      if (Polymer.Path.matches(this.as, prop)) {
-        var idx = inst[this.indexAs];
-        if (prop == this.as) {
-          this.items[idx] = value;
-        }
-        var path = Polymer.Path.translate(this.as, 'items.' + idx, prop);
-        this.notifyPath(path, value);
-      }
-    },
+    // _fwdInstancePropToHost: function(inst, prop, value) {
+    //   if (Polymer.Path.matches(this.as, prop)) {
+    //     var idx = inst[this.indexAs];
+    //     if (prop == this.as) {
+    //       this.items[idx] = value;
+    //     }
+    //     var path = Polymer.Path.translate(this.as, 'items.' + idx, prop);
+    //     this.notifyPath(path, value);
+    //   }
+    // },
 
     /**
      * Templetizes the user template.
@@ -979,8 +977,8 @@ will only render 20.
       if (this._ctor) {
         return;
       }
-      this._template = this.queryEffectiveChildren('template');
-      if (!this._template) {
+      this._userTemplate = this.queryEffectiveChildren('template');
+      if (!this._userTemplate) {
         console.warn('iron-list requires a template to be provided in light-dom');
       }
       var instanceProps = {};
@@ -988,12 +986,8 @@ will only render 20.
       instanceProps[this.indexAs] = true;
       instanceProps[this.selectedAs] = true;
       instanceProps.tabIndex = true;
-
-      this._ctor = templatizer.templatize(this._template, {
-        instanceProps: instanceProps,
-        fwdHostPropToInstance: this._fwdHostPropToInstance.bind(this),
-        fwdInstancePropToHost: this._fwdInstancePropToHost.bind(this)
-      });
+      this._instanceProps = instanceProps;
+      this.templatize(this._userTemplate);
     },
 
     /**
@@ -1641,9 +1635,9 @@ will only render 20.
       }
       if (!this._focusBackfillItem) {
         // Create a physical item.
-        var inst = new this._ctor(this);
+        var inst = this.stamp(null);
         this._focusBackfillItem = inst.root.querySelector('*');
-        Polymer.dom(this._template.parentNode).appendChild(inst.root);
+        Polymer.dom(this._userTemplate.parentNode).appendChild(inst.root);
       }
       // Set the offcreen focused physical item.
       this._offscreenFocusedItem = this._physicalItems[pidx];
@@ -1733,10 +1727,6 @@ will only render 20.
           .after(timing)
           .run(cb);
       Polymer.Templatizer.enqueueDebouncer(this._renderDebouncer);
-    },
-
-    modelForElement(el) {
-      return templatizer.modelForElement(this._template, el);
     }
 
   });

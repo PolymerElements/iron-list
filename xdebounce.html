@@ -1,5 +1,4 @@
-<link rel="import" href="../polymer/src/utils/boot.html">
-<link rel="import" href="../polymer/src/utils/utils.html">
+<link rel="import" href="../polymer/polymer.html">
 
 <script>
   Polymer.XDebouncer = function XDebouncer() {
@@ -9,7 +8,7 @@
     this.flush = this.flush.bind(this);
   };
 
-  Polymer.Utils.mixin(Polymer.XDebouncer.prototype, {
+  Polymer.XDebouncer.prototype = {
     after: function(scheduler, wait) {
       this._scheduler = scheduler;
       this._wait = wait;
@@ -37,7 +36,7 @@
     isActive: function() {
       return this._timer != null;
     }
-  });
+  };
 
   Polymer.XDebouncer.debounce = function(debouncer) {
     return debouncer ? debouncer.cancel() : new Polymer.XDebouncer();
@@ -116,11 +115,4 @@
   });
   Polymer.XAsync.microTask.observer.observe(Polymer.XAsync.microTask._twiddle, {characterData: true});
 
-  // this.job = Polymer.Debouncer.debounce(this.job).after(Polymer.Async.timeOut, 16).run(cb);
-  // this.job = Polymer.Debouncer.debounce(this.job).after(Polymer.Async.microTask).run(cb);
-  // this.job = Polymer.Debouncer.debounce(this.job).after(Polymer.Async.rAF).run(cb);
-  // this.job = Polymer.Debouncer.debounce(this.job).after(Polymer.Async.rIC).run(cb);
-
-  // Polymer.Templatizer.enqueueDebouncer(this.job);
-  // Polymer.Templatizer.flush();
 </script>
