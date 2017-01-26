@@ -1166,6 +1166,7 @@ will only render 20.
       // Make sure we distributed all the physical items
       // so we can measure them.
       Polymer.dom.flush();
+      Polymer.Templatizer.flush();
 
       var newPhysicalSize = 0;
       var oldPhysicalSize = 0;
