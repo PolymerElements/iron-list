@@ -106,10 +106,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   });
 
-  // Polymer/web-component-tester/issues/475
+  // Polymer/issues/4062
   Polymer.dom._flush = Polymer.dom.flush;
   Polymer.dom.flush = function() {
-    Polymer.Templatizer.flush();
+    Polymer.Templatize && Polymer.Templatize.flush();
     Polymer.dom._flush();
   };
 </script>

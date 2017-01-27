@@ -13,7 +13,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
 <link rel="import" href="../iron-scroll-target-behavior/iron-scroll-target-behavior.html">
 <link rel="import" href="xdebounce.html">
-<link rel="import" href="templatizer.html">
 
 <!--
 
@@ -486,6 +485,12 @@ will only render 20.
     _firstVisibleIndexVal: null,
 
     /**
+     * A Polymer collection for the items.
+     * @type {?Polymer.Collection}
+     */
+    _collection: null,
+
+    /**
      * A cached value for the last visible index.
      * See `lastVisibleIndex`
      * @type {?number}
@@ -953,23 +958,6 @@ will only render 20.
       }
     },
 
-    // _fwdHostPropToInstance: function(template, prop, value) {
-    //   this._physicalItems.forEach(function(physicalItem) {
-    //     physicalItem._templateInstance.forwardProperty(prop, value, template);
-    //   });
-    // },
-
-    // _fwdInstancePropToHost: function(inst, prop, value) {
-    //   if (Polymer.Path.matches(this.as, prop)) {
-    //     var idx = inst[this.indexAs];
-    //     if (prop == this.as) {
-    //       this.items[idx] = value;
-    //     }
-    //     var path = Polymer.Path.translate(this.as, 'items.' + idx, prop);
-    //     this.notifyPath(path, value);
-    //   }
-    // },
-
     /**
      * Templetizes the user template.
      */
@@ -982,6 +970,7 @@ will only render 20.
         console.warn('iron-list requires a template to be provided in light-dom');
       }
       var instanceProps = {};
+      instanceProps.__key__ = true;
       instanceProps[this.as] = true;
       instanceProps[this.indexAs] = true;
       instanceProps[this.selectedAs] = true;
@@ -999,6 +988,9 @@ will only render 20.
         this._virtualStart = 0;
         this._physicalTop = 0;
         this._virtualCount = this.items ? this.items.length : 0;
+        this._collection = this.items && Polymer.Collection ?
+            Polymer.Collection.get(this.items) : null;
+        this._physicalIndexForKey = {};
         this._firstVisibleIndexVal = null;
         this._lastVisibleIndexVal = null;
         this._physicalCount = this._physicalCount || 0;
@@ -1027,8 +1019,14 @@ will only render 20.
 
     _forwardItemPath: function(path, value) {
       path = path.slice(6); // 'items.'.length == 6
+      var idx;
       var dot = path.indexOf('.');
-      var idx = parseInt(dot < 0 ? path : path.substring(0, dot), 10);
+      var key = path.substring(0, dot < 0 ? path.length : dot);
+      if (this._collection) {
+        idx = this._physicalIndexForKey[key];
+      } else {
+        idx = parseInt(dot < 0 ? path : path.substring(0, dot), 10);
+      }
       var offscreenItem = this._offscreenFocusedItem;
       var isIndexRendered = this._isIndexRendered(idx);
       var inst;
@@ -1040,12 +1038,14 @@ will only render 20.
         inst = offscreenItem._templateInstance[this.indexAs] === idx ?
             offscreenItem._templateInstance : null;
       }
-      if (!inst) {
+      if (!inst || (this._collection && inst.__key__ !== key)) {
         return;
       }
       path = dot < 0 ? '' : path.substring(dot+1);
-      inst.forwardProperty(this.as + (path ? '.' + path : ''), value);
-      inst.flushProperties();
+      path = this.as + (path ? '.' + path : '');
+      inst.notifyPath ? inst.notifyPath(path, value, true) :
+          this._forwardProperty(inst, path, value);
+      inst.flushProperties && inst.flushProperties();
       // TODO(blasten): V1 doesn't do this and it's a bug
       if (isIndexRendered) {
         this._updateMetrics([idx]);
@@ -1139,11 +1139,13 @@ will only render 20.
         var item = this.items && this.items[vidx];
         if (item != null) {
           var inst = el._templateInstance;
-          inst.forwardProperty(this.as, item);
-          inst.forwardProperty(this.selectedAs, this.$.selector.isSelected(item));
-          inst.forwardProperty(this.indexAs, vidx);
-          inst.forwardProperty('tabIndex', this._focusedIndex === vidx ? 0 : -1);
-          inst.flushProperties();
+          inst.__key__ = this._collection ? this._collection.getKey(item) : null;
+          this._forwardProperty(inst, this.as, item);
+          this._forwardProperty(inst, this.selectedAs, this.$.selector.isSelected(item));
+          this._forwardProperty(inst, this.indexAs, vidx);
+          this._forwardProperty(inst, 'tabIndex', this._focusedIndex === vidx ? 0 : -1);
+          this._physicalIndexForKey[inst.__key__] = pidx;
+          inst.flushProperties && inst.flushProperties();
           el.removeAttribute('hidden');
         } else {
           el.setAttribute('hidden', '');
@@ -1160,7 +1162,7 @@ will only render 20.
       // Make sure we distributed all the physical items
       // so we can measure them.
       Polymer.dom.flush();
-      Polymer.Templatizer.flush();
+      Polymer.Templatize && Polymer.Templatize.flush();
 
       var newPhysicalSize = 0;
       var oldPhysicalSize = 0;
@@ -1314,8 +1316,8 @@ will only render 20.
       if (typeof idx !== 'number' || idx < 0 || idx > this.items.length - 1) {
         return;
       }
-      Polymer.Templatizer.flush();
       Polymer.dom.flush();
+      Polymer.Templatize && Polymer.Templatize.flush();
       // Items should have been rendered prior scrolling to an index.
       if (this._physicalCount === 0) {
         return;
@@ -1473,8 +1475,8 @@ will only render 20.
      */
     clearSelection: function() {
       this._iterateItems(function(pidx, vidx) {
-        var el = this._physicalItems[pidx];
-        el._templateInstance.forwardProperty(this.selectedAs, false);
+        this._forwardProperty(this._physicalItems[pidx].el._templateInstance,
+            this.selectedAs, false);
       });
       this.$.selector.clearSelection();
     },
@@ -1727,9 +1729,66 @@ will only render 20.
           .debounce(this._renderDebouncer)
           .after(timing)
           .run(cb);
-      Polymer.Templatizer.enqueueDebouncer(this._renderDebouncer);
-    }
+      Polymer.Templatize && Polymer.Templatize.enqueueDebouncer(this._renderDebouncer);
+    },
 
+    _forwardProperty(inst, name, value) {
+      if (inst.forwardProperty) {
+        inst.forwardProperty(name, value);
+      } else {
+        inst[name] = value;
+      }
+    },
+
+    /* Templatizer bindings for v2 */
+    _fwdHostPropToInstance: function(template, prop, value) {
+      this._physicalItems.forEach(function(physicalItem) {
+        physicalItem._templateInstance.forwardProperty(prop, value, template);
+      });
+    },
+
+    _fwdInstancePropToHost: function(inst, prop, value) {
+      if (Polymer.Path.matches(this.as, prop)) {
+        var idx = inst[this.indexAs];
+        if (prop == this.as) {
+          this.items[idx] = value;
+        }
+        var path = Polymer.Path.translate(this.as, 'items.' + idx, prop);
+        this.notifyPath(path, value);
+      }
+    },
+
+    /* Templatizer bindings for v1 */
+    _forwardInstancePath: function(inst, path, value) {
+      if (path.indexOf(this.as + '.') === 0) {
+        this.notifyPath('items.' + inst.__key__ + '.' +
+            path.slice(this.as.length + 1), value);
+      }
+    },
+
+    _forwardInstanceProp: function(inst, prop, value) {
+      // Should be implemented.
+    },
+
+    _forwardParentPath: function(path, value) {
+      (this._physicalItems || [])
+        .concat([this._offscreenFocusedItem, this._focusBackfillItem])
+        .forEach(function(item) {
+          if (item) {
+            item._templateInstance.notifyPath(path, value, true);
+          }
+        });
+    },
+
+    _forwardParentProp: function(prop, value) {
+      (this._physicalItems || [])
+        .concat([this._offscreenFocusedItem, this._focusBackfillItem])
+        .forEach(function(item) {
+          if (item) {
+            item._templateInstance[prop] = value;
+          }
+        });
+    }
   });
 
 })();
