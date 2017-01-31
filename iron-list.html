@@ -105,7 +105,7 @@ layout means (e.g. the `flex` or `fit` classes).
 <body>
   <template is="dom-bind">
     <app-toolbar>App name</app-toolbar>
-    <iron-list target="document" items="[[items]]">
+    <iron-list scroll-target="document" items="[[items]]">
       <template>
         ...
       </template>
@@ -594,6 +594,13 @@ will only render 20.
     },
 
     /**
+     * The parent node for the _userTemplate.
+     */
+    get _itemsParent() {
+      return Polymer.dom(Polymer.dom(this._userTemplate).parentNode);
+    },
+
+    /**
      * The maximum scroll top value.
      */
     get _maxScrollTop() {
@@ -781,8 +788,10 @@ will only render 20.
      * @method updateViewportBoundaries
      */
     updateViewportBoundaries: function() {
-      this._scrollerPaddingTop = this.scrollTarget === this ? 0 :
-          parseInt(window.getComputedStyle(this)['padding-top'], 10);
+      var styles = window.getComputedStyle(this);
+      this._scrollerPaddingTop =
+          this.scrollTarget === this ? 0 : parseInt(styles['padding-top'], 10);
+      this._isRTL = Boolean(styles.direction === 'rtl');
       this._viewportWidth = this.$.items.offsetWidth;
       this._viewportHeight = this._scrollTargetHeight;
       this.grid && this._updateGridMetrics();
@@ -926,7 +935,7 @@ will only render 20.
         // First element child is item; Safari doesn't support children[0]
         // on a doc fragment.
         physicalItems[i] = inst.root.querySelector('*');
-        Polymer.dom(this).appendChild(inst.root);
+        this._itemsParent.appendChild(inst.root);
       }
       return physicalItems;
     },
@@ -1035,7 +1044,7 @@ will only render 20.
         props[this.selectedAs] = true;
         props.tabIndex = true;
         this._instanceProps = props;
-        this._userTemplate = Polymer.dom(this).querySelector('template');
+        this._userTemplate = this.queryEffectiveChildren('template');
 
         if (this._userTemplate) {
           this.templatize(this._userTemplate);
@@ -1070,11 +1079,13 @@ will only render 20.
      * notifying parent path change on each row.
      */
     _forwardParentProp: function(prop, value) {
-      if (this._physicalItems) {
-        this._physicalItems.forEach(function(item) {
-          item._templateInstance[prop] = value;
-        }, this);
-      }
+      (this._physicalItems || [])
+              .concat([this._offscreenFocusedItem, this._focusBackfillItem])
+              .forEach(function(item) {
+                if (item) {
+                  item._templateInstance[prop] = value;
+                }
+              });
     },
 
     /**
@@ -1083,11 +1094,13 @@ will only render 20.
      * notifying parent.<path> path change on each row.
      */
     _forwardParentPath: function(path, value) {
-      if (this._physicalItems) {
-        this._physicalItems.forEach(function(item) {
-          item._templateInstance.notifyPath(path, value, true);
-        }, this);
-      }
+      (this._physicalItems || [])
+              .concat([this._offscreenFocusedItem, this._focusBackfillItem])
+              .forEach(function(item) {
+                if (item) {
+                  item._templateInstance.notifyPath(path, value, true);
+                }
+              });
     },
 
     /**
@@ -1324,6 +1337,9 @@ will only render 20.
         this._iterateItems(function(pidx, vidx) {
           var modulus = vidx % this._itemsPerRow;
           var x = Math.floor((modulus * this._itemWidth) + rowOffset);
+          if (this._isRTL) {
+            x = x * -1;
+          }
           this.translate3d(x + 'px', y + 'px', 0, this._physicalItems[pidx]);
           if (this._shouldRenderNextRow(vidx)) {
             y += this._rowHeight;
@@ -1622,7 +1638,8 @@ will only render 20.
       }
       var modelTabIndex, activeElTabIndex;
       var target = Polymer.dom(e).path[0];
-      var activeEl = Polymer.dom(this.domHost ? this.domHost.root : document).activeElement;
+      var itemsHost = this._itemsParent.node.domHost;
+      var activeEl = Polymer.dom(itemsHost ? itemsHost.root : document).activeElement;
       var physicalItem = this._physicalItems[this._getPhysicalIndex(model[this.indexAs])];
 	  // Don't select when the item is displaying this.defaultItem
 	  // meaning there is no way to reference a physical item
@@ -1740,7 +1757,7 @@ will only render 20.
 
     _removeFocusedItem: function() {
       if (this._offscreenFocusedItem) {
-        Polymer.dom(this).removeChild(this._offscreenFocusedItem);
+        this._itemsParent.removeChild(this._offscreenFocusedItem);
       }
       this._offscreenFocusedItem = null;
       this._focusBackfillItem = null;
@@ -1759,7 +1776,7 @@ will only render 20.
         // Create a physical item.
         var stampedTemplate = this.stamp(null);
         this._focusBackfillItem = stampedTemplate.root.querySelector('*');
-        Polymer.dom(this).appendChild(stampedTemplate.root);
+        this._itemsParent.appendChild(stampedTemplate.root);
       }
       // Set the offcreen focused physical item.
       this._offscreenFocusedItem = this._physicalItems[pidx];
