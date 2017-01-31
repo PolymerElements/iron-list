@@ -37,7 +37,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     </style>
 
-    <iron-list style$="[[_computedListHeight(listHeight)]]" items="[[data]]" as="item" id="list">
+    <iron-list items="[[data]]" as="item" id="list">
       <template>
         <div class="item" tabindex$="[[_computedTabIndex(tabIndex, useTabIndex)]]">
           <div style$="[[_computedItemHeight(item)]]" tabindex="0" hidden$="[[primitive]]">[[item.index]]</div>
@@ -65,7 +65,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       listHeight: {
         type: Number,
-        value: 300
+        value: 300,
+        observer: '_listHeightChanged'
       },
 
       pre: {
@@ -97,12 +98,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       return css;
     },
 
-    _computedListHeight: function(listHeight) {
-      return 'height: ' + listHeight + 'px; overflow: hidden;';
-    },
-
     _computedTabIndex: function(tabIndex, useTabIndex) {
       return useTabIndex ? tabIndex : undefined;
+    },
+
+    _listHeightChanged(height) {
+      this.$.list.style.height = height + 'px';
     }
   });
 

@@ -6,6 +6,8 @@
     this._timer = null;
     this._wait = 0;
     this.flush = this.flush.bind(this);
+    // For v1
+    this.complete = this.flush;
   };
 
   Polymer.XDebouncer.prototype = {

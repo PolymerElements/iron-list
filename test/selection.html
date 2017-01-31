@@ -247,17 +247,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         flush(function() {
           // multi selection
           list.multiSelection = true;
-
           assert.isFalse(list._physicalItems[0]._templateInstance.selected);
-
           list.selectIndex(0);
-
           assert.isTrue(list._physicalItems[0]._templateInstance.selected);
-
           list.toggleSelectionForIndex(0);
-
           assert.isFalse(list._physicalItems[0]._templateInstance.selected);
-
           // single selection
           list.multiSelection = false;
           list.selectIndex(0);

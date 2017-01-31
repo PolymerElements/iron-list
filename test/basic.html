@@ -47,32 +47,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       assert.isFalse(list.multiSelection, 'multiSelection');
     });
 
-    test('check items length', function(done) {
+    test('check items length', function() {
       container.data = buildDataSet(100);
-      flush(function() {
-        assert.equal(list.items.length, container.data.length);
-        done();
+      Polymer.dom.flush();
+      assert.equal(list.items.length, container.data.length);
+    });
+
+    test('check physical item heights', function() {
+      container.data = buildDataSet(100);
+      Polymer.dom.flush();
+      var rowHeight = list._physicalItems[0].offsetHeight;
+      list._physicalItems.forEach(function(item) {
+        assert.equal(item.offsetHeight, rowHeight);
       });
     });
 
-    test('check physical item heights', function(done) {
-      container.data = buildDataSet(100);
-      flush(function() {
-        var rowHeight = list._physicalItems[0].offsetHeight;
-        list._physicalItems.forEach(function(item) {
-          assert.equal(item.offsetHeight, rowHeight);
-        });
-        done();
-      });
-    });
-
-    test('check physical item size', function(done) {
+    test('check physical item size', function() {
       var setSize = 10;
       container.data = buildDataSet(setSize);
-      flush(function() {
-        assert.equal(list.items.length, setSize);
-        done();
-      });
+      Polymer.dom.flush();
+      assert.equal(list.items.length, setSize);
     });
 
     test('first visible index', function() {
@@ -112,7 +106,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       Polymer.dom.flush();
       list.scroll(0, 100);
       list.fire('scroll');
-      assert.equal(list.lastVisibleIndex, ((list._scrollTop + container.listHeight) / container.itemHeight) - 1);
+      assert.equal(list.lastVisibleIndex,
+          ((list._scrollTop + container.listHeight) / container.itemHeight) - 1);
     });
 
     test('scroll to index', function() {
@@ -131,7 +126,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       list.scrollToIndex(99);
       assert.equal(list.firstVisibleIndex, list.items.length - itemsPerViewport);
-
       // Make the height of the viewport same as the height of the row
       // and scroll to the last item
       list.style.height = list._physicalItems[0].offsetHeight + 'px';
@@ -152,7 +146,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     test('scroll to item', function() {
       list.items = buildDataSet(100);
-
       Polymer.dom.flush();
       list.scrollToItem(list.items[30]);
       assert.equal(list.firstVisibleIndex, 30);
@@ -166,7 +159,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       list.scrollToItem(list.items[99]);
       assert.equal(list.firstVisibleIndex, list.items.length - itemsPerViewport);
-
       // make the height of the viewport same as the height of the row
       // and scroll to the last item
       list.style.height = list._physicalItems[0].offsetHeight + 'px';
@@ -182,7 +174,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       list.scrollToIndex(99);
       Polymer.dom.flush();
       list.scroll(0, 0);
-      setTimeout(function() {
+      requestAnimationFrame(function() {
         assert.equal(list._scrollTop, 0, 'scrollTop = 0');
         done();
       }, 100);
@@ -194,10 +186,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       list.scrollToIndex(99);
       Polymer.dom.flush();
       list.scroll(0, 500);
-      setTimeout(function() {
+      requestAnimationFrame(function() {
         assert.equal(list._scrollTop, 500, 'scrollTop = 500');
         done();
-      }, 100);
+      });
     });
 
     test('reset items', function() {

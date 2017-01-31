@@ -712,6 +712,13 @@ will only render 20.
       return Math.ceil(this._physicalCount / this._itemsPerRow);
     },
 
+    /**
+     * The parent node for the _userTemplate.
+     */
+    get _itemsParent() {
+      return Polymer.dom(Polymer.dom(this._userTemplate).parentNode);
+    },
+
     ready: function() {
       this.addEventListener('focus', this._didFocus.bind(this), true);
     },
@@ -884,7 +891,7 @@ will only render 20.
         // First element child is item; Safari doesn't support children[0]
         // on a doc fragment. Test this to see if it still matters.
         physicalItems[i] = inst.root.querySelector('*');
-        Polymer.dom(this._userTemplate.parentNode).appendChild(inst.root);
+        this._itemsParent.appendChild(inst.root);
       }
       return physicalItems;
     },
@@ -962,7 +969,7 @@ will only render 20.
      * Templetizes the user template.
      */
     _ensureTemplatized: function() {
-      if (this._ctor) {
+      if (this.ctor) {
         return;
       }
       this._userTemplate = this.queryEffectiveChildren('template');
@@ -1475,7 +1482,7 @@ will only render 20.
      */
     clearSelection: function() {
       this._iterateItems(function(pidx, vidx) {
-        this._forwardProperty(this._physicalItems[pidx].el._templateInstance,
+        this._forwardProperty(this._physicalItems[pidx]._templateInstance,
             this.selectedAs, false);
       });
       this.$.selector.clearSelection();
@@ -1621,7 +1628,7 @@ will only render 20.
 
     _removeFocusedItem: function() {
       if (this._offscreenFocusedItem) {
-        Polymer.dom(this).removeChild(this._offscreenFocusedItem);
+       this._itemsParent.removeChild(this._offscreenFocusedItem);
       }
       this._offscreenFocusedItem = null;
       this._focusBackfillItem = null;
@@ -1640,7 +1647,7 @@ will only render 20.
         // Create a physical item.
         var inst = this.stamp(null);
         this._focusBackfillItem = inst.root.querySelector('*');
-        Polymer.dom(this._userTemplate.parentNode).appendChild(inst.root);
+        this._itemsParent.appendChild(inst.root);
       }
       // Set the offcreen focused physical item.
       this._offscreenFocusedItem = this._physicalItems[pidx];
@@ -1730,6 +1737,8 @@ will only render 20.
           .after(timing)
           .run(cb);
       Polymer.Templatize && Polymer.Templatize.enqueueDebouncer(this._renderDebouncer);
+
+      Polymer.dom.addDebouncer && Polymer.dom.addDebouncer(this._renderDebouncer);
     },
 
     _forwardProperty(inst, name, value) {
@@ -1759,6 +1768,11 @@ will only render 20.
     },
 
     /* Templatizer bindings for v1 */
+
+    _getStampedChildren: function() {
+      return this._physicalItems;
+    },
+
     _forwardInstancePath: function(inst, path, value) {
       if (path.indexOf(this.as + '.') === 0) {
         this.notifyPath('items.' + inst.__key__ + '.' +
@@ -1789,6 +1803,7 @@ will only render 20.
           }
         });
     }
+
   });
 
 })();
