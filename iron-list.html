@@ -1418,7 +1418,13 @@ will only render 20.
         }
         this.updateSizeForIndex(index);
       }
-      this.$.selector.selectIndex(index);
+      if (this.$.selector.selectIndex) {
+        // v2
+        this.$.selector.selectIndex(index);
+      } else {
+        // v1
+        this.$.selector.select(this.items[index]);
+      }
     },
 
     /**
@@ -1446,7 +1452,13 @@ will only render 20.
         model[this.selectedAs] = false;
         this.updateSizeForIndex(index);
       }
-      this.$.selector.deselectIndex(index);
+      if (this.$.selector.deselectIndex) {
+        // v2
+        this.$.selector.deselectIndex(index);
+      } else {
+        // v1
+        this.$.selector.deselect(this.items[index]);
+      }
     },
 
     /**
@@ -1468,11 +1480,9 @@ will only render 20.
      * @param {Object} index The index of the item in the items array.
      */
     toggleSelectionForIndex: function(index) {
-      if (this.$.selector.isIndexSelected(index)) {
-        this.deselectIndex(index);
-      } else {
-        this.selectIndex(index);
-      }
+      var isSelected = this.$.selector.isIndexSelected
+          ? this.$.selector.isIndexSelected(index) : this.$.selector.isSelected(this.items[index]);
+        isSelected ? this.deselectIndex(index) : this.selectIndex(index);
     },
 
     /**
