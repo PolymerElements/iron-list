@@ -41,7 +41,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       list = container.list;
     });
 
-
     test('check horizontal rendering', function(done) {
       container.data = buildDataSet(100);
 
@@ -111,7 +110,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       Polymer.dom.flush();
       list.scrollToIndex(30);
       assert.equal(list.firstVisibleIndex, 30);
-
       list.scrollToIndex(0);
       assert.equal(list.firstVisibleIndex, 0);
 
@@ -127,7 +125,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // and scroll to the last item
       list.style.height = list._physicalItems[0].offsetHeight + 'px';
       list.fire('iron-resize');
-
       list.scrollToIndex(99);
       assert.equal(list.firstVisibleIndex, 98);
     });

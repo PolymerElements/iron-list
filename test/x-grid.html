@@ -27,7 +27,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     </style>
     
-    <iron-list style$="[[_computedListSize(listSize)]]" items="[[data]]" as="item" id="list" grid>
+    <iron-list items="[[data]]" as="item" id="list" grid>
       <template>
         <div class="item">
           <div style$="[[_computeItemSize(item)]]">[[item.index]]</div>
@@ -54,7 +54,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       listSize: {
         type: Number,
-        value: 300
+        value: 300,
+        observer: '_listSizeChanged'
       },
 
       pre: {
@@ -73,8 +74,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       return css;
     },
 
-    _computedListSize: function(listHeight) {
-      return 'height: ' + (listHeight) + 'px;' + 'width: ' + (listHeight) + 'px;';
+    _listSizeChanged: function(listSize) {
+      this.$.list.style.width = '300px';
+      this.$.list.style.height = '300px';
+
     }
   });
 </script>
