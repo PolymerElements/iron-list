@@ -776,6 +776,14 @@ will only render 20.
       // Random access.
       if (Math.abs(delta) > this._physicalSize) {
         var idxAdjustment =  Math.round(delta / this._physicalAverage) * this._itemsPerRow
+
+        if (this.grid) {
+          // Adjust idxAdjustment so that it is no greater than _maxVirtualStart - _virtualStart
+          // and a multiple of _itemsPerRow.
+          idxAdjustment = Math.min(idxAdjustment, this._maxVirtualStart - this._virtualStart);
+          idxAdjustment = Math.floor(idxAdjustment / this._itemsPerRow) * this._itemsPerRow;
+        }
+
         this._physicalTop = this._physicalTop + delta;
         this._virtualStart = this._virtualStart + idxAdjustment;
         this._physicalStart = this._physicalStart + idxAdjustment;
