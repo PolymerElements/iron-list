@@ -77,7 +77,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         function doneScrollDown() {
           checkFirstVisible();
           checkLastVisible();
-          scrollToItem = 1;
+          scrollToItem = 0;
           flush(function() {
             simulateScroll({
               list: list,
@@ -93,7 +93,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           checkLastVisible();
           done();
         }
-        scrollToItem = 50;
+        scrollToItem = 60;
 
         simulateScroll({
           list: list,
