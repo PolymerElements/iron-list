@@ -107,7 +107,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     test('scroll to index', function() {
       list.items = buildDataSet(100);
-      Polymer.dom.flush();
+      PolymerFlush();
       list.scrollToIndex(30);
       assert.equal(list.firstVisibleIndex, 30);
       list.scrollToIndex(0);

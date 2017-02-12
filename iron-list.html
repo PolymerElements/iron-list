@@ -12,7 +12,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
 <link rel="import" href="../iron-scroll-target-behavior/iron-scroll-target-behavior.html">
-<link rel="import" href="xdebounce.html">
 
 <!--
 
@@ -282,6 +281,10 @@ will only render 20.
   var ITEM_WIDTH = 0;
   var ITEM_HEIGHT = 1;
   var SECRET_TABINDEX = -100;
+  var IS_V2 = Polymer.flush != null;
+  var ANIMATION_FRAME = IS_V2 ? Polymer.Async.animationFrame : 0;
+  var IDLE_TIME = IS_V2 ? Polymer.Async.idlePeriod : 1;
+  var MICRO_TASK = IS_V2 ? Polymer.Async.microTask : 2;
 
   Polymer({
 
@@ -724,7 +727,7 @@ will only render 20.
     },
 
     attached: function() {
-      this._debounceRender(this._render.bind(this), Polymer.XAsync.rAF);
+      this._debounceRender(this._render, ANIMATION_FRAME);
       // `iron-resize` is fired when the list is attached if the event is added
       // before attached causing unnecessary work.
       this.listen(this, 'iron-resize', '_resizeHandler');
@@ -932,14 +935,20 @@ will only render 20.
         nextIncrease = Math.round(this._physicalCount * 0.5);
       }
       if (this._virtualEnd === this._virtualCount - 1 || nextIncrease === 0) {
-
+        // Do nothing.
       } else if (!this._isClientFull()) {
-        // Yield and increase the pool synchronously until the client is filled.
-        this._debounceRender(this._increasePoolIfNeeded.bind(this, nextIncrease), Polymer.XAsync.microTask);
+        this._debounceRender(
+          this._increasePoolIfNeeded.bind(
+            this,
+            nextIncrease
+          ), MICRO_TASK);
       } else if (this._physicalSize < this._optPhysicalSize) {
         // Yield and increase the pool during idle time until the physical size is optimal.
-        this._debounceRender(this._increasePoolIfNeeded.bind(this,
-            this._clamp(Math.round(50 / this._templateCost), 1, nextIncrease)), Polymer.XAsync.rIC);
+        this._debounceRender(
+          this._increasePoolIfNeeded.bind(
+            this,
+            this._clamp(Math.round(50 / this._templateCost), 1, nextIncrease)
+          ), IDLE_TIME);
       }
     },
 
@@ -1008,7 +1017,7 @@ will only render 20.
           this._resetScrollPosition(0);
         }
         this._removeFocusedItem();
-        this._debounceRender(this._render.bind(this), Polymer.XAsync.rAF);
+        this._debounceRender(this._render, ANIMATION_FRAME);
       } else if (change.path === 'items.splices') {
         this._adjustVirtualIndex(change.value.indexSplices);
         this._virtualCount = this.items ? this.items.length : 0;
@@ -1017,7 +1026,7 @@ will only render 20.
           .reduce(function(prev, splice) {
             return prev || this._isIndexRendered(splice.index);
          }.bind(this), false)) {
-         this._debounceRender(this._render.bind(this), Polymer.XAsync.rAF);
+         this._debounceRender(this._render, ANIMATION_FRAME);
        }
       } else if (change.path !== 'items.length') {
         this._forwardItemPath(change.path, change.value);
@@ -1050,9 +1059,10 @@ will only render 20.
       }
       path = dot < 0 ? '' : path.substring(dot+1);
       path = this.as + (path ? '.' + path : '');
-      inst.notifyPath ? inst.notifyPath(path, value, true) :
-          this._forwardProperty(inst, path, value);
-      inst.flushProperties && inst.flushProperties();
+      IS_V2
+        ? this._forwardProperty(inst, path, value)
+        : inst.notifyPath(path, value, true);
+      inst._flushProperties && inst._flushProperties(true);
       // TODO(blasten): V1 doesn't do this and it's a bug
       if (isIndexRendered) {
         this._updateMetrics([idx]);
@@ -1152,7 +1162,7 @@ will only render 20.
           this._forwardProperty(inst, this.indexAs, vidx);
           this._forwardProperty(inst, 'tabIndex', this._focusedIndex === vidx ? 0 : -1);
           this._physicalIndexForKey[inst.__key__] = pidx;
-          inst.flushProperties && inst.flushProperties();
+          inst._flushProperties && inst._flushProperties(true);
           el.removeAttribute('hidden');
         } else {
           el.setAttribute('hidden', '');
@@ -1168,8 +1178,7 @@ will only render 20.
     _updateMetrics: function(itemSet) {
       // Make sure we distributed all the physical items
       // so we can measure them.
-      Polymer.dom.flush();
-      Polymer.Templatize && Polymer.Templatize.flush();
+      Polymer.flush ? Polymer.flush() : Polymer.dom.flush();
 
       var newPhysicalSize = 0;
       var oldPhysicalSize = 0;
@@ -1323,8 +1332,7 @@ will only render 20.
       if (typeof idx !== 'number' || idx < 0 || idx > this.items.length - 1) {
         return;
       }
-      Polymer.dom.flush();
-      Polymer.Templatize && Polymer.Templatize.flush();
+      Polymer.flush ? Polymer.flush() : Polymer.dom.flush();
       // Items should have been rendered prior scrolling to an index.
       if (this._physicalCount === 0) {
         return;
@@ -1385,7 +1393,7 @@ will only render 20.
           // Uninstall the scroll event listener.
           this.toggleScrollListener(false);
         }
-      }.bind(this), Polymer.XAsync.rAF);
+      }, ANIMATION_FRAME);
     },
 
     /**
@@ -1719,18 +1727,15 @@ will only render 20.
     },
 
     _keydownHandler: function(e) {
-      var KEY_ARROW_DOWN = 40;
-      var KEY_ARROW_UP = 38;
-      var KEY_ENTER = 13;
       switch (e.keyCode) {
-        case KEY_ARROW_DOWN:
+        case /* ARROW_DOWN */ 40:
           e.detail.keyboardEvent.preventDefault();
           this._focusPhysicalItem(this._focusedIndex + 1);
           break;
-        case KEY_ARROW_UP:
+        case /* ARROW_UP */ 38:
           this._focusPhysicalItem(this._focusedIndex - 1);
           break;
-        case KEY_ENTER:
+        case /* ENTER */ 13:
           this._focusPhysicalItem(this._focusedIndex);
           this._selectionHandler(e.detail.keyboardEvent);
         break;
@@ -1741,44 +1746,44 @@ will only render 20.
       return Math.min(max, Math.max(min, v));
     },
 
-    _debounceRender: function(cb, timing) {
-      this._renderDebouncer = Polymer.XDebouncer
-          .debounce(this._renderDebouncer)
-          .after(timing)
-          .run(cb);
-      Polymer.Templatize && Polymer.Templatize.enqueueDebouncer(this._renderDebouncer);
-
-      Polymer.dom.addDebouncer && Polymer.dom.addDebouncer(this._renderDebouncer);
+    _debounceRender: function(cb, asyncModule) {
+      if (IS_V2) {
+        this._renderDebouncer = Polymer.Debouncer.debounce(
+          this._renderDebouncer,
+          asyncModule,
+          cb.bind(this));
+        Polymer.enqueueDebouncer(this._renderDebouncer);
+      } else {
+        this._debounceTemplate(cb);
+      }
     },
 
     _forwardProperty(inst, name, value) {
-      if (inst.forwardProperty) {
-        inst.forwardProperty(name, value);
+      if (IS_V2) {
+        inst._setPendingProperty(name, value);
       } else {
         inst[name] = value;
       }
     },
 
     /* Templatizer bindings for v2 */
-    _fwdHostPropToInstance: function(template, prop, value) {
+    _forwardHostPropV2: function(prop, value) {
       this._physicalItems.forEach(function(physicalItem) {
-        physicalItem._templateInstance.forwardProperty(prop, value, template);
+        physicalItem._templateInstance.forwardHostProp(prop, value);
       });
     },
 
-    _fwdInstancePropToHost: function(inst, prop, value) {
-      if (Polymer.Path.matches(this.as, prop)) {
+    _notifyInstancePropV2: function(inst, prop, value) {
+     if (Polymer.Path.matches(this.as, prop)) {
         var idx = inst[this.indexAs];
         if (prop == this.as) {
           this.items[idx] = value;
         }
-        var path = Polymer.Path.translate(this.as, 'items.' + idx, prop);
-        this.notifyPath(path, value);
+        this.notifyPath(Polymer.Path.translate(this.as, 'items.' + idx, prop), value);
       }
     },
 
     /* Templatizer bindings for v1 */
-
     _getStampedChildren: function() {
       return this._physicalItems;
     },
@@ -1788,10 +1793,6 @@ will only render 20.
         this.notifyPath('items.' + inst.__key__ + '.' +
             path.slice(this.as.length + 1), value);
       }
-    },
-
-    _forwardInstanceProp: function(inst, prop, value) {
-      // Should be implemented.
     },
 
     _forwardParentPath: function(path, value) {
@@ -1818,4 +1819,12 @@ will only render 20.
 
 })();
 
+// TODO(blasten): Fix this issue in Polymer 2.0-preview
+if (Polymer.Debouncer.prototype.setConfig) {
+  Polymer.Debouncer.prototype.setConfig = function(asyncModule, cb) {
+    this._asyncModule = asyncModule;
+    this._callback = cb;
+    this._timer = this._asyncModule.run(this.flush);
+  };
+}
 </script>

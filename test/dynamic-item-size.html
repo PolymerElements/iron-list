@@ -50,13 +50,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           list.set('items.0.index', '1\n2\n3\n4');
           list.updateSizeForItem(0);
-          assert.isAbove(firstItem.offsetHeight, initHeight*3);
+          debugger;
+          //assert.isAbove(firstItem.offsetHeight, initHeight*3);
 
-          list.set('items.0.index', '1');
-          list.updateSizeForItem(0);
-          assert.equal(firstItem.offsetHeight, initHeight);
+          // list.set('items.0.index', '1');
+          // list.updateSizeForItem(0);
+          // assert.equal(firstItem.offsetHeight, initHeight);
 
-          done();
+          // done();
         });
       });
 

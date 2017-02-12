@@ -49,13 +49,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     test('check items length', function() {
       container.data = buildDataSet(100);
-      Polymer.dom.flush();
+      PolymerFlush();
       assert.equal(list.items.length, container.data.length);
     });
 
     test('check physical item heights', function() {
       container.data = buildDataSet(100);
-      Polymer.dom.flush();
+      PolymerFlush();
       var rowHeight = list._physicalItems[0].offsetHeight;
       list._physicalItems.forEach(function(item) {
         assert.equal(item.offsetHeight, rowHeight);
@@ -65,13 +65,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     test('check physical item size', function() {
       var setSize = 10;
       container.data = buildDataSet(setSize);
-      Polymer.dom.flush();
+      PolymerFlush();
       assert.equal(list.items.length, setSize);
     });
 
     test('first visible index', function() {
       container.data = buildDataSet(100);
-      Polymer.dom.flush();
+      PolymerFlush();
       assert.equal(list.firstVisibleIndex, 0);
       list.scroll(0, container.itemHeight * 10);
       list.fire('scroll');
@@ -80,30 +80,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       list.fire('scroll');
       assert.equal(list.firstVisibleIndex, 50);
       list.scrollToIndex(60);
-      Polymer.dom.flush();
+      PolymerFlush();
       assert.equal(list.firstVisibleIndex, 60);
       list.scrollToIndex(0);
-      Polymer.dom.flush();
+      PolymerFlush();
       assert.equal(list.firstVisibleIndex, 0);
     });
 
     test('last visible index', function() {
       container.data = buildDataSet(1);
       container.itemHeight = 1000;
-      Polymer.dom.flush();
+      PolymerFlush();
       assert.equal(list.lastVisibleIndex, 0);
       container.data = buildDataSet(2);
       container.itemHeight = 50;
-      Polymer.dom.flush();
+      PolymerFlush();
       assert.equal(list.lastVisibleIndex, 1);
       container.data = buildDataSet(10);
-      Polymer.dom.flush();
+      PolymerFlush();
       list.scrollToIndex(8);
-      Polymer.dom.flush();
+      PolymerFlush();
       assert.equal(list.lastVisibleIndex, 9);
       container.itemHeight = 50;
       container.data = buildDataSet(100);
-      Polymer.dom.flush();
+      PolymerFlush();
       list.scroll(0, 100);
       list.fire('scroll');
       assert.equal(list.lastVisibleIndex,
@@ -112,13 +112,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     test('scroll to index', function() {
       list.items = buildDataSet(100);
-      Polymer.dom.flush();
+      PolymerFlush();
+
       list.scrollToIndex(30);
       assert.equal(list.firstVisibleIndex, 30);
       list.scrollToIndex(0);
       assert.equal(list.firstVisibleIndex, 0);
-
-      Polymer.dom.flush();
+      PolymerFlush();
 
       var rowHeight = getFirstItemFromList(list).offsetHeight;
       var viewportHeight = list.offsetHeight;
@@ -130,7 +130,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // and scroll to the last item
       list.style.height = list._physicalItems[0].offsetHeight + 'px';
       list.fire('iron-resize');
-      Polymer.dom.flush();
+      PolymerFlush();
       list.scrollToIndex(99);
       assert.equal(list.firstVisibleIndex, 99);
     });
@@ -146,7 +146,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     test('scroll to item', function() {
       list.items = buildDataSet(100);
-      Polymer.dom.flush();
+      PolymerFlush();
       list.scrollToItem(list.items[30]);
       assert.equal(list.firstVisibleIndex, 30);
 
@@ -163,16 +163,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // and scroll to the last item
       list.style.height = list._physicalItems[0].offsetHeight + 'px';
       list.fire('iron-resize');
-      Polymer.dom.flush();
+      PolymerFlush();
       list.scrollToItem(list.items[99]);
       assert.equal(list.firstVisibleIndex, 99);
     });
 
     test('scroll to top', function(done) {
       list.items = buildDataSet(100);
-      Polymer.dom.flush();
+      PolymerFlush();
       list.scrollToIndex(99);
-      Polymer.dom.flush();
+      PolymerFlush();
       list.scroll(0, 0);
       requestAnimationFrame(function() {
         assert.equal(list._scrollTop, 0, 'scrollTop = 0');
@@ -182,9 +182,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     test('scroll to a given scrollTop', function(done) {
       list.items = buildDataSet(100);
-      Polymer.dom.flush();
+      PolymerFlush();
       list.scrollToIndex(99);
-      Polymer.dom.flush();
+      PolymerFlush();
       list.scroll(0, 500);
       requestAnimationFrame(function() {
         assert.equal(list._scrollTop, 500, 'scrollTop = 500');
@@ -194,24 +194,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     test('reset items', function() {
       list.items = buildDataSet(100);
-      Polymer.dom.flush();
+      PolymerFlush();
       assert.equal(getFirstItemFromList(list).textContent, '0');
       list.items = null;
-      Polymer.dom.flush();
+      PolymerFlush();
       assert.notEqual(getFirstItemFromList(list).textContent, '0');
       list.items = buildDataSet(100);
-      Polymer.dom.flush();
+      PolymerFlush();
       assert.equal(getFirstItemFromList(list).textContent, '0');
     });
 
     test('reset items should reset the scroll position', function() {
       list.items = buildDataSet(100);
-      Polymer.dom.flush();
+      PolymerFlush();
       list.scroll(0, 1000);
-      Polymer.dom.flush();
+      PolymerFlush();
       assert.equal(list._scrollTop, 1000);
       list.items = buildDataSet(100);
-      Polymer.dom.flush();
+      PolymerFlush();
       assert.equal(list._scrollTop, 0,
           'should reset the scroll position');
       list.style.paddingTop = '100px';
@@ -220,14 +220,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       list.scroll(0, 50);
       assert.equal(list._scrollTop, 50);
       list.items = buildDataSet(100);
-      Polymer.dom.flush();
+      PolymerFlush();
       assert.equal(list._scrollTop, 50,
           'should not reset the scroll position if the scrollTop is smaller than the paddingTop');
     });
 
     test('visibility', function() {
       list.items = buildDataSet(100);
-      Polymer.dom.flush();
+      PolymerFlush();
       assert.isTrue(list._isVisible);
       list.style.display = 'none';
       assert.isFalse(list._isVisible);
@@ -249,7 +249,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       list.items = buildDataSet(100);
       list.scrollTarget = document.documentElement;
       document.body.style.height = '10000px';
-      Polymer.dom.flush();
+      PolymerFlush();
 
       window.addEventListener('scroll', function() {
         setTimeout(function() {
@@ -259,7 +259,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             // hide the list
             list.style.display = 'none';
             list.fire('iron-resize');
-            Polymer.dom.flush();
+            PolymerFlush();
             window.scrollTo(0, 4000);
             test = 2;
           } else if (test == 2) {
@@ -267,7 +267,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             // show the list again
             list.style.display = '';
             list.fire('iron-resize');
-            Polymer.dom.flush();
+            PolymerFlush();
             window.scrollTo(0, 5000);
             test = 3;
           } else {

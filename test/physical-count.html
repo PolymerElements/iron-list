@@ -79,7 +79,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           list.style.display = '';
           assert.notEqual(getFirstItemFromList(list).textContent, '0', 'Item should not be rendered');
           list.fire('iron-resize');
-          Polymer.dom.flush();
+          PolymerFlush();
           assert.equal(getFirstItemFromList(list).textContent, '0', 'Item should be rendered');
           done();
         });
@@ -89,7 +89,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         flush(function() {
           container.style.display = 'none';
           list.fire('iron-resize');
-          Polymer.dom.flush();
+          PolymerFlush();
           assert.equal(list._physicalCount, 0);
           done();
         });

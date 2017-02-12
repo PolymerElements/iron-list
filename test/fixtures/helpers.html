@@ -149,4 +149,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   function getNthItemRowStart(grid, n) {
     return n - (n % grid._itemsPerRow);
   }
+
+  function PolymerFlush() {
+    if (Polymer.flush) {
+      Polymer.flush();
+    } else if (Polymer.dom.flush) {
+      Polymer.dom.flush();
+    }
+  }
 </script>

@@ -222,20 +222,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       flush(function() {
         list.selectionEnabled = true;
-
         MockInteractions.tap(list._physicalItems[0]);
-
         assert.deepEqual(list.selectedItem, list.items[0]);
-
         MockInteractions.tap(list._physicalItems[0]);
-
         assert.isNull(list.selectedItem);
-
         MockInteractions.tap(list._physicalItems[0]);
         list.clearSelection();
-
         assert.isNull(list.selectedItem);
-
         done();
       });
 
@@ -245,14 +238,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         list.items = buildDataSet(100);
 
         flush(function() {
-          // multi selection
+          // Multi selection.
           list.multiSelection = true;
           assert.isFalse(list._physicalItems[0]._templateInstance.selected);
           list.selectIndex(0);
           assert.isTrue(list._physicalItems[0]._templateInstance.selected);
           list.toggleSelectionForIndex(0);
           assert.isFalse(list._physicalItems[0]._templateInstance.selected);
-          // single selection
+          // Single selection.
           list.multiSelection = false;
           list.selectIndex(0);
           list.selectIndex(10);
@@ -266,15 +259,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         list.items = buildDataSet(100);
 
         flush(function() {
-          // multi selection
+          // Multi selection.
           list.multiSelection = true;
-
           // select the first two items
           list.selectIndex(0);
           list.selectIndex(1);
-
           assert.equal(list.selectedItems.length, 2);
-          // remove the first two items
+          // Remove the first two items.
           list.splice('items', 0, 2);
           assert.equal(list.selectedItems.length, 0);
           done();
@@ -285,7 +276,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         list.primitive = true;
         list.items = ['a', 'b', 'c', 'd'];
         list.selectionEnabled = true;
-        Polymer.dom.flush();
+        PolymerFlush();
         list.selectIndex(0);
         assert.equal(list.selectedItem, 'a', 'single selection 1');
         list.clearSelection();
@@ -301,7 +292,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         list.items = ['a', 'b', 'c', 'd'];
         list.selectionEnabled = true;
         list.multiSelection = true;
-        Polymer.dom.flush();
+        PolymerFlush();
         list.selectIndex(0);
         list.selectIndex(1);
         assert.deepEqual(list.selectedItems, ['a', 'b'], 'multiple selection 1');
@@ -315,7 +306,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       //   list.primitive = true;
       //   list.items = ['a', 'b', 'c', 'd'];
       //   list.selectionEnabled = true;
-      //   Polymer.dom.flush();
+      //   PolymerFlush();
       //   list.selectIndex(0);
       //   list.items[0] = 'z';
       //   list.items = list.items;
@@ -341,12 +332,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       test('tapping on a focusable child should not change the selection', function() {
         list.items = buildDataSet(1);
         list.selectionEnabled = true;
-        Polymer.dom.flush();
+        PolymerFlush();
         var node = document.createElement('div');
         node.innerText = 'focusable';
         node.tabIndex = 0;
         Polymer.dom(getFirstItemFromList(list)).appendChild(node);
-        Polymer.dom.flush();
+        PolymerFlush();
         node.focus();
         MockInteractions.tap(node);
         assert.isNull(list.selectedItem);
@@ -356,8 +347,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         container.useTabIndex = false;
         list.items = buildDataSet(1);
         list.selectionEnabled = true;
-        Polymer.dom.flush();
-
+        PolymerFlush();
         var item = list._physicalItems[0];
         item.focus();
         MockInteractions.tap(item);

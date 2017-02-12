@@ -81,10 +81,4 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   });
 
-  // Polymer/issues/4062
-  Polymer.dom._flush = Polymer.dom.flush;
-  Polymer.dom.flush = function() {
-    Polymer.Templatize && Polymer.Templatize.flush();
-    Polymer.dom._flush();
-  };
 </script>
