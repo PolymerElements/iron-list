@@ -1035,14 +1035,11 @@ will only render 20.
 
     _forwardItemPath: function(path, value) {
       path = path.slice(6); // 'items.'.length == 6
-      var idx;
       var dot = path.indexOf('.');
       var key = path.substring(0, dot < 0 ? path.length : dot);
-      if (this._collection) {
-        idx = this._physicalIndexForKey[key];
-      } else {
-        idx = parseInt(dot < 0 ? path : path.substring(0, dot), 10);
-      }
+      var idx = IS_V2
+          ? parseInt(dot < 0 ? path : path.substring(0, dot), 10)
+          : this._physicalIndexForKey[key];
       var offscreenItem = this._offscreenFocusedItem;
       var isIndexRendered = this._isIndexRendered(idx);
       var inst;
@@ -1060,7 +1057,7 @@ will only render 20.
       path = dot < 0 ? '' : path.substring(dot+1);
       path = this.as + (path ? '.' + path : '');
       IS_V2
-        ? this._forwardProperty(inst, path, value)
+        ? inst._setPendingPropertyOrPath(path, value, true)
         : inst.notifyPath(path, value, true);
       inst._flushProperties && inst._flushProperties(true);
       // TODO(blasten): V1 doesn't do this and it's a bug
