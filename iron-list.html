@@ -591,7 +591,11 @@ will only render 20.
     },
 
     set _virtualStart(val) {
-      this._virtualStartVal = this._clamp(val, 0, this._maxVirtualStart);
+      val = this._clamp(val, 0, this._maxVirtualStart);
+      if (this.grid) {
+        val = val - (val % this._itemsPerRow);
+      }
+      this._virtualStartVal = val;
     },
 
     get _virtualStart() {
@@ -602,10 +606,14 @@ will only render 20.
      * The k-th tile that is at the top of the scrolling list.
      */
     set _physicalStart(val) {
-      this._physicalStartVal = val % this._physicalCount;
-      if (this._physicalStartVal < 0) {
-        this._physicalStartVal = this._physicalCount + this._physicalStartVal;
+      val = val % this._physicalCount;
+      if (val < 0) {
+        val = this._physicalCount + val;
       }
+      if (this.grid) {
+        val = val - (val % this._itemsPerRow);
+      }
+      this._physicalStartVal = val;
     },
 
     get _physicalStart() {
@@ -776,14 +784,6 @@ will only render 20.
       // Random access.
       if (Math.abs(delta) > this._physicalSize) {
         var idxAdjustment =  Math.round(delta / this._physicalAverage) * this._itemsPerRow
-
-        if (this.grid) {
-          // Adjust idxAdjustment so that it is no greater than _maxVirtualStart - _virtualStart
-          // and a multiple of _itemsPerRow.
-          idxAdjustment = Math.min(idxAdjustment, this._maxVirtualStart - this._virtualStart);
-          idxAdjustment = Math.floor(idxAdjustment / this._itemsPerRow) * this._itemsPerRow;
-        }
-
         this._physicalTop = this._physicalTop + delta;
         this._virtualStart = this._virtualStart + idxAdjustment;
         this._physicalStart = this._physicalStart + idxAdjustment;
