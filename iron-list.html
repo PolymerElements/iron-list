@@ -1824,12 +1824,4 @@ will only render 20.
 
 })();
 
-// TODO(blasten): Fix this issue in Polymer 2.0-preview
-if (Polymer.Debouncer && Polymer.Debouncer.prototype.setConfig) {
-  Polymer.Debouncer.prototype.setConfig = function(asyncModule, cb) {
-    this._asyncModule = asyncModule;
-    this._callback = cb;
-    this._timer = this._asyncModule.run(this.flush);
-  };
-}
 </script>
