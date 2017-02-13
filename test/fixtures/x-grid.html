@@ -18,11 +18,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       :host {
         @apply --layout-fit;
         @apply --layout-vertical;
+
+        display: block;
       }
 
+      iron-list {
+        overflow: hidden;
+      }
     </style>
     
-    <iron-list style$="width:[[listSize]]px; height: [[listSize]]px;" items="[[data]]" as="item" id="list" grid>
+    <iron-list items="[[data]]" as="item" id="list" grid>
       <template>
         <div class="item">
           <div style$="[[_computeItemSize(itemSize, pre)]]">[[item.index]]</div>
@@ -49,12 +54,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       listSize: {
         type: Number,
-        value: 300
+        value: 300,
+        observer: '_listSizeChanged'
       },
 
       pre: {
-        type: Boolean
-      }
+        type: Boolean,
+        value: false
+      },
     },
 
     get list() {
@@ -66,6 +73,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       css += 'height: ' + itemSize + 'px;';
       css += 'width: ' + itemSize + 'px;';
       return css;
+    },
+
+    _listSizeChanged: function(listSize) {
+      this.$.list.style.width = listSize + 'px';
+      this.$.list.style.height = listSize + 'px';
+
     }
   });
 
