@@ -69,7 +69,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     _computeItemSize: function(itemSize, pre) {
-      var css = pre ? 'white-space:pre;' : '';
+      var css = 'overflow: hidden;';
+      css += pre ? 'white-space:pre;' : '';
       css += 'height: ' + itemSize + 'px;';
       css += 'width: ' + itemSize + 'px;';
       return css;

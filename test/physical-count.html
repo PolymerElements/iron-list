@@ -26,13 +26,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <test-fixture id="trivialList">
     <template>
-      <x-list list-height="100" item-height="2"></x-list>
+      <x-list list-height="200" item-height="4"></x-list>
     </template>
   </test-fixture>
 
   <test-fixture id="trivialListSmall">
     <template>
-      <x-list list-height="2" item-height="2"></x-list>
+      <x-list list-height="4" item-height="4"></x-list>
     </template>
   </test-fixture>
 
@@ -47,20 +47,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         list.items = buildDataSet(200);
       });
 
-      test('increase pool size', function(done) {
-        setTimeout(function() {
-          list.scrollTop = 0;
+      test('increase pool size', function() {
+        PolymerFlush();
+        list.scrollTop = 0;
+        var lastItem = getLastItemFromList(list);
+        var lastItemHeight = lastItem.offsetHeight;
+        var expectedFinalItem = container.listHeight/lastItemHeight - 1;
 
-          var lastItem = getLastItemFromList(list);
-          var lastItemHeight = lastItem.offsetHeight;
-          var expectedFinalItem = container.listHeight/lastItemHeight - 1;
-
-          assert.equal(list.offsetHeight, container.listHeight);
-          assert.equal(lastItemHeight, 2);
-          assert.isTrue(isFullOfItems(list));
-          assert.equal(lastItem.textContent, expectedFinalItem);
-          done();
-        }, 100);
+        assert.equal(list.offsetHeight, container.listHeight);
+        assert.equal(lastItemHeight, 4);
+        assert.isTrue(isFullOfItems(list));
+        assert.equal(lastItem.textContent, expectedFinalItem);
       });
     });
 
