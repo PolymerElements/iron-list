@@ -788,7 +788,7 @@ will only render 20.
         this._virtualStart = this._virtualStart + idxAdjustment;
         this._physicalStart = this._physicalStart + idxAdjustment;
         this._update();
-      } else {
+      } else if (this._physicalCount > 0) {
         var reusables = this._getReusables(isScrollingDown);
         if (isScrollingDown) {
           this._physicalTop = reusables.physicalTop;
@@ -799,7 +799,7 @@ will only render 20.
           this._physicalStart = this._physicalStart - reusables.indexes.length;
         }
         this._update(reusables.indexes, isScrollingDown ? null : reusables.indexes);
-        this._increasePoolIfNeeded(0);
+        this._debounceRender(this._increasePoolIfNeeded.bind(this, 0), MICRO_TASK);
       }
     },
 
