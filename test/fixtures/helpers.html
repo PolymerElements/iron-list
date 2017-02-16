@@ -39,32 +39,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   function simulateScroll(config) {
     var list = config.list;
     var target = config.target;
-    var delay = config.delay || 1;
     var contribution = Math.abs(config.contribution) || 10;
     // scroll back up
     if (target < list.scrollTop) {
       contribution = -contribution;
     }
-
     function scrollHandler() {
       setTimeout(function() {
         var minScrollTop = 0;
         var maxScrollTop = list.scrollHeight - list.offsetHeight;
+        var nextScrollTop = list.scrollTop + contribution;
 
         config.onScroll && config.onScroll();
 
-        if (list.scrollTop < target && contribution > 0 && list.scrollTop < maxScrollTop) {
-          list.scrollTop = Math.min(maxScrollTop, list.scrollTop + contribution);
-
-        } else if (list.scrollTop > target && contribution < 0 && list.scrollTop > minScrollTop) {
-          list.scrollTop = Math.max(minScrollTop, list.scrollTop + contribution);
-
+        if (list.scrollTop < target && contribution > 0 && nextScrollTop <= maxScrollTop) {
+          list.scrollTop = nextScrollTop;
+        } else if (list.scrollTop > target && contribution < 0 && nextScrollTop >= minScrollTop) {
+          list.scrollTop = nextScrollTop;
         } else {
           list.removeEventListener('scroll', scrollHandler);
           list.scrollTop = target;
           config.onScrollEnd && config.onScrollEnd();
         }
-      }, delay);
+      });
     }
     list.addEventListener('scroll', scrollHandler);
     scrollHandler();

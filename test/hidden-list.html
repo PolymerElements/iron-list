@@ -53,7 +53,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         list.items = buildDataSet(100);
         list.fire('iron-resize');
         assert.notEqual(getFirstItemFromList(list).textContent, '0');
-        requestAnimationFrame(function() {
+        setTimeout(function() {
           container.style.display = '';
           assert.notEqual(getFirstItemFromList(list).textContent, '0');
           list.fire('iron-resize');
@@ -62,7 +62,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             assert.equal(getFirstItemFromList(list).textContent, '0');
             done();
           });
-        });
+        }, 100);
       });
 
     });
