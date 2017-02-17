@@ -40,6 +40,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var list = config.list;
     var target = config.target;
     var contribution = Math.abs(config.contribution) || 10;
+    var active = true;
     // scroll back up
     if (target < list.scrollTop) {
       contribution = -contribution;
@@ -56,7 +57,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           list.scrollTop = nextScrollTop;
         } else if (list.scrollTop > target && contribution < 0 && nextScrollTop >= minScrollTop) {
           list.scrollTop = nextScrollTop;
-        } else {
+        } else if (active) {
+          active = false;
           list.removeEventListener('scroll', scrollHandler);
           list.scrollTop = target;
           config.onScrollEnd && config.onScrollEnd();
@@ -64,7 +66,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
     }
     list.addEventListener('scroll', scrollHandler);
-    scrollHandler();
+    list.scrollTop = list.scrollTop + contribution;
   }
 
   function deepElementFromPoint(x, y) {
