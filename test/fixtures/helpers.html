@@ -41,11 +41,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var target = config.target;
     var contribution = Math.abs(config.contribution) || 10;
     var active = true;
+    var safeguardTimer;
     // scroll back up
     if (target < list.scrollTop) {
       contribution = -contribution;
     }
     function scrollHandler() {
+      clearTimeout(safeguardTimer);
       setTimeout(function() {
         var minScrollTop = 0;
         var maxScrollTop = list.scrollHeight - list.offsetHeight;
@@ -54,19 +56,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         config.onScroll && config.onScroll();
 
         if (list.scrollTop < target && contribution > 0 && nextScrollTop <= maxScrollTop) {
-          list.scrollTop = nextScrollTop;
+          list.scroll(0, nextScrollTop);
+          safeguardTimer = setTimeout(scrollHandler, 100);
         } else if (list.scrollTop > target && contribution < 0 && nextScrollTop >= minScrollTop) {
-          list.scrollTop = nextScrollTop;
+          list.scroll(0, nextScrollTop);
+          safeguardTimer = setTimeout(scrollHandler, 100);
         } else if (active) {
           active = false;
-          list.removeEventListener('scroll', scrollHandler);
-          list.scrollTop = target;
+          list.scrollTarget.removeEventListener('scroll', scrollHandler);
+          list.scroll(0, target);
           config.onScrollEnd && config.onScrollEnd();
         }
       });
     }
-    list.addEventListener('scroll', scrollHandler);
-    list.scrollTop = list.scrollTop + contribution;
+    list.scrollTarget.addEventListener('scroll', scrollHandler);
+    scrollHandler();
   }
 
   function deepElementFromPoint(x, y) {

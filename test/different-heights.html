@@ -79,18 +79,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           height *= 1.5;
         }
         list.items = items;
-
-        flush(function() {
-          simulateScroll({
-            list: list,
-            contribution: 20,
-            target: 100000,
-            onScrollEnd: done,
-            onScroll: function() {
-              PolymerFlush();
-              assert.equal(isFullOfItems(list), true);
-            }
-          });
+        PolymerFlush();
+        simulateScroll({
+          list: list,
+          contribution: 20,
+          target: 100000,
+          onScrollEnd: done,
+          onScroll: function() {
+            PolymerFlush();
+            assert.equal(isFullOfItems(list), true);
+          }
         });
       });
 
@@ -98,20 +96,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var heights = [20, 100, 140, 117, 800, 50, 15, 80, 90, 255, 20, 15, 19, 250, 314];
 
         list.items = heights.map(function(height) {
-          return {height: height};
+          return { height: height };
         });
-
-        flush(function() {
-          simulateScroll({
-            list: list,
-            contribution: 20,
-            target: 100000,
-            onScrollEnd: done,
-            onScroll: function() {
-              PolymerFlush();
-              assert.isTrue(isFullOfItems(list));
-            }
-          });
+        PolymerFlush();
+        simulateScroll({
+          list: list,
+          contribution: 20,
+          target: 100000,
+          onScrollEnd: done,
+          onScroll: function() {
+            PolymerFlush();
+            assert.isTrue(isFullOfItems(list));
+          }
         });
       });
 
