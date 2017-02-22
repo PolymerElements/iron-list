@@ -68,7 +68,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             contribution: 200,
             target: 0,
             onScrollEnd: function() {
-             assert.equal(getFirstItemFromList(list).textContent, phrase);
+             assert.isTrue(getFirstItemFromList(list).textContent.indexOf(phrase) >= 0);
              done();
             }
           });
