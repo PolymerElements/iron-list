@@ -132,7 +132,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       </style>
       <iron-ajax id="ajax"
-          url="//randomuser.me/api/"
+          url="https://randomuser.me/api/"
           params='{"results": 20}'
           handle-as="json"
           loading="{{loadingPeople}}"
@@ -166,10 +166,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <!-- this element will load more data when the user scrolls down and reached the lower threshold -->
       <iron-scroll-threshold id="scrollTheshold"
           lower-threshold="500"
-          on-lower-threshold="_loadMoreData"
+          on-lower-threshold="_load"
           scroll-target="document"></iron-scroll-threshold>
     </template>
     <script>
+    HTMLImports.whenReady(function() {
       Polymer({
         is: 'x-app',
 
@@ -187,6 +188,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.$.scrollTheshold.clearTriggers();
         }
       });
+    });
     </script>
   </dom-module>
 
