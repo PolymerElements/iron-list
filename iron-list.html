@@ -1734,7 +1734,7 @@ will only render 20.
     _keydownHandler: function(e) {
       switch (e.keyCode) {
         case /* ARROW_DOWN */ 40:
-          e.detail.keyboardEvent.preventDefault();
+          e.preventDefault();
           this._focusPhysicalItem(this._focusedIndex + 1);
           break;
         case /* ARROW_UP */ 38:
@@ -1742,7 +1742,7 @@ will only render 20.
           break;
         case /* ENTER */ 13:
           this._focusPhysicalItem(this._focusedIndex);
-          this._selectionHandler(e.detail.keyboardEvent);
+          this._selectionHandler(e);
         break;
       }
     },
