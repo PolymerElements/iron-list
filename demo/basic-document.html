@@ -29,9 +29,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     body {
       margin: 0;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
     }
 
     header {
@@ -40,13 +37,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       padding: 0 10px;
     }
 
-     h1 {
+    h1 {
       margin: 0;
       line-height: 100px;
-    }
-
-    iron-list {
-      flex: 1;
     }
 
     .item {
@@ -66,12 +59,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template is="dom-bind">
     <iron-ajax url="data/contacts.json" last-response="{{data}}" auto></iron-ajax>
 
-    <iron-list items="[[data]]" as="item">
+    <iron-list items="[[data]]" as="item" scroll-target="document" scroll-offset="200">
       <template>
-        <div class="item">
-        <b>#[[index]] - [[item.name]]</b>
-        <p>[[item.longText]]</p>
-        </div>
+        <div class="item">#[[index]] - [[item.name]]</div>
       </template>
     </iron-list>
 
