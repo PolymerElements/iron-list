@@ -1098,7 +1098,7 @@ will only render 20.
       path = dot < 0 ? '' : path.substring(dot+1);
       path = this.as + (path ? '.' + path : '');
       IS_V2
-        ? inst._setPendingPropertyOrPath(path, value, true)
+        ? inst._setPendingPropertyOrPath(path, value, false, true)
         : inst.notifyPath(path, value, true);
       inst._flushProperties && inst._flushProperties(true);
       // TODO(blasten): V1 doesn't do this and it's a bug
