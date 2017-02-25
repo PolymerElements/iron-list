@@ -24,43 +24,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="../../polymer/polymer.html">
   <link rel="import" href="../../iron-ajax/iron-ajax.html">
   <link rel="import" href="../iron-list.html">
+
+  <style>
+
+    body {
+      margin: 0;
+    }
+
+    header {
+      background-color: #ddd;
+      height: 200px;
+      padding: 0 10px;
+    }
+
+    h1 {
+      margin: 0;
+      line-height: 100px;
+    }
+
+    .item {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+
+  </style>
+
 </head>
 <body>
 
-  <dom-module id="x-list">
-    <template>
-      <style>
-        :host {
-          display: block;
-        }
-        iron-list {
-          @apply --layout-fit;
-        }
-        .item {
-          padding: 10px;
-          border-bottom: 1px solid #ccc;
-        }
-      </style>
-      <iron-ajax url="data/contacts.json" last-response="{{items}}" auto></iron-ajax>
-      <iron-list items="[[items]]" as="item">
-        <template>
-          <div class="item">
-            <b>#[[index]] - [[item.index]] - [[item.name]]</b>
-            <p>[[item.longText]]</p>
-          </div>
-        </template>
-      </iron-list> 
-    </template>
-    <script>
-    HTMLImports.whenReady(function() {
-      Polymer({
-        is: 'x-list'
-      });
-    });
-    </script>
-  </dom-module>
+  <header>
+    <h1>Header</h1>
+  </header>
 
-  <x-list></x-list>
+  <template is="dom-bind">
+    <iron-ajax url="data/contacts.json" last-response="{{data}}" auto></iron-ajax>
+
+    <iron-list items="[[data]]" as="item" scroll-target="document" scroll-offset="200">
+      <template>
+        <div class="item">#[[index]] - [[item.name]]</div>
+      </template>
+    </iron-list>
+
+  </template>
 
 </body>
 </html>
