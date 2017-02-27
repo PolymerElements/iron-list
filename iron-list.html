@@ -629,7 +629,11 @@ will only render 20.
     _virtualStartVal: 0,
 
     set _virtualStart(val) {
-      this._virtualStartVal = Math.min(this._maxVirtualStart, Math.max(this._minVirtualStart, val));
+      val = Math.min(this._maxVirtualStart, Math.max(this._minVirtualStart, val));
+      if (this.grid) {
+        val = val - (val % this._itemsPerRow);
+      }
+      this._virtualStartVal = val;
     },
 
     get _virtualStart() {
@@ -642,10 +646,14 @@ will only render 20.
     _physicalStartVal: 0,
 
     set _physicalStart(val) {
-      this._physicalStartVal = val % this._physicalCount;
-      if (this._physicalStartVal < 0) {
-        this._physicalStartVal = this._physicalCount + this._physicalStartVal;
+      val = val % this._physicalCount;
+      if (val < 0) {
+        val = this._physicalCount + val;
       }
+      if (this.grid) {
+        val = val - (val % this._itemsPerRow);
+      }
+      this._physicalStartVal = val;
       this._physicalEnd = (this._physicalStart + this._physicalCount - 1) % this._physicalCount;
     },
 
