@@ -159,8 +159,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       requestAnimationFrame(function() {
         setTimeout(function() {
-          assert.equal(list._physicalItems[list._physicalStart].innerText.trim(), '783');
-          assert.equal(list._physicalItems[list._physicalEnd].innerText.trim(), '992');
+          assert.equal(list._physicalStart % list._itemsPerRow, 0);
+          assert.equal(list._physicalEnd % list._itemsPerRow, list._itemsPerRow - 1);
           done();
         });
       });
