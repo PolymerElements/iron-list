@@ -40,7 +40,7 @@
     "paper-button": "PolymerElements/paper-button#2.0-preview",
     "paper-badge": "PolymerElements/paper-badge#2.0-preview",
     "paper-spinner": "PolymerElements/paper-spinner#2.0-preview",
-    "test-fixture": "PolymerElements/test-fixture#safari9-constructor",
+    "test-fixture": "PolymerElements/test-fixture#^3.0.0-rc.1",
     "iron-test-helpers": "PolymerElements/iron-test-helpers#2.0-preview",
     "webcomponentsjs": "webcomponents/webcomponentsjs#v1",
     "web-component-tester": "v6.0.0-prerelease.5"
@@ -76,6 +76,6 @@
     }
   },
   "resolutions": {
-    "test-fixture": "safari9-constructor"
+    "test-fixture": "^3.0.0-rc.1"
   }
 }
