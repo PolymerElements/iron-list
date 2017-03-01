@@ -74,8 +74,5 @@
         "web-component-tester": "^4.0.0"
       }
     }
-  },
-  "resolutions": {
-    "test-fixture": "^3.0.0-rc.1"
   }
 }
