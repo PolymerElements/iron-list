@@ -240,17 +240,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         flush(function() {
           // Multi selection.
           list.multiSelection = true;
-          assert.isFalse(list._physicalItems[0]._templateInstance.selected);
+          assert.isFalse(list.modelForElement(list._physicalItems[0]).selected);
           list.selectIndex(0);
-          assert.isTrue(list._physicalItems[0]._templateInstance.selected);
+          assert.isTrue(list.modelForElement(list._physicalItems[0]).selected);
           list.toggleSelectionForIndex(0);
-          assert.isFalse(list._physicalItems[0]._templateInstance.selected);
+          assert.isFalse(list.modelForElement(list._physicalItems[0]).selected);
           // Single selection.
           list.multiSelection = false;
           list.selectIndex(0);
           list.selectIndex(10);
-          assert.isFalse(list._physicalItems[0]._templateInstance.selected);
-          assert.isTrue(list._physicalItems[10]._templateInstance.selected);
+          assert.isFalse(list.modelForElement(list._physicalItems[0]).selected);
+          assert.isTrue(list.modelForElement(list._physicalItems[10]).selected);
           done();
         });
       });

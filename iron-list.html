@@ -1086,11 +1086,11 @@ will only render 20.
       var inst;
 
       if (isIndexRendered) {
-        inst = this._physicalItems[this._getPhysicalIndex(idx)]._templateInstance;
+        inst = this.modelForElement(this._physicalItems[this._getPhysicalIndex(idx)]);
       } else if (offscreenItem) {
         // This is only needed for hybrid mode.
-        inst = offscreenItem._templateInstance[this.indexAs] === idx ?
-            offscreenItem._templateInstance : null;
+        inst = this.modelForElement(offscreenItem)[this.indexAs] === idx ?
+            this.modelForElement(offscreenItem) : null;
       }
       if (!inst || (this._collection && inst.__key__ !== key)) {
         return;
@@ -1132,7 +1132,7 @@ will only render 20.
     _removeItem: function(item) {
       this.$.selector.deselect(item);
       // remove the current focused item
-      if (this._focusedItem && this._focusedItem._templateInstance[this.as] === item) {
+      if (this._focusedItem && this.modelForElement(this._focusedItem)[this.as] === item) {
         this._removeFocusedItem();
       }
     },
@@ -1193,7 +1193,7 @@ will only render 20.
         var el = this._physicalItems[pidx];
         var item = this.items && this.items[vidx];
         if (item != null) {
-          var inst = el._templateInstance;
+          var inst = this.modelForElement(el);
           inst.__key__ = this._collection ? this._collection.getKey(item) : null;
           this._forwardProperty(inst, this.as, item);
           this._forwardProperty(inst, this.selectedAs, this.$.selector.isSelected(item));
@@ -1310,10 +1310,10 @@ will only render 20.
       var deltaHeight = this._virtualStart === 0 ? this._physicalTop :
           Math.min(this._scrollPosition + this._physicalTop, 0);
 
-      if (deltaHeight) {
+      if (deltaHeight > 0) {
         this._physicalTop = this._physicalTop - deltaHeight;
         // juking scroll position during interial scrolling on iOS is no bueno
-        if (!IOS_TOUCH_SCROLLING && this._physicalTop !== 0) {
+        if (!IOS_TOUCH_SCROLLING) {
           this._resetScrollPosition(this._scrollTop - deltaHeight);
         }
       }
@@ -1461,7 +1461,7 @@ will only render 20.
        this.clearSelection();
       }
       if (this._isIndexRendered(index)) {
-        var model = this._physicalItems[this._getPhysicalIndex(index)]._templateInstance;
+        var model = this.modelForElement(this._physicalItems[this._getPhysicalIndex(index)]);
         if (model) {
           model[this.selectedAs] = true;
         }
@@ -1497,7 +1497,7 @@ will only render 20.
         return;
       }
       if (this._isIndexRendered(index)) {
-        var model = this._physicalItems[this._getPhysicalIndex(index)]._templateInstance;
+        var model = this.modelForElement(this._physicalItems[this._getPhysicalIndex(index)]);
         model[this.selectedAs] = false;
         this.updateSizeForIndex(index);
       }
@@ -1541,7 +1541,7 @@ will only render 20.
      */
     clearSelection: function() {
       this._iterateItems(function(pidx, vidx) {
-        this._forwardProperty(this._physicalItems[pidx]._templateInstance,
+        this._forwardProperty(this.modelForElement(this._physicalItems[pidx]),
             this.selectedAs, false);
       });
       this.$.selector.clearSelection();
@@ -1667,7 +1667,7 @@ will only render 20.
       }
 
       var physicalItem = this._physicalItems[this._getPhysicalIndex(idx)];
-      var model = physicalItem._templateInstance;
+      var model = this.modelForElement(physicalItem);
       var focusable;
       // set a secret tab index
       model.tabIndex = SECRET_TABINDEX;
@@ -1711,7 +1711,7 @@ will only render 20.
       }
       // Set the offcreen focused physical item.
       this._offscreenFocusedItem = this._physicalItems[pidx];
-      this._offscreenFocusedItem._templateInstance.tabIndex = 0;
+      this.modelForElement(this._offscreenFocusedItem).tabIndex = 0;
       this._physicalItems[pidx] = this._focusBackfillItem;
       // Hide the focused physical.
       this.translate3d(0, HIDDEN_Y, 0, this._offscreenFocusedItem);
@@ -1730,7 +1730,7 @@ will only render 20.
       if (this._physicalItems[pidx]) {
         // Flip the focus backfill.
         this._focusBackfillItem = this._physicalItems[pidx];
-        this._focusBackfillItem._templateInstance.tabIndex = -1;
+        this.modelForElement(this._focusBackfillItem).tabIndex = -1;
         // Restore the focused physical item.
         this._physicalItems[pidx] = this._offscreenFocusedItem;
         // Reset the offscreen focused item.
@@ -1742,7 +1742,7 @@ will only render 20.
 
     _didFocus: function(e) {
       var targetModel = this.modelForElement(e.target);
-      var focusedModel = this._focusedItem ? this._focusedItem._templateInstance : null;
+      var focusedModel = this._focusedItem ? this.modelForElement(this._focusedItem) : null;
       var hasOffscreenFocusedItem = this._offscreenFocusedItem !== null;
       var fidx = this._focusedIndex;
       if (!targetModel || !focusedModel) {
@@ -1811,8 +1811,8 @@ will only render 20.
     /* Templatizer bindings for v2 */
     _forwardHostPropV2: function(prop, value) {
       this._physicalItems.forEach(function(physicalItem) {
-        physicalItem._templateInstance.forwardHostProp(prop, value);
-      });
+        this.modelForElement(physicalItem).forwardHostProp(prop, value);
+      }.bind(this));
     },
 
     _notifyInstancePropV2: function(inst, prop, value) {
@@ -1842,9 +1842,9 @@ will only render 20.
         .concat([this._offscreenFocusedItem, this._focusBackfillItem])
         .forEach(function(item) {
           if (item) {
-            item._templateInstance.notifyPath(path, value, true);
+            this.modelForElement(item).notifyPath(path, value, true);
           }
-        });
+        }.bind(this));
     },
 
     _forwardParentProp: function(prop, value) {
@@ -1852,9 +1852,9 @@ will only render 20.
         .concat([this._offscreenFocusedItem, this._focusBackfillItem])
         .forEach(function(item) {
           if (item) {
-            item._templateInstance[prop] = value;
+            this.modelForElement(item)[prop] = value;
           }
-        });
+        }.bind(this));
     }
 
   });
