@@ -562,6 +562,12 @@ will only render 20.
     _templateCost: 0,
 
     /**
+     * Needed to pass event.model property to declarative event handlers -
+     * see polymer/polymer#4339.
+     */
+    _parentModel: true,
+
+    /**
      * The bottom of the physical content.
      */
     get _physicalBottom() {
