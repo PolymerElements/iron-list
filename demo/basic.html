@@ -52,10 +52,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </iron-list> 
     </template>
     <script>
-    HTMLImports.whenReady(function() {
-      Polymer({
-        is: 'x-list'
-      });
+    window.addEventListener('WebComponentsReady', function() {
+      Polymer({ is: 'x-list' });
     });
     </script>
   </dom-module>
