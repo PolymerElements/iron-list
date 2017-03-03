@@ -65,7 +65,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       PolymerFlush();
       MockInteractions.tap(getFirstItemFromList(list));
 
-      assert.isDefined(container.tapHandler.firstCall.args[0].model);
+      var model = container.tapHandler.firstCall.args[0].model;
+      assert.isDefined(model);
+      assert.equal(model.item, list.items[0]);
+      assert.equal(model.index, 0);
     });
   });
 
