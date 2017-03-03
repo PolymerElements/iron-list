@@ -52,77 +52,77 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
     });
 
-    // test('first visible index', function(done) {
-    //   container.data = buildDataSet(100);
+    test('first visible index', function(done) {
+      container.data = buildDataSet(100);
 
-    //   PolymerFlush();
-    //   var setSize = list.items.length;
-    //   var rowHeight = container.itemSize;
-    //   var viewportHeight = list.offsetHeight;
-    //   var scrollToItem;
+      PolymerFlush();
+      var setSize = list.items.length;
+      var rowHeight = container.itemSize;
+      var viewportHeight = list.offsetHeight;
+      var scrollToItem;
 
-    //   function checkFirstVisible() {
-    //     assert.equal(list.firstVisibleIndex, getNthItemRowStart(list, scrollToItem));
-    //     assert.equal(getNthItemFromGrid(list, 0).textContent, getNthItemRowStart(list, scrollToItem));
-    //   }
+      function checkFirstVisible() {
+        assert.equal(list.firstVisibleIndex, getNthItemRowStart(list, scrollToItem));
+        assert.equal(getNthItemFromGrid(list, 0).textContent, getNthItemRowStart(list, scrollToItem));
+      }
 
-    //   function checkLastVisible() {
-    //     var visibleItemsCount = Math.floor(viewportHeight / rowHeight) * list._itemsPerRow;
-    //     var visibleItemStart = getNthItemRowStart(list, scrollToItem);
-    //     assert.equal(list.lastVisibleIndex, visibleItemStart + visibleItemsCount - 1);
-    //     assert.equal(getNthItemFromGrid(list, 8).textContent, visibleItemStart + visibleItemsCount - 1);
-    //   }
+      function checkLastVisible() {
+        var visibleItemsCount = Math.floor(viewportHeight / rowHeight) * list._itemsPerRow;
+        var visibleItemStart = getNthItemRowStart(list, scrollToItem);
+        assert.equal(list.lastVisibleIndex, visibleItemStart + visibleItemsCount - 1);
+        assert.equal(getNthItemFromGrid(list, 8).textContent, visibleItemStart + visibleItemsCount - 1);
+      }
 
-    //   function doneScrollDown() {
-    //     checkFirstVisible();
-    //     checkLastVisible();
-    //     scrollToItem = 0;
-    //     simulateScroll({
-    //       list: list,
-    //       contribution: rowHeight,
-    //       target: getGridRowFromIndex(list, scrollToItem)*rowHeight,
-    //       onScrollEnd: doneScrollUp
-    //     });
-    //   }
+      function doneScrollDown() {
+        checkFirstVisible();
+        checkLastVisible();
+        scrollToItem = 0;
+        simulateScroll({
+          list: list,
+          contribution: rowHeight,
+          target: getGridRowFromIndex(list, scrollToItem)*rowHeight,
+          onScrollEnd: doneScrollUp
+        });
+      }
 
-    //   function doneScrollUp() {
-    //     checkFirstVisible();
-    //     checkLastVisible();
-    //     done();
-    //   }
+      function doneScrollUp() {
+        checkFirstVisible();
+        checkLastVisible();
+        done();
+      }
 
-    //   scrollToItem = 60;
+      scrollToItem = 60;
 
-    //   simulateScroll({
-    //     list: list,
-    //     contribution: rowHeight,
-    //     target: getGridRowFromIndex(list, scrollToItem)*rowHeight,
-    //     onScrollEnd: doneScrollDown
-    //   });
-    // });
+      simulateScroll({
+        list: list,
+        contribution: rowHeight,
+        target: getGridRowFromIndex(list, scrollToItem)*rowHeight,
+        onScrollEnd: doneScrollDown
+      });
+    });
 
-    // test('scroll to index', function() {
-    //   list.items = buildDataSet(100);
-    //   PolymerFlush();
-    //   list.scrollToIndex(30);
-    //   assert.equal(list.firstVisibleIndex, 30);
-    //   list.scrollToIndex(0);
-    //   assert.equal(list.firstVisibleIndex, 0);
-    //   list.scrollToIndex(60);
-    //   assert.equal(list.firstVisibleIndex, 60);
+    test('scroll to index', function() {
+      list.items = buildDataSet(100);
+      PolymerFlush();
+      list.scrollToIndex(30);
+      assert.equal(list.firstVisibleIndex, 30);
+      list.scrollToIndex(0);
+      assert.equal(list.firstVisibleIndex, 0);
+      list.scrollToIndex(60);
+      assert.equal(list.firstVisibleIndex, 60);
 
-    //   var rowHeight = getNthItemFromGrid(list, 0).offsetHeight;
-    //   var viewportHeight = list.offsetHeight;
-    //   var itemsPerViewport = Math.floor(viewportHeight/rowHeight) * list._itemsPerRow;
+      var rowHeight = getNthItemFromGrid(list, 0).offsetHeight;
+      var viewportHeight = list.offsetHeight;
+      var itemsPerViewport = Math.floor(viewportHeight/rowHeight) * list._itemsPerRow;
 
-    //   list.scrollToIndex(99);
-    //   // make the height of the viewport same as the height of the row
-    //   // and scroll to the last item
-    //   list.style.height = list._physicalItems[0].offsetHeight + 'px';
-    //   list.fire('iron-resize');
-    //   list.scrollToIndex(99);
-    //   assert.equal(list.firstVisibleIndex, 98);
-    // });
+      list.scrollToIndex(99);
+      // make the height of the viewport same as the height of the row
+      // and scroll to the last item
+      list.style.height = list._physicalItems[0].offsetHeight + 'px';
+      list.fire('iron-resize');
+      list.scrollToIndex(99);
+      assert.equal(list.firstVisibleIndex, 98);
+    });
 
     test('reset items', function() {
       list.items = buildDataSet(100);
@@ -136,17 +136,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       assert.equal(getNthItemFromGrid(list, 0).textContent, '0');
     });
 
-    // test('Columns per row (#381)', function(done) {
-    //   container.data = buildDataSet(1000);
-    //   container.itemSize = 33.3;
-    //   PolymerFlush();
-    //   list.scroll(0, 5021);
-    //   setTimeout(function() {
-    //     assert.equal(list._physicalStart % list._itemsPerRow, 0, '_physicalStart');
-    //     assert.equal((list._physicalEnd + 1) % list._itemsPerRow, 0, '_physicalEnd');
-    //     done();
-    //   }, 100);
-    // });
+    test('Columns per row (#381)', function(done) {
+      container.data = buildDataSet(1000);
+      container.itemSize = 33.3;
+      PolymerFlush();
+      list.scroll(0, 5021);
+      setTimeout(function() {
+        assert.equal(list._physicalStart % list._itemsPerRow, 0, '_physicalStart');
+        assert.equal((list._physicalEnd + 1) % list._itemsPerRow, 0, '_physicalEnd');
+        done();
+      }, 100);
+    });
 
   });
 </script>
