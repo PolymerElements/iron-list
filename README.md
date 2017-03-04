@@ -98,14 +98,12 @@ layout means (e.g. the `flex` or `fit` classes).
   </style>
 </head>
 <body>
-  <template is="dom-bind">
-    <app-toolbar>App name</app-toolbar>
-    <iron-list scroll-target="document" items="[[items]]">
-      <template>
-        ...
-      </template>
-    </iron-list>
-  </template>
+  <app-toolbar>App name</app-toolbar>
+  <iron-list scroll-target="document">
+    <template>
+      ...
+    </template>
+  </iron-list>
 </body>
 ```
 ### Template model
@@ -131,19 +129,17 @@ For example, given the following `data` array:
   {"name": "Mike"}
 ]
 ```
-The following code would render the list (note the name and checked properties are
-bound from the model object provided to the template scope):
+The following code would render the list (note the name property is bound from the model
+object provided to the template scope):
 ```html
-<template is="dom-bind">
-  <iron-ajax url="data.json" last-response="{{data}}" auto></iron-ajax>
-  <iron-list items="[[data]]" as="item">
-    <template>
-      <div>
-        Name: [[item.name]]
-      </div>
-    </template>
-  </iron-list>
-</template>
+<iron-ajax url="data.json" last-response="{{data}}" auto></iron-ajax>
+<iron-list items="[[data]]" as="item">
+  <template>
+    <div>
+      Name: [[item.name]]
+    </div>
+  </template>
+</iron-list>
 ```
 ### Grid layout
 `iron-list` supports a grid layout in addition to linear layout by setting

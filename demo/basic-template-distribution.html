@@ -26,25 +26,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="../../iron-ajax/iron-ajax.html">
   <link rel="import" href="../iron-list.html">
   
-  <custom-style>
-    <style is="custom-style">
-
-      body, html {
-        margin: 0;
-      }
-
-      x-list {
-        width: 100vw;
-        height: 100vh;
-      }
-
-      .item {
-        padding: 10px;
-        border-bottom: 1px solid #ccc;
-      }
-
-    </style>
-  </custom-style>
+  <style>
+    body, html {
+      margin: 0;
+    }
+  </style>
 
 </head>
 <body>
@@ -66,6 +52,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </iron-list>
     </template>
     <script>
+    window.addEventListener('WebComponentsReady', function() {
       Polymer({
         is: 'x-list',
         properties: {
@@ -76,11 +63,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
         }
       });
+    });
     </script>
   </dom-module>
 
-  <dom-bind>
+  <dom-module id="x-example">
     <template>
+      <style>
+        x-list {
+          width: 100vw;
+          height: 100vh;
+        }
+
+        .item {
+          padding: 10px;
+          border-bottom: 1px solid #ccc;
+        }
+      </style>
       <iron-ajax url="data/contacts.json" last-response="{{items}}" auto></iron-ajax>
       <x-list items="[[items]]" as="item">
         <template>
@@ -91,7 +90,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </template>
       </x-list>
     </template>
-  </dom-bind>
+    <script>
+    window.addEventListener('WebComponentsReady', function() {
+      Polymer({ is: 'x-example' });
+    });
+    </script>
+  </dom-module>
+
+  <x-example></x-example>
 
 </body>
 </html>
