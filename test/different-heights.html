@@ -46,27 +46,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           {index: 0, height: 791},
           {index: 1, height: 671}
         ];
-
-        flush(function() {
-          list.push('items',
-            {index: 2, height: 251},
-            {index: 3, height: 191},
-            {index: 4, height: 151},
-            {index: 5, height: 191},
-            {index: 6, height: 51},
-            {index: 7, height: 51},
-            {index: 8, height: 51}
-          );
-
-          simulateScroll({
-            list: list,
-            contribution: 20,
-            target: 100000,
-            onScrollEnd: done,
-            onScroll: function() {
-              assert.isTrue(isFullOfItems(list));
-            }
-          });
+        list.push('items',
+          {index: 2, height: 251},
+          {index: 3, height: 191},
+          {index: 4, height: 151},
+          {index: 5, height: 191},
+          {index: 6, height: 51},
+          {index: 7, height: 51},
+          {index: 8, height: 51}
+        );
+        simulateScroll({
+          list: list,
+          contribution: 100,
+          target: 100000,
+          onScrollEnd: done,
+          onScroll: function() {
+            assert.isTrue(isFullOfItems(list));
+          }
         });
       });
 
@@ -78,14 +74,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           height *= 1.5;
         }
         list.items = items;
-        PolymerFlush();
+
         simulateScroll({
           list: list,
-          contribution: 20,
+          contribution: 100,
           target: 100000,
           onScrollEnd: done,
           onScroll: function() {
-            assert.equal(isFullOfItems(list), true);
+            assert.isTrue(isFullOfItems(list));
           }
         });
       });
@@ -96,10 +92,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         list.items = heights.map(function(height) {
           return { height: height };
         });
-        PolymerFlush();
+
         simulateScroll({
           list: list,
-          contribution: 20,
+          contribution: 100,
           target: 100000,
           onScrollEnd: done,
           onScroll: function() {

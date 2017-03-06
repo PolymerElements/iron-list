@@ -36,42 +36,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     return data;
   }
 
-  function simulateScroll(config) {
+  function simulateScroll(config) {            
     var list = config.list;
     var target = config.target;
     var contribution = Math.abs(config.contribution) || 10;
-    var active = true;
-    var safeguardTimer;
     // scroll back up
     if (target < list.scrollTop) {
       contribution = -contribution;
     }
     function scrollHandler() {
-      clearTimeout(safeguardTimer);
-      setTimeout(function() {
-        var minScrollTop = 0;
-        var maxScrollTop = list.scrollHeight - list.offsetHeight;
-        var nextScrollTop = list.scrollTop + contribution;
+      var minScrollTop = 0;
+      var maxScrollTop = list.scrollHeight - list.clientHeight;
+      var nextScrollTop = list.scrollTop + contribution;
 
-        PolymerFlush();
+      if (nextScrollTop != target && nextScrollTop >= minScrollTop && nextScrollTop <= maxScrollTop) {
+        // continue
+      } else {
+        nextScrollTop = target;
+      }
+      list.scroll(0, nextScrollTop);
+      list.fire('scroll');
+      PolymerFlush();
+      config.onScroll && config.onScroll();
 
-        config.onScroll && config.onScroll();
-
-        if (list.scrollTop < target && contribution > 0 && nextScrollTop <= maxScrollTop) {
-          list.scroll(0, nextScrollTop);
-          safeguardTimer = setTimeout(scrollHandler, 100);
-        } else if (list.scrollTop > target && contribution < 0 && nextScrollTop >= minScrollTop) {
-          list.scroll(0, nextScrollTop);
-          safeguardTimer = setTimeout(scrollHandler, 100);
-        } else if (active) {
-          active = false;
-          list.scrollTarget.removeEventListener('scroll', scrollHandler);
-          list.scroll(0, target);
-          config.onScrollEnd && config.onScrollEnd();
-        }
-      });
+      if (nextScrollTop === target) {
+        config.onScrollEnd && config.onScrollEnd();
+      } else {
+        setTimeout(scrollHandler, 1);
+      }
     }
-    list.scrollTarget.addEventListener('scroll', scrollHandler);
+    PolymerFlush();
     scrollHandler();
   }
 
