@@ -64,7 +64,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             target: 100000,
             onScrollEnd: done,
             onScroll: function() {
-              PolymerFlush();
               assert.isTrue(isFullOfItems(list));
             }
           });
@@ -86,7 +85,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           target: 100000,
           onScrollEnd: done,
           onScroll: function() {
-            PolymerFlush();
             assert.equal(isFullOfItems(list), true);
           }
         });
@@ -105,7 +103,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           target: 100000,
           onScrollEnd: done,
           onScroll: function() {
-            PolymerFlush();
             assert.isTrue(isFullOfItems(list));
           }
         });

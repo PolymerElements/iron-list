@@ -53,6 +53,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var maxScrollTop = list.scrollHeight - list.offsetHeight;
         var nextScrollTop = list.scrollTop + contribution;
 
+        PolymerFlush();
+
         config.onScroll && config.onScroll();
 
         if (list.scrollTop < target && contribution > 0 && nextScrollTop <= maxScrollTop) {

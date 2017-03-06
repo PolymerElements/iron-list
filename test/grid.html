@@ -40,22 +40,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       list = container.list;
     });
 
-    test('check horizontal rendering', function(done) {
+    test('check horizontal rendering', function() {
       container.data = buildDataSet(100);
-
-      flush(function() {
-        // Validate the first viewport
-        for (var i = 0; i < 9; i++) {
-          assert.equal(getNthItemFromGrid(list, i).textContent, i);
-        }
-        done();
-      });
+      PolymerFlush();
+      // Validate the first viewport
+      for (var i = 0; i < 9; i++) {
+        assert.equal(getNthItemFromGrid(list, i).textContent, i);
+      }
     });
 
     test('first visible index', function(done) {
       container.data = buildDataSet(100);
-
       PolymerFlush();
+
       var setSize = list.items.length;
       var rowHeight = container.itemSize;
       var viewportHeight = list.offsetHeight;
@@ -121,7 +118,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       list.style.height = list._physicalItems[0].offsetHeight + 'px';
       list.fire('iron-resize');
       list.scrollToIndex(99);
-      assert.equal(list.firstVisibleIndex, 98);
+      PolymerFlush();
+      assert.equal(list.firstVisibleIndex,
+          (list.items.length-1)*2 - Math.floor(list.items.length/list._itemsPerRow)*list._itemsPerRow);
     });
 
     test('reset items', function() {
@@ -141,11 +140,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       container.itemSize = 33.3;
       PolymerFlush();
       list.scroll(0, 5021);
-      setTimeout(function() {
-        assert.equal(list._physicalStart % list._itemsPerRow, 0, '_physicalStart');
-        assert.equal((list._physicalEnd + 1) % list._itemsPerRow, 0, '_physicalEnd');
-        done();
-      }, 100);
+      requestAnimationFrame(function() {
+        setTimeout(function() {
+          PolymerFlush();
+          assert.equal(list._physicalStart % list._itemsPerRow, 0, '_physicalStart');
+          assert.equal((list._physicalEnd + 1) % list._itemsPerRow, 0, '_physicalEnd');
+          done();
+        });
+      });
     });
 
   });
