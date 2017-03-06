@@ -1399,7 +1399,7 @@ will only render 20.
       var deltaHeight = this._virtualStart === 0 ? this._physicalTop :
           Math.min(this._scrollPosition + this._physicalTop, 0);
 
-      if (deltaHeight > 0) {
+      if (deltaHeight) {
         this._physicalTop = this._physicalTop - deltaHeight;
         // juking scroll position during interial scrolling on iOS is no bueno
         if (!IOS_TOUCH_SCROLLING) {
