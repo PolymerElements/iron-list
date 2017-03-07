@@ -413,7 +413,9 @@ will only render 20.
     behaviors: [
       Polymer.Templatizer,
       Polymer.IronResizableBehavior,
-      Polymer.IronScrollTargetBehavior
+      Polymer.IronScrollTargetBehavior,
+      /** Polymer.OptionalMutableDataBehavior is only available with Polymer 2.0. */
+      Polymer.OptionalMutableDataBehavior || {}
     ],
 
     /**
@@ -1035,7 +1037,7 @@ will only render 20.
       instanceProps[this.selectedAs] = true;
       instanceProps.tabIndex = true;
       this._instanceProps = instanceProps;
-      this.templatize(this._userTemplate);
+      this.templatize(this._userTemplate, this.mutableData);
     },
 
     /**
