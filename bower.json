@@ -74,5 +74,8 @@
         "web-component-tester": "^4.0.0"
       }
     }
+  },
+  "resolutions": {
+    "polymer": "2.0.0-rc.1"
   }
 }
