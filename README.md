@@ -180,6 +180,19 @@ after the list became visible again. For example:
 ```js
 document.querySelector('iron-list').fire('iron-resize');
 ```
+
+### Changes in v2
+
+* In v1, `selectItem` accepted an item or the index to the item in the `list.items` array. In v2, `selectItem` only accepts an item in the `list.items` array. As a result, `selectIndex` and `deselectIndex` has been introduced to allow for fast selection of items by index. If you are implementing a `selectAll` method, you should use `selectIndex` instead of `selectItem` because it's faster (O(1) run time).
+* Mutating a selected item in v2 isn't supported anymore due to the removal of `Polymer.Collection` in 2.0, for example:
+```js
+ list.items = [ item1, item2, ... ,itemN];
+ list.selectionEnabled = true;
+ list.selectIndex(0);
+ list.set('items.0', aDifferentItem);
+ // list.selectedItem == item1
+```
+
 ### When should `<iron-list>` be used?
 `iron-list` should be used when a page has significantly more DOM nodes than the ones
 visible on the screen. e.g. the page has 500 nodes, but only 20 are visible at the time.
