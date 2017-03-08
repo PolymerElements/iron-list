@@ -276,6 +276,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         list._didFocus({target: list._physicalItems[list._getPhysicalIndex(40)]});
         list.scrollToIndex(80);
         PolymerFlush();
+
         list.set('items.40.index', 'correct');
         list.scrollToIndex(40);
         PolymerFlush();
