@@ -282,6 +282,11 @@ will only render 20.
   var IDLE_TIME = IS_V2 ? Polymer.Async.idlePeriod : 1;
   var MICRO_TASK = IS_V2 ? Polymer.Async.microTask : 2;
 
+  /* Polymer.OptionalMutableDataBehavior is only available with Polymer 2.0. */
+  if (!Polymer.OptionalMutableDataBehavior) {
+    Polymer.OptionalMutableDataBehavior = {};
+  }
+
   Polymer({
 
     is: 'iron-list',
@@ -414,8 +419,7 @@ will only render 20.
       Polymer.Templatizer,
       Polymer.IronResizableBehavior,
       Polymer.IronScrollTargetBehavior,
-      /** Polymer.OptionalMutableDataBehavior is only available with Polymer 2.0. */
-      Polymer.OptionalMutableDataBehavior || {}
+      Polymer.OptionalMutableDataBehavior
     ],
 
     /**

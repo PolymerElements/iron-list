@@ -23,5 +23,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 </dom-module>
 
 <script>
-  Polymer({ is: 'mutable-list' });
+  Polymer({
+    is: 'mutable-list',
+
+    get list() {
+      return this.$.list;
+    }
+  });
 </script>

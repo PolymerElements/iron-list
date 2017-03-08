@@ -256,9 +256,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         list = container.list;
       });
 
-      test('should not use dirty checking if mutableData is set', function() {
-        /** This feature and Polymer.OptionalMutableDataBehavior is only available with Polymer 2.0. */
-        if (!Polymer.OptionalMutableDataBehavior) {
+      test('should not use dirty checking if mutableData is true', function() {
+        /**
+         * This feature and Polymer.OptionalMutableDataBehavior is only available
+         * with Polymer 2.0. 
+         */
+        if (!Polymer.OptionalMutableDataBehavior.properties) {
           return;
         }
 
