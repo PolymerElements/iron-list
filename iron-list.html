@@ -1398,12 +1398,13 @@ will only render 20.
     _adjustScrollPosition: function() {
       var deltaHeight = this._virtualStart === 0 ? this._physicalTop :
           Math.min(this._scrollPosition + this._physicalTop, 0);
-
-      if (deltaHeight > 0) {
+      // Note: the delta can be positive or negative.
+      if (deltaHeight !== 0) {
         this._physicalTop = this._physicalTop - deltaHeight;
+        var scrollTop = this._scrollTop;
         // juking scroll position during interial scrolling on iOS is no bueno
-        if (!IOS_TOUCH_SCROLLING) {
-          this._resetScrollPosition(this._scrollTop - deltaHeight);
+        if (!IOS_TOUCH_SCROLLING && scrollTop > 0) {
+          this._resetScrollPosition(scrollTop - deltaHeight);
         }
       }
     },
@@ -1412,7 +1413,7 @@ will only render 20.
      * Sets the position of the scroll.
      */
     _resetScrollPosition: function(pos) {
-      if (this.scrollTarget) {
+      if (this.scrollTarget && pos >= 0) {
         this._scrollTop = pos;
         this._scrollPosition = this._scrollTop;
       }
