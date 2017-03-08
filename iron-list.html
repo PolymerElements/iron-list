@@ -1825,9 +1825,13 @@ will only render 20.
 
     /* Templatizer bindings for v2 */
     _forwardHostPropV2: function(prop, value) {
-      this._physicalItems.forEach(function(physicalItem) {
-        this.modelForElement(physicalItem).forwardHostProp(prop, value);
-      }.bind(this));
+      (this._physicalItems || [])
+        .concat([this._offscreenFocusedItem, this._focusBackfillItem])
+        .forEach(function(item) {
+          if (item) {
+            this.modelForElement(item).forwardHostProp(prop, value);
+          }
+        }, this);
     },
 
     _notifyInstancePropV2: function(inst, prop, value) {
@@ -1859,7 +1863,7 @@ will only render 20.
           if (item) {
             this.modelForElement(item).notifyPath(path, value, true);
           }
-        }.bind(this));
+        }, this);
     },
 
     _forwardParentProp: function(prop, value) {
@@ -1869,7 +1873,7 @@ will only render 20.
           if (item) {
             this.modelForElement(item)[prop] = value;
           }
-        }.bind(this));
+        }, this);
     }
 
   });
