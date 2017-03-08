@@ -20,7 +20,7 @@
   "license": "http://polymer.github.io/LICENSE.txt",
   "ignore": [],
   "dependencies": {
-    "polymer": "Polymer/polymer#^2.0.0-rc.1",
+    "polymer": "Polymer/polymer#^2.0.0-rc.2",
     "iron-resizable-behavior": "PolymerElements/iron-resizable-behavior#2.0-preview",
     "iron-a11y-keys-behavior": "PolymerElements/iron-a11y-keys-behavior#2.0-preview",
     "iron-scroll-target-behavior": "PolymerElements/iron-scroll-target-behavior#2.0-preview"
@@ -74,8 +74,5 @@
         "web-component-tester": "^4.0.0"
       }
     }
-  },
-  "resolutions": {
-    "polymer": "2.0.0-rc.1"
   }
 }

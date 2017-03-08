@@ -282,6 +282,11 @@ will only render 20.
   var IDLE_TIME = IS_V2 ? Polymer.Async.idlePeriod : 1;
   var MICRO_TASK = IS_V2 ? Polymer.Async.microTask : 2;
 
+  /* Polymer.OptionalMutableDataBehavior is only available with Polymer 2.0. */
+  if (!Polymer.OptionalMutableDataBehavior) {
+    Polymer.OptionalMutableDataBehavior = {};
+  }
+
   Polymer({
 
     is: 'iron-list',
@@ -413,7 +418,8 @@ will only render 20.
     behaviors: [
       Polymer.Templatizer,
       Polymer.IronResizableBehavior,
-      Polymer.IronScrollTargetBehavior
+      Polymer.IronScrollTargetBehavior,
+      Polymer.OptionalMutableDataBehavior
     ],
 
     /**
@@ -1035,7 +1041,7 @@ will only render 20.
       instanceProps[this.selectedAs] = true;
       instanceProps.tabIndex = true;
       this._instanceProps = instanceProps;
-      this.templatize(this._userTemplate);
+      this.templatize(this._userTemplate, this.mutableData);
     },
 
     /**
