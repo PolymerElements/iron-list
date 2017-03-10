@@ -1081,7 +1081,7 @@ will only render 20.
             return prev || this._isIndexRendered(splice.index);
          }.bind(this), false)) {
           this._debounceRender(this._render, ANIMATION_FRAME);
-       }
+        }
       } else if (change.path !== 'items.length') {
         this._forwardItemPath(change.path, change.value);
       }
@@ -1089,11 +1089,14 @@ will only render 20.
 
     _forwardItemPath: function(path, value) {
       path = path.slice(6); // 'items.'.length == 6
-      var dot = path.indexOf('.');
-      var key = path.substring(0, dot < 0 ? path.length : dot);
+      var dot = path.indexOf('.') + 1;
+      if (dot === 0) {
+        dot = path.length;
+      }
       var idx = IS_V2
-          ? parseInt(dot < 0 ? path : path.substring(0, dot), 10)
-          : this._physicalIndexForKey[key];
+          ? parseInt(path.substring(0, dot), 10)
+          // Extract `#` from `path`.
+          : parseInt(path.substring(1, dot), 10);
       var offscreenItem = this._offscreenFocusedItem;
       var isIndexRendered = this._isIndexRendered(idx);
       var inst;
@@ -1103,10 +1106,10 @@ will only render 20.
       } else if (offscreenItem) {
         inst = this.modelForElement(offscreenItem);
       }
-      if (!inst || (!IS_V2 && inst.__key__ !== key) || (IS_V2 && inst[this.indexAs] !== idx)) {
+      if (!inst || inst[this.indexAs] !== idx) {
         return;
       }
-      path = dot < 0 ? '' : path.substring(dot+1);
+      path = path.substring(dot);
       path = this.as + (path ? '.' + path : '');
       IS_V2
         ? inst._setPendingPropertyOrPath(path, value, false, true)
@@ -1710,10 +1713,9 @@ will only render 20.
     },
 
     _createFocusBackfillItem: function() {
-      var fvidx = this._focusedVirtualIndex;
       var fpidx = this._focusedPhysicalIndex;
 
-      if (this._offscreenFocusedItem || !this._physicalItems[fpidx] || fvidx < 0) {
+      if (this._offscreenFocusedItem || this._focusedVirtualIndex < 0) {
         return;
       }
       if (!this._focusBackfillItem) {
@@ -1727,13 +1729,11 @@ will only render 20.
       this.modelForElement(this._offscreenFocusedItem).tabIndex = 0;
       this._physicalItems[fpidx] = this._focusBackfillItem;
       this._focusedPhysicalIndex = fpidx;
-      //this._focusedItem = this._physicalItems[fpidx];
       // Hide the focused physical.
       this.translate3d(0, HIDDEN_Y, 0, this._offscreenFocusedItem);
     },
 
     _restoreFocusedItem: function() {
-      var fvidx = this._focusedVirtualIndex;
       if (!this._offscreenFocusedItem || this._focusedVirtualIndex < 0) {
         return;
       }
