@@ -527,9 +527,14 @@ will only render 20.
     _focusedItem: null,
 
     /**
-     * The index of the `_focusedItem`.
+     * The virtual index of the focused item.
      */
-    _focusedIndex: -1,
+    _focusedVirtualIndex: -1,
+
+    /**
+     * The physical index of the focused item.
+     */
+    _focusedPhysicalIndex: -1,
 
     /**
      * The the item that is focused if it is moved offscreen.
@@ -975,8 +980,8 @@ will only render 20.
         // In this situation, the focused item is currently rendered and its model would
         // have changed after increasing the pool if the physical start remained unchanged.
         if (this._physicalStart > this._physicalEnd &&
-            this._isIndexRendered(this._focusedIndex) &&
-            this._getPhysicalIndex(this._focusedIndex) < this._physicalEnd) {
+            this._isIndexRendered(this._focusedVirtualIndex) &&
+            this._getPhysicalIndex(this._focusedVirtualIndex) < this._physicalEnd) {
           this._physicalStart = this._physicalStart + delta;
         }
         this._update();
@@ -1075,8 +1080,8 @@ will only render 20.
           .reduce(function(prev, splice) {
             return prev || this._isIndexRendered(splice.index);
          }.bind(this), false)) {
-         this._debounceRender(this._render, ANIMATION_FRAME);
-       }
+          this._debounceRender(this._render, ANIMATION_FRAME);
+        }
       } else if (change.path !== 'items.length') {
         this._forwardItemPath(change.path, change.value);
       }
@@ -1084,11 +1089,14 @@ will only render 20.
 
     _forwardItemPath: function(path, value) {
       path = path.slice(6); // 'items.'.length == 6
-      var dot = path.indexOf('.');
-      var key = path.substring(0, dot < 0 ? path.length : dot);
+      var dot = path.indexOf('.') + 1;
+      if (dot === 0) {
+        dot = path.length;
+      }
       var idx = IS_V2
-          ? parseInt(dot < 0 ? path : path.substring(0, dot), 10)
-          : this._physicalIndexForKey[key];
+          ? parseInt(path.substring(0, dot), 10)
+          // Extract `#` from `path`.
+          : parseInt(path.substring(1, dot), 10);
       var offscreenItem = this._offscreenFocusedItem;
       var isIndexRendered = this._isIndexRendered(idx);
       var inst;
@@ -1096,14 +1104,12 @@ will only render 20.
       if (isIndexRendered) {
         inst = this.modelForElement(this._physicalItems[this._getPhysicalIndex(idx)]);
       } else if (offscreenItem) {
-        // This is only needed for hybrid mode.
-        inst = this.modelForElement(offscreenItem)[this.indexAs] === idx ?
-            this.modelForElement(offscreenItem) : null;
+        inst = this.modelForElement(offscreenItem);
       }
-      if (!inst || (this._collection && inst.__key__ !== key)) {
+      if (!inst || inst[this.indexAs] !== idx) {
         return;
       }
-      path = dot < 0 ? '' : path.substring(dot+1);
+      path = path.substring(dot);
       path = this.as + (path ? '.' + path : '');
       IS_V2
         ? inst._setPendingPropertyOrPath(path, value, false, true)
@@ -1130,8 +1136,8 @@ will only render 20.
               splice.addedCount - splice.removed.length,
               splice.index - this._virtualStart);
           this._virtualStart = this._virtualStart + delta;
-          if (this._focusedIndex >= 0) {
-            this._focusedIndex = this._focusedIndex + delta;
+          if (this._focusedVirtualIndex >= 0) {
+            this._focusedVirtualIndex = this._focusedVirtualIndex + delta;
           }
         }
       }, this);
@@ -1206,7 +1212,7 @@ will only render 20.
           this._forwardProperty(inst, this.as, item);
           this._forwardProperty(inst, this.selectedAs, this.$.selector.isSelected(item));
           this._forwardProperty(inst, this.indexAs, vidx);
-          this._forwardProperty(inst, 'tabIndex', this._focusedIndex === vidx ? 0 : -1);
+          this._forwardProperty(inst, 'tabIndex', this._focusedVirtualIndex === vidx ? 0 : -1);
           this._physicalIndexForKey[inst.__key__] = pidx;
           inst._flushProperties && inst._flushProperties(true);
           el.removeAttribute('hidden');
@@ -1636,7 +1642,7 @@ will only render 20.
      * This dynamic replacement helps to preserve the focus state.
      */
     _manageFocus: function() {
-      var fidx = this._focusedIndex;
+      var fidx = this._focusedVirtualIndex;
 
       if (fidx >= 0 && fidx < this._virtualCount) {
         // if it's a valid index, check if that index is rendered
@@ -1648,7 +1654,8 @@ will only render 20.
         }
       } else if (this._virtualCount > 0 && this._physicalCount > 0) {
         // otherwise, assign the initial focused index.
-        this._focusedIndex = this._virtualStart;
+        this._focusedPhysicalIndex = this._physicalStart;
+        this._focusedVirtualIndex = this._virtualStart;
         this._focusedItem = this._physicalItems[this._physicalStart];
       }
     },
@@ -1674,7 +1681,6 @@ will only render 20.
       if (!this._isIndexRendered(idx)) {
         this.scrollToIndex(idx);
       }
-
       var physicalItem = this._physicalItems[this._getPhysicalIndex(idx)];
       var model = this.modelForElement(physicalItem);
       var focusable;
@@ -1691,7 +1697,7 @@ will only render 20.
       // restore the tab index
       model.tabIndex = 0;
       // focus the focusable element
-      this._focusedIndex = idx;
+      this._focusedVirtualIndex = idx;
       focusable && focusable.focus();
     },
 
@@ -1702,14 +1708,14 @@ will only render 20.
       this._offscreenFocusedItem = null;
       this._focusBackfillItem = null;
       this._focusedItem = null;
-      this._focusedIndex = -1;
+      this._focusedVirtualIndex = -1;
+      this._focusedPhysicalIndex = -1;
     },
 
     _createFocusBackfillItem: function() {
-      var fidx = this._focusedIndex;
-      var pidx = this._getPhysicalIndex(fidx);
+      var fpidx = this._focusedPhysicalIndex;
 
-      if (this._offscreenFocusedItem || !this._physicalItems[pidx] || fidx < 0) {
+      if (this._offscreenFocusedItem || this._focusedVirtualIndex < 0) {
         return;
       }
       if (!this._focusBackfillItem) {
@@ -1719,29 +1725,28 @@ will only render 20.
         this._itemsParent.appendChild(inst.root);
       }
       // Set the offcreen focused physical item.
-      this._offscreenFocusedItem = this._physicalItems[pidx];
+      this._offscreenFocusedItem = this._physicalItems[fpidx];
       this.modelForElement(this._offscreenFocusedItem).tabIndex = 0;
-      this._physicalItems[pidx] = this._focusBackfillItem;
+      this._physicalItems[fpidx] = this._focusBackfillItem;
+      this._focusedPhysicalIndex = fpidx;
       // Hide the focused physical.
       this.translate3d(0, HIDDEN_Y, 0, this._offscreenFocusedItem);
     },
 
     _restoreFocusedItem: function() {
-      var pidx, fidx = this._focusedIndex;
-
-      if (!this._offscreenFocusedItem || this._focusedIndex < 0) {
+      if (!this._offscreenFocusedItem || this._focusedVirtualIndex < 0) {
         return;
       }
       // Assign models to the focused index.
       this._assignModels();
       // Get the new physical index for the focused index.
-      pidx = this._getPhysicalIndex(fidx);
-      if (this._physicalItems[pidx]) {
-        // Flip the focus backfill.
-        this._focusBackfillItem = this._physicalItems[pidx];
+      var fpidx = this._focusedPhysicalIndex;
+      if (this._physicalItems[fpidx]) {
+        // Swap the physical items.
+        this._focusBackfillItem = this._physicalItems[fpidx];
         this.modelForElement(this._focusBackfillItem).tabIndex = -1;
         // Restore the focused physical item.
-        this._physicalItems[pidx] = this._offscreenFocusedItem;
+        this._physicalItems[fpidx] = this._offscreenFocusedItem;
         // Reset the offscreen focused item.
         this._offscreenFocusedItem = null;
         // Hide the physical item that backfills.
@@ -1751,26 +1756,27 @@ will only render 20.
 
     _didFocus: function(e) {
       var targetModel = this.modelForElement(e.target);
-      var focusedModel = this._focusedItem ? this.modelForElement(this._focusedItem) : null;
+      var focusedModel = this.modelForElement(this._focusedItem);
       var hasOffscreenFocusedItem = this._offscreenFocusedItem !== null;
-      var fidx = this._focusedIndex;
+      var fidx = this._focusedVirtualIndex;
       if (!targetModel || !focusedModel) {
         return;
       }
       if (focusedModel === targetModel) {
-        // if the user focused the same item, then bring it into view if it's not visible
+        // If the user focused the same item, then bring it into view if it's not visible.
         if (!this._isIndexVisible(fidx)) {
           this.scrollToIndex(fidx);
         }
       } else {
         this._restoreFocusedItem();
-        // restore tabIndex for the currently focused item
+        // Restore tabIndex for the currently focused item.
         focusedModel.tabIndex = -1;
-        // set the tabIndex for the next focused item
+        // Set the tabIndex for the next focused item.
         targetModel.tabIndex = 0;
         fidx = targetModel[this.indexAs];
-        this._focusedIndex = fidx;
-        this._focusedItem = this._physicalItems[this._getPhysicalIndex(fidx)];
+        this._focusedVirtualIndex = fidx;
+        this._focusedPhysicalIndex = this._getPhysicalIndex(fidx);
+        this._focusedItem = this._physicalItems[this._focusedPhysicalIndex];
         if (hasOffscreenFocusedItem && !this._offscreenFocusedItem) {
           this._update();
         }
@@ -1781,13 +1787,13 @@ will only render 20.
       switch (e.keyCode) {
         case /* ARROW_DOWN */ 40:
           e.preventDefault();
-          this._focusPhysicalItem(this._focusedIndex + 1);
+          this._focusPhysicalItem(this._focusedVirtualIndex + 1);
           break;
         case /* ARROW_UP */ 38:
-          this._focusPhysicalItem(this._focusedIndex - 1);
+          this._focusPhysicalItem(this._focusedVirtualIndex - 1);
           break;
         case /* ENTER */ 13:
-          this._focusPhysicalItem(this._focusedIndex);
+          this._focusPhysicalItem(this._focusedVirtualIndex);
           this._selectionHandler(e);
         break;
       }
@@ -1819,9 +1825,13 @@ will only render 20.
 
     /* Templatizer bindings for v2 */
     _forwardHostPropV2: function(prop, value) {
-      this._physicalItems.forEach(function(physicalItem) {
-        this.modelForElement(physicalItem).forwardHostProp(prop, value);
-      }.bind(this));
+      (this._physicalItems || [])
+        .concat([this._offscreenFocusedItem, this._focusBackfillItem])
+        .forEach(function(item) {
+          if (item) {
+            this.modelForElement(item).forwardHostProp(prop, value);
+          }
+        }, this);
     },
 
     _notifyInstancePropV2: function(inst, prop, value) {
@@ -1853,7 +1863,7 @@ will only render 20.
           if (item) {
             this.modelForElement(item).notifyPath(path, value, true);
           }
-        }.bind(this));
+        }, this);
     },
 
     _forwardParentProp: function(prop, value) {
@@ -1863,7 +1873,7 @@ will only render 20.
           if (item) {
             this.modelForElement(item)[prop] = value;
           }
-        }.bind(this));
+        }, this);
     }
 
   });
