@@ -50,11 +50,12 @@ layout means (e.g. the `flex` or `fit` classes).
       flex: 1 1 auto;
     }
   </style>
-
   <app-toolbar>App name</app-toolbar>
   <iron-list items="[[items]]">
     <template>
-      ...
+      <div>
+        ...
+      </div>
     </template>
   </iron-list>
 </template>
@@ -73,7 +74,9 @@ layout means (e.g. the `flex` or `fit` classes).
   </style>
   <iron-list items="[[items]]">
     <template>
-      ...
+      <div>
+        ...
+      </div>
     </template>
   </iron-list>
 </template>
@@ -107,12 +110,17 @@ layout means (e.g. the `flex` or `fit` classes).
     <app-toolbar>App name</app-toolbar>
     <iron-list scroll-target="document" items="[[items]]">
       <template>
-        ...
+        <div>
+          ...
+        </div>
       </template>
     </iron-list>
   </template>
 </body>
 ```
+
+`iron-list` must be given a `<template>` which contains exactly one element. In the examples
+above we used a `<div>`, but you can provide any element (including custom elements).
 
 ### Template model
 
