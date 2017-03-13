@@ -42,7 +42,7 @@
     "paper-spinner": "PolymerElements/paper-spinner#2.0-preview",
     "test-fixture": "PolymerElements/test-fixture#^3.0.0-rc.1",
     "iron-test-helpers": "PolymerElements/iron-test-helpers#2.0-preview",
-    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0-rc.1",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0-rc.6",
     "web-component-tester": "Polymer/web-component-tester#^6.0.0-prerelease.6"
   },
   "variants": {
@@ -74,5 +74,8 @@
         "web-component-tester": "^4.0.0"
       }
     }
+  },
+  "resolutions": {
+    "webcomponentsjs": "^1.0.0-rc.6"
   }
 }
