@@ -43,7 +43,7 @@
     "test-fixture": "PolymerElements/test-fixture#^3.0.0-rc.1",
     "iron-test-helpers": "PolymerElements/iron-test-helpers#2.0-preview",
     "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0-rc.6",
-    "web-component-tester": "Polymer/web-component-tester#fix-env-imports"
+    "web-component-tester": "Polymer/web-component-tester#^6.0.0-prerelease.6"
   },
   "variants": {
     "1.x": {
@@ -76,7 +76,6 @@
     }
   },
   "resolutions": {
-    "webcomponentsjs": "^1.0.0-rc.6",
-    "web-component-tester": "fix-env-imports"
+    "webcomponentsjs": "^1.0.0-rc.6"
   }
 }

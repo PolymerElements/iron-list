@@ -14,11 +14,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <title>iron-list test</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
   <script src="../../web-component-tester/browser.js"></script>
   <link rel="import" href="fixtures/helpers.html">
   <link rel="import" href="fixtures/x-list.html">
 </head>
 <body>
+  <!-- Issue: web-component-tester/issues/505 -->
+  <script>void(0)</script>
 
   <test-fixture id="trivialList">
     <template>
@@ -268,7 +271,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     test('should not called the scroll handler if the list is not rendered', function(done) {
       list.items = buildDataSet(100);
       list.scrollTarget = scrollTarget;
-      
+
       PolymerFlush();
 
       list.style.display = 'none';
