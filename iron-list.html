@@ -1818,17 +1818,27 @@ will only render 20.
       // Get the new physical index for the focused index.
       pidx = this._getPhysicalIndex(fidx);
 
-      if (pidx != null) {
+      var onScreenItem = this._physicalItems[pidx];
+      if (!onScreenItem) {
+        return;
+      }
+      var onScreenInstance = onScreenItem._templateInstance;
+      var offScreenInstance = this._offscreenFocusedItem._templateInstance;
+      // Restores the physical item only when it has the same model 
+      // as the offscreen one. Use key for comparison since users can set
+      // a new item via set('items.idx').
+      if (onScreenInstance.__key__ === offScreenInstance.__key__) {
         // Flip the focus backfill.
-        this._focusBackfillItem = this._physicalItems[pidx];
-        this._focusBackfillItem._templateInstance.tabIndex = -1;
+        this._focusBackfillItem = onScreenItem;
+        onScreenInstance.tabIndex = -1;
         // Restore the focused physical item.
         this._physicalItems[pidx] = this._offscreenFocusedItem;
-        // Reset the offscreen focused item.
-        this._offscreenFocusedItem = null;
         // Hide the physical item that backfills.
         this.translate3d(0, HIDDEN_Y, 0, this._focusBackfillItem);
+      } else {
+        this._focusBackfillItem = null;
       }
+      this._offscreenFocusedItem = null;
     },
 
     _didFocus: function(e) {
