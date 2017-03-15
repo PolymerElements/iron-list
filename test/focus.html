@@ -108,15 +108,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       list.items = buildDataSet(100);
 
       Polymer.dom.flush();
-     
+
       list.scroll(0, getFirstItemFromList(list).offsetHeight * list._physicalCount);
      
       requestAnimationFrame(function() {
         setTimeout(function() {
+          var lastOffscreenFocusedItem = list._offscreenFocusedItem;
           var firstItem = getFirstItemFromList(list);
-          firstItem.parentNode.focus();
+          MockInteractions.focus(firstItem.parentNode);
+
+          Polymer.dom.flush();
+
           assert.equal(firstItem, getFirstItemFromList(list),
             'Should be the same item after focusing it');
+          assert.isNull(lastOffscreenFocusedItem.parentNode,
+            'Should remove the last offscreen focused item');
           done();
         });
       });
