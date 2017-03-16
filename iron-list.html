@@ -50,11 +50,12 @@ layout means (e.g. the `flex` or `fit` classes).
       flex: 1 1 auto;
     }
   </style>
-
   <app-toolbar>App name</app-toolbar>
   <iron-list items="[[items]]">
     <template>
-      ...
+      <div>
+        ...
+      </div>
     </template>
   </iron-list>
 </template>
@@ -73,7 +74,9 @@ layout means (e.g. the `flex` or `fit` classes).
   </style>
   <iron-list items="[[items]]">
     <template>
-      ...
+      <div>
+        ...
+      </div>
     </template>
   </iron-list>
 </template>
@@ -106,11 +109,16 @@ layout means (e.g. the `flex` or `fit` classes).
   <app-toolbar>App name</app-toolbar>
   <iron-list scroll-target="document">
     <template>
-      ...
+      <div>
+        ...
+      </div>
     </template>
   </iron-list>
 </body>
 ```
+
+`iron-list` must be given a `<template>` which contains exactly one element. In the examples
+above we used a `<div>`, but you can provide any element (including custom elements).
 
 ### Template model
 
@@ -1741,17 +1749,29 @@ will only render 20.
       this._assignModels();
       // Get the new physical index for the focused index.
       var fpidx = this._focusedPhysicalIndex;
-      if (this._physicalItems[fpidx]) {
-        // Swap the physical items.
-        this._focusBackfillItem = this._physicalItems[fpidx];
-        this.modelForElement(this._focusBackfillItem).tabIndex = -1;
+
+      var onScreenItem = this._physicalItems[fpidx];
+      if (!onScreenItem) {
+        return;
+      }
+      var onScreenInstance = this.modelForElement(onScreenItem);
+      var offScreenInstance = this.modelForElement(this._offscreenFocusedItem);
+      // Restores the physical item only when it has the same model 
+      // as the offscreen one. Use key for comparison since users can set
+      // a new item via set('items.idx').
+      if (onScreenInstance[this.as] === offScreenInstance[this.as]) {
+        // Flip the focus backfill.
+        this._focusBackfillItem = onScreenItem;
+        onScreenInstance.tabIndex = -1;
         // Restore the focused physical item.
         this._physicalItems[fpidx] = this._offscreenFocusedItem;
-        // Reset the offscreen focused item.
-        this._offscreenFocusedItem = null;
         // Hide the physical item that backfills.
         this.translate3d(0, HIDDEN_Y, 0, this._focusBackfillItem);
+      } else {
+        this._removeFocusedItem();
+        this._focusBackfillItem = null;
       }
+      this._offscreenFocusedItem = null;
     },
 
     _didFocus: function(e) {
