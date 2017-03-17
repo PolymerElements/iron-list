@@ -1853,6 +1853,7 @@ will only render 20.
         // Hide the physical item that backfills.
         this.translate3d(0, HIDDEN_Y, 0, this._focusBackfillItem);
       } else {
+        this._removeFocusedItem();
         this._focusBackfillItem = null;
       }
       this._offscreenFocusedItem = null;
