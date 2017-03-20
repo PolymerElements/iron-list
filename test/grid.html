@@ -131,6 +131,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       assert.equal(list.firstVisibleIndex, 99);
     });
 
+
+
+	test('delete a grid item and scroll to bottom', function(done) {
+	  list.items = buildDataSet(64);
+	  Polymer.dom.flush();
+	  list.shift('items');
+	  Polymer.dom.flush();
+	  list.scroll(0, 10000000);
+	  requestAnimationFrame(function() {
+		setTimeout(function() {
+		  assert.equal(list.lastVisibleIndex, list.items.length - 1);
+		  done();
+		});
+	  });
+	});
+
     test('reset items', function(done) {
       list.items = buildDataSet(100);
 
