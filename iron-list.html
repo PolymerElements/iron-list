@@ -1084,10 +1084,10 @@ will only render 20.
         this._adjustVirtualIndex(change.value.indexSplices);
         this._virtualCount = this.items ? this.items.length : 0;
         // Render only if the affected index is rendered.
-        if (!this._isClientFull() || change.value.indexSplices
-          .reduce(function(prev, splice) {
-            return prev || this._isIndexRendered(splice.index);
-         }.bind(this), false)) {
+        var affectedIndexRendered = change.value.indexSplices.some(function(splice) {
+          return this._isIndexRendered(splice.index);
+        }, this);
+        if (!this._isClientFull() || affectedIndexRendered) {
           this._debounceRender(this._render, ANIMATION_FRAME);
         }
       } else if (change.path !== 'items.length') {
