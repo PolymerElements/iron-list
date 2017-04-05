@@ -116,8 +116,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             list.selectItem(item);
           });
           assert.equal(list.selectedItems.length, list.items.length);
+          assert.isTrue(list._physicalItems[0].hasAttribute('selected'));
           list.clearSelection();
           assert.equal(list.selectedItems.length, 0);
+          assert.isFalse(list._physicalItems[0].hasAttribute('selected'));
           done();
         });
       });

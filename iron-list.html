@@ -1564,8 +1564,7 @@ will only render 20.
      */
     clearSelection: function() {
       this._iterateItems(function(pidx, vidx) {
-        this._forwardProperty(this.modelForElement(this._physicalItems[pidx]),
-            this.selectedAs, false);
+        this.modelForElement(this._physicalItems[pidx])[this.selectedAs] = false;
       });
       this.$.selector.clearSelection();
     },
