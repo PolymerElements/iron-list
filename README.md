@@ -17,7 +17,7 @@ thing! https://github.com/PolymerLabs/tedium/issues
 _[Demo and API docs](https://elements.polymer-project.org/elements/iron-list)_
 
 
-##&lt;iron-list&gt;
+## &lt;iron-list&gt;
 
 `iron-list` displays a virtual, 'infinite' list. The template inside
 the iron-list element represents the DOM to create for each list item.
