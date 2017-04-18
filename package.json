@@ -1,0 +1,29 @@
+{
+  "name": "iron-list",
+  "version": "1.3.0",
+  "description": "Displays a virtual, 'infinite' scrolling list of items",
+  "main": "iron-list.html",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "gulp compile"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PolymerElements/iron-list.git"
+  },
+  "author": "The Polymer Authors",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PolymerElements/iron-list/issues"
+  },
+  "homepage": "https://github.com/PolymerElements/iron-list#readme",
+  "devDependencies": {
+    "google-closure-compiler": "^20160315.2.0",
+    "gulp": "^3.9.1",
+    "gulp-crisper": "^1.0.0",
+    "gulp-if": "^2.0.0",
+    "gulp-logger": "0.0.2"
+  }
+}
