@@ -15,6 +15,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../iron-test-helpers/mock-interactions.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
 
   <link rel="import" href="helpers.html">
@@ -49,6 +50,101 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           assert.equal(getNthItemFromGrid(list, i).textContent, i);
         }
         done();
+      });
+    });
+
+    test('grid focus change with right arrow', function(done) {
+      container.useTabIndex = true;
+      container.data = buildDataSet(100);
+
+      flush(function() {
+        var initialItem = getNthItemFromGrid(list, 0);
+        var itemToFocus = getNthItemFromGrid(list, 1);
+        initialItem.addEventListener('focus', function(e) {
+          MockInteractions.pressAndReleaseKeyOn(list, 39); // right
+        });
+        itemToFocus.addEventListener('focus', function(e) {
+          var focusedIndex = list.modelForElement(e.target).index;
+          assert.equal(focusedIndex, 1);
+          done();
+        });
+        MockInteractions.focus(initialItem);
+      });
+    });
+
+    test('grid focus change with left arrow', function(done) {
+      container.useTabIndex = true;
+      container.data = buildDataSet(100);
+
+      flush(function() {
+        var initialItem = getNthItemFromGrid(list, 1);
+        var itemToFocus = getNthItemFromGrid(list, 0);
+        initialItem.addEventListener('focus', function(e) {
+          MockInteractions.pressAndReleaseKeyOn(list, 37); // left
+        });
+        itemToFocus.addEventListener('focus', function(e) {
+          var focusedIndex = list.modelForElement(e.target).index;
+          assert.equal(focusedIndex, 0);
+          done();
+        });
+        MockInteractions.focus(initialItem);
+      });
+    });
+
+    test('grid focus change with down arrow', function(done) {
+      container.useTabIndex = true;
+      container.data = buildDataSet(100);
+
+      flush(function() {
+        var initialItem = getNthItemFromGrid(list, 0);
+        var itemToFocus = getNthItemFromGrid(list, list._itemsPerRow);
+        initialItem.addEventListener('focus', function(e) {
+          MockInteractions.pressAndReleaseKeyOn(list, 40); // down
+        });
+        itemToFocus.addEventListener('focus', function(e) {
+          var focusedIndex = list.modelForElement(e.target).index;
+          assert.equal(focusedIndex, list._itemsPerRow);
+          done();
+        });
+        MockInteractions.focus(initialItem);
+      });
+    });
+
+    test('grid focus change with down arrow less than one row from the of the list', function(done) {
+      container.useTabIndex = true;
+      container.data = buildDataSet(5);
+
+      flush(function() {
+        var initialItem = getNthItemFromGrid(list, 2);
+        var itemToFocus = getNthItemFromGrid(list, 4);
+        initialItem.addEventListener('focus', function(e) {
+          MockInteractions.pressAndReleaseKeyOn(list, 40); // down
+        });
+        itemToFocus.addEventListener('focus', function(e) {
+          var focusedIndex = list.modelForElement(e.target).index;
+          assert.equal(focusedIndex, 4);
+          done();
+        });
+        MockInteractions.focus(initialItem);
+      });
+    });
+
+    test('grid focus change with up arrow', function(done) {
+      container.useTabIndex = true;
+      container.data = buildDataSet(100);
+
+      flush(function() {
+        var initialItem = getNthItemFromGrid(list, list._itemsPerRow);
+        var itemToFocus = getNthItemFromGrid(list, 0);
+        initialItem.addEventListener('focus', function(e) {
+          MockInteractions.pressAndReleaseKeyOn(list, 38); // up
+        });
+        itemToFocus.addEventListener('focus', function(e) {
+          var focusedIndex = list.modelForElement(e.target).index;
+          assert.equal(focusedIndex, 0);
+          done();
+        });
+        MockInteractions.focus(initialItem);
       });
     });
 

@@ -26,11 +26,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         overflow: hidden;
       }
     </style>
-    
+
     <iron-list style$="[[_computedListSize(listSize)]]" items="[[data]]" as="item" id="list" grid>
       <template>
         <div class="item">
-          <div style$="[[_computeItemSize(item)]]">[[item.index]]</div>
+          <div style$="[[_computeItemSize(item)]]" tabindex$="[[_computedTabIndex(tabIndex, useTabIndex)]]">[[item.index]]</div>
         </div>
       </template>
     </iron-list>
@@ -60,6 +60,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       pre: {
         type: Boolean
       },
+
+      useTabIndex: {
+        value: true,
+        type: Boolean
+      }
     },
 
     get list() {
@@ -75,6 +80,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     _computedListSize: function(listHeight) {
       return 'height: ' + (listHeight) + 'px;' + 'width: ' + (listHeight) + 'px;';
+    },
+
+    _computedTabIndex: function(tabIndex, useTabIndex) {
+      return useTabIndex ? tabIndex : undefined;
     }
   });
 </script>
