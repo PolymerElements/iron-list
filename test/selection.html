@@ -458,6 +458,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         list.selectItems.apply(list, argumentsToSelect);
         assert.equal(list.selectedItems.length, argumentsToSelect.length);
       });
+
+      test('select items: single', function() {
+        container.useTabIndex = false;
+        list.items = buildDataSet(100);
+        list.multiSelection = true;
+        Polymer.dom.flush();
+        assert.isArray(list.selectedItems);
+        assert.equal(list.selectedItems.length, 0);
+        list.selectItems(4);
+        assert.equal(list.selectedItems.length, 1);
+      });
     });
 
   </script>
