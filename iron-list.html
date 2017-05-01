@@ -1873,14 +1873,12 @@ will only render 20.
       }
     },
     // When `grid === true` the `downArrow` goes forward `this._itemsPerRow` items
-    _didMoveBackward: function(e, step) {
-      step = step || (!this.grid) ? 1 : this._itemsPerRow;
-      this._focusPhysicalItem(this._focusedIndex - step);
+    _didMoveBackward: function(e) {;
+      this._focusPhysicalItem(this._focusedIndex - (!this.grid ? 1 : this._itemsPerRow));
     },
     // When `grid === true` the `upArrow` goes backward `this._itemsPerRow` items
-    _didMoveForward: function(e, step) {
-      step = step || (!this.grid) ? 1 : this._itemsPerRow;
-      var destination = this._focusedIndex + step;
+    _didMoveForward: function(e) {;
+      var destination = this._focusedIndex + (!this.grid ? 1 : this._itemsPerRow);
 	  // When `grid === true` move focus down one row, either
 	  // directly below or the last item of the list.
 	  if (this.grid && this._focusedIndex < (this.items.length - (this.items.length % this._itemsPerRow))) {
@@ -1893,14 +1891,12 @@ will only render 20.
     // When in grid mode, the use of `leftArrow` changes the focus based on the text direction
     _didMoveLeft: function(e) {
       if (!this.grid) return;
-      if (this._isRTL) this._didMoveForward(e, 1);
-      else this._didMoveBackward(e, 1);
+      this._focusPhysicalItem(this._focusedIndex + (this._isRTL ? 1 : -1));
     },
     // When in grid mode, the use of `rightArrow` changes the focus based on the text direction
     _didMoveRight: function(e) {
       if (!this.grid) return;
-      if (this._isRTL) this._didMoveBackward(e, 1);
-      else this._didMoveForward(e, 1);
+      this._focusPhysicalItem(this._focusedIndex + (this._isRTL ? -1 : 1));
     },
 
     _didEnter: function(e) {
