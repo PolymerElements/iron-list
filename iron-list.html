@@ -1880,7 +1880,12 @@ will only render 20.
     // When `grid === true` the `upArrow` goes backward `this._itemsPerRow` items
     _didMoveForward: function(e, step) {
       step = step || (!this.grid) ? 1 : this._itemsPerRow;
-      var destination = Math.min(this._focusedIndex + step, this.items.length - 1);
+      var destination = this._focusedIndex + step;
+	  // When `grid === true` move focus down one row, either
+	  // directly below or the last item of the list.
+	  if (this.grid && this._focusedIndex < (this.items.length - (this.items.length % this._itemsPerRow))) {
+		  destination = Math.min(destination, this.items.length - 1);
+	  }
       // disable scroll when pressing the down key
       if (e.detail.keyboardEvent.keyCode == 40) e.detail.keyboardEvent.preventDefault();
       this._focusPhysicalItem(destination);
