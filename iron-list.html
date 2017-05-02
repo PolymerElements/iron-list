@@ -1872,20 +1872,20 @@ will only render 20.
         }
       }
     },
-    // When `grid === true` the `downArrow` goes forward `this._itemsPerRow` items
-    _didMoveBackward: function(e) {;
-      this._focusPhysicalItem(this._focusedIndex - (!this.grid ? 1 : this._itemsPerRow));
+    _didMoveBackward: function() {
+      // When `grid === true` the `downArrow` goes forward `this._itemsPerRow` items
+      this._focusPhysicalItem(this._focusedIndex - (this.grid ? this._itemsPerRow : 1));
     },
-    // When `grid === true` the `upArrow` goes backward `this._itemsPerRow` items
-    _didMoveForward: function(e) {;
-      var destination = this._focusedIndex + (!this.grid ? 1 : this._itemsPerRow);
+    _didMoveForward: function(e) {
+      // When `grid === true` the `upArrow` goes backward `this._itemsPerRow` items
+      var destination = this._focusedIndex + (this.grid ? this._itemsPerRow : 1);
 	  // When `grid === true` move focus down one row, either
 	  // directly below or the last item of the list.
 	  if (this.grid && this._focusedIndex < (this.items.length - (this.items.length % this._itemsPerRow))) {
 		  destination = Math.min(destination, this.items.length - 1);
 	  }
       // disable scroll when pressing the down key
-      if (e.detail.keyboardEvent.keyCode == 40) e.detail.keyboardEvent.preventDefault();
+      e.detail.keyboardEvent.preventDefault();
       this._focusPhysicalItem(destination);
     },
     // When in grid mode, the use of `leftArrow` changes the focus based on the text direction
