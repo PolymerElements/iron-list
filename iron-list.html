@@ -1628,11 +1628,11 @@ will only render 20.
       items = items || this.items;
       items = items.map(function(item) {
         return this._getNormalizedItem(item);
-      }.bind(this))
-      .filter(function(item) {
+      }.bind(this));
+      this.$.selector.set('selected', items);
+      items = items.filter(function(item) {
         return !(this.$.selector).isSelected(item);
       }.bind(this));
-      this.clearSelection();
       this.$.selector.set('selected', items);
       this.$.selector._selectedColl = Polymer.Collection.get((this.$.selector).selected);
       for (var i = 0, l = items.length; i < l; i++) {
