@@ -839,7 +839,7 @@ will only render 20.
       this._lastVisibleIndexVal = null;
 
       // Random access.
-      if (Math.abs(delta) > this._physicalSize) {
+      if (Math.abs(delta) > this._physicalSize && this._physicalSize > 0) {
         delta = delta - this._scrollOffset;
         var idxAdjustment = Math.round(delta / this._physicalAverage) * this._itemsPerRow;
         this._virtualStart = this._virtualStart + idxAdjustment;
