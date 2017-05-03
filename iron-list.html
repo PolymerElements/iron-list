@@ -834,12 +834,13 @@ will only render 20.
       this._firstVisibleIndexVal = null;
       this._lastVisibleIndexVal = null;
       // Random access.
-      if (Math.abs(delta) > this._physicalSize) {
+      if (Math.abs(delta) > this._physicalSize && this._physicalSize > 0) {
         delta = delta - this._scrollOffset;
         var idxAdjustment = Math.round(delta / this._physicalAverage) * this._itemsPerRow;
-        this._physicalTop = this._physicalTop + delta;
         this._virtualStart = this._virtualStart + idxAdjustment;
         this._physicalStart = this._physicalStart + idxAdjustment;
+        // Estimate new physical offset.
+        this._physicalTop = Math.floor(this._virtualStart / this._itemsPerRow) * this._physicalAverage;
         this._update();
       } else if (this._physicalCount > 0) {
         var reusables = this._getReusables(isScrollingDown);
@@ -1755,7 +1756,7 @@ will only render 20.
       }
       var onScreenInstance = this.modelForElement(onScreenItem);
       var offScreenInstance = this.modelForElement(this._offscreenFocusedItem);
-      // Restores the physical item only when it has the same model 
+      // Restores the physical item only when it has the same model
       // as the offscreen one. Use key for comparison since users can set
       // a new item via set('items.idx').
       if (onScreenInstance[this.as] === offScreenInstance[this.as]) {
