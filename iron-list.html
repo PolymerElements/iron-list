@@ -1301,6 +1301,7 @@ will only render 20.
           el.removeAttribute('hidden');
         } else {
           inst.__key__ = null;
+          inst[this.as] = null;
           el.setAttribute('hidden', '');
         }
       }, itemSet);
