@@ -1623,7 +1623,7 @@ will only render 20.
       var key = '';
       // Cast an arguments list that doesn't consist of a single array to an array
       if (arguments.length > 1 || (typeof items !== 'undefined' && !Array.isArray(items))) {
-        items = Array.from(arguments);
+        items = !!Array.from ? Array.from(arguments) : [].slice.call(arguments);
       }
       items = items || this.items;
       items = items.map(function(item) {
