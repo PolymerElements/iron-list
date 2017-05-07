@@ -125,6 +125,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
     });
 
+    test('grid focus does not change with down arrow from last row but not last item', function(done) {
+      container.useTabIndex = true;
+      container.data = buildDataSet(5);
+
+      flush(function() {
+        var initialItem = getNthItemFromGrid(list, 3);
+        initialItem.focus();
+        flush(function() {
+          MockInteractions.pressAndReleaseKeyOn(list, 40); // down
+          flush(function() {
+            assert.notEqual(initialItem.tabIndex, -1);
+            done();
+          });
+        });
+      });
+    });
+
     test('grid focus change with up arrow', function(done) {
       container.useTabIndex = true;
       container.data = buildDataSet(100);
