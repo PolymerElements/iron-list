@@ -60,15 +60,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       flush(function() {
         var initialItem = getNthItemFromGrid(list, 0);
         var itemToFocus = getNthItemFromGrid(list, 1);
-        initialItem.addEventListener('focus', function(e) {
+        initialItem.focus();
+        flush(function() {
           MockInteractions.pressAndReleaseKeyOn(list, 39); // right
+          flush(function() {
+            assert.notEqual(itemToFocus.tabIndex, -1);
+            done();
+          });
         });
-        itemToFocus.addEventListener('focus', function(e) {
-          var focusedIndex = list.modelForElement(e.target).index;
-          assert.equal(focusedIndex, 1);
-          done();
-        });
-        MockInteractions.focus(initialItem);
       });
     });
 
@@ -79,15 +78,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       flush(function() {
         var initialItem = getNthItemFromGrid(list, 1);
         var itemToFocus = getNthItemFromGrid(list, 0);
-        initialItem.addEventListener('focus', function(e) {
+        initialItem.focus();
+        flush(function() {
           MockInteractions.pressAndReleaseKeyOn(list, 37); // left
+          flush(function() {
+            assert.notEqual(itemToFocus.tabIndex, -1);
+            done();
+          });
         });
-        itemToFocus.addEventListener('focus', function(e) {
-          var focusedIndex = list.modelForElement(e.target).index;
-          assert.equal(focusedIndex, 0);
-          done();
-        });
-        MockInteractions.focus(initialItem);
       });
     });
 
@@ -98,34 +96,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       flush(function() {
         var initialItem = getNthItemFromGrid(list, 0);
         var itemToFocus = getNthItemFromGrid(list, list._itemsPerRow);
-        initialItem.addEventListener('focus', function(e) {
+        initialItem.focus();
+        flush(function() {
           MockInteractions.pressAndReleaseKeyOn(list, 40); // down
+          flush(function() {
+            assert.notEqual(itemToFocus.tabIndex, -1);
+            done();
+          });
         });
-        itemToFocus.addEventListener('focus', function(e) {
-          var focusedIndex = list.modelForElement(e.target).index;
-          assert.equal(focusedIndex, list._itemsPerRow);
-          done();
-        });
-        MockInteractions.focus(initialItem);
       });
     });
 
-    test('grid focus change with down arrow less than one row from the of the list', function(done) {
+    test('grid focus change with down arrow less than one row from the end of the list', function(done) {
       container.useTabIndex = true;
-      container.data = buildDataSet(5);
+      container.data = buildDataSet(4);
 
       flush(function() {
         var initialItem = getNthItemFromGrid(list, 2);
-        var itemToFocus = getNthItemFromGrid(list, 4);
-        initialItem.addEventListener('focus', function(e) {
+        var itemToFocus = getNthItemFromGrid(list, 3);
+        initialItem.focus();
+        flush(function() {
           MockInteractions.pressAndReleaseKeyOn(list, 40); // down
+          flush(function() {
+            window.requestAnimationFrame(function() {
+              assert.notEqual(itemToFocus.tabIndex, -1);
+              done();
+            });
+          });
         });
-        itemToFocus.addEventListener('focus', function(e) {
-          var focusedIndex = list.modelForElement(e.target).index;
-          assert.equal(focusedIndex, 4);
-          done();
-        });
-        MockInteractions.focus(initialItem);
       });
     });
 
@@ -136,15 +134,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       flush(function() {
         var initialItem = getNthItemFromGrid(list, list._itemsPerRow);
         var itemToFocus = getNthItemFromGrid(list, 0);
-        initialItem.addEventListener('focus', function(e) {
+        initialItem.focus();
+        flush(function() {
           MockInteractions.pressAndReleaseKeyOn(list, 38); // up
+          flush(function() {
+            assert.notEqual(itemToFocus.tabIndex, -1);
+            done();
+          });
         });
-        itemToFocus.addEventListener('focus', function(e) {
-          var focusedIndex = list.modelForElement(e.target).index;
-          assert.equal(focusedIndex, 0);
-          done();
-        });
-        MockInteractions.focus(initialItem);
       });
     });
 
