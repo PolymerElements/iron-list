@@ -118,10 +118,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         flush(function() {
           MockInteractions.pressAndReleaseKeyOn(list, 40); // down
           flush(function() {
-            window.requestAnimationFrame(function() {
-              assert.notEqual(itemToFocus.tabIndex, -1);
-              done();
-            });
+            assert.notEqual(itemToFocus.tabIndex, -1);
+            done();
           });
         });
       });
