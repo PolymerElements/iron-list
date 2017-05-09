@@ -425,8 +425,10 @@ will only render 20.
     ],
 
     keyBindings: {
-      'up': '_didMoveUp',
-      'down': '_didMoveDown',
+      'up': '_didMoveBackward',
+      'down': '_didMoveForward',
+      'left': '_didMoveLeft',
+      'right': '_didMoveRight',
       'enter': '_didEnter'
     },
 
@@ -1871,15 +1873,25 @@ will only render 20.
         }
       }
     },
-
-    _didMoveUp: function() {
-      this._focusPhysicalItem(this._focusedIndex - 1);
+    _didMoveBackward: function() {
+      // When `grid === true` the `downArrow` goes forward `this._itemsPerRow` items
+      this._focusPhysicalItem(this._focusedIndex - (this.grid ? this._itemsPerRow : 1));
     },
-
-    _didMoveDown: function(e) {
+    _didMoveForward: function(e) {
       // disable scroll when pressing the down key
       e.detail.keyboardEvent.preventDefault();
-      this._focusPhysicalItem(this._focusedIndex + 1);
+      // When `grid === true` the `upArrow` goes backward `this._itemsPerRow` items
+      this._focusPhysicalItem(this._focusedIndex + (this.grid ? this._itemsPerRow : 1));
+    },
+    // When in grid mode, the use of `leftArrow` changes the focus based on the text direction
+    _didMoveLeft: function(e) {
+      if (!this.grid) return;
+      this._focusPhysicalItem(this._focusedIndex + (this._isRTL ? 1 : -1));
+    },
+    // When in grid mode, the use of `rightArrow` changes the focus based on the text direction
+    _didMoveRight: function(e) {
+      if (!this.grid) return;
+      this._focusPhysicalItem(this._focusedIndex + (this._isRTL ? -1 : 1));
     },
 
     _didEnter: function(e) {
