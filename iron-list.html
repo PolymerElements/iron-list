@@ -1295,6 +1295,13 @@ will only render 20.
         var item = this.items && this.items[vidx];
         if (item != null) {
           inst[this.as] = item;
+          // Grab all top level keys for our item and trigger updates to the children.
+          var keys = Object.keys(item);
+          for (var i = 0; i < keys.length; i++) {
+            var path = 'item.' + keys[i];
+            var newValue = item[keys[i]];
+            inst.notifyPath(path, newValue);
+          }
           inst.__key__ = this._collection.getKey(item);
           inst[this.selectedAs] = /** @type {!ArraySelectorElement} */ (this.$.selector).isSelected(item);
           inst[this.indexAs] = vidx;
