@@ -22,59 +22,82 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 
   <link rel="import" href="../../polymer/polymer.html">
+  <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
   <link rel="import" href="../../iron-ajax/iron-ajax.html">
   <link rel="import" href="../iron-list.html">
-
+  
   <style>
-    body {
+    body, html {
       margin: 0;
-    }
-
-    header {
-      background-color: #ddd;
-      height: 200px;
-      padding: 0 10px;
-    }
-
-    h1 {
-      margin: 0;
-      line-height: 100px;
     }
   </style>
 
 </head>
 <body>
 
-  <header>
-    <h1>Header</h1>
-  </header>
-
   <dom-module id="x-list">
     <template>
       <style>
+        :host {
+          display: block;
+        }
+
+        iron-list {
+          width: 100%;
+          height: 100%;
+        }
+      </style>
+      <iron-list items="[[items]]" as="[[as]]">
+        <slot></slot>
+      </iron-list>
+    </template>
+    <script>
+    window.addEventListener('WebComponentsReady', function() {
+      Polymer({
+        is: 'x-list',
+        properties: {
+          items: Array,
+          as: {
+            type: String,
+            value: 'item'
+          }
+        }
+      });
+    });
+    </script>
+  </dom-module>
+
+  <dom-module id="x-example">
+    <template>
+      <style>
+        x-list {
+          width: 100vw;
+          height: 100vh;
+        }
+
         .item {
           padding: 10px;
           border-bottom: 1px solid #ccc;
         }
       </style>
-
-      <iron-ajax url="data/contacts.json" last-response="{{data}}" auto></iron-ajax>
-
-      <iron-list items="[[data]]" as="item" scroll-target="document" scroll-offset="200">
+      <iron-ajax url="data/contacts.json" last-response="{{items}}" auto></iron-ajax>
+      <x-list items="[[items]]" as="item">
         <template>
-          <div class="item">#[[index]] - [[item.name]]</div>
+          <div class="item">
+            <b>#[[index]] - [[item.index]] - [[item.name]]</b>
+            <p>[[item.longText]]</p>
+          </div>
         </template>
-      </iron-list>
-
+      </x-list>
     </template>
     <script>
     window.addEventListener('WebComponentsReady', function() {
-      Polymer({ is: 'x-list' });
+      Polymer({ is: 'x-example' });
     });
     </script>
   </dom-module>
 
-  <x-list></x-list>
+  <x-example></x-example>
 
 </body>
 </html>

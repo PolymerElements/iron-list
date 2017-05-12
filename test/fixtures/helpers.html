@@ -39,35 +39,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   function simulateScroll(config) {
     var list = config.list;
     var target = config.target;
-    var delay = config.delay || 1;
     var contribution = Math.abs(config.contribution) || 10;
     // scroll back up
     if (target < list.scrollTop) {
       contribution = -contribution;
     }
-
     function scrollHandler() {
-      setTimeout(function() {
-        var minScrollTop = 0;
-        var maxScrollTop = list.scrollHeight - list.offsetHeight;
+      var minScrollTop = 0;
+      var maxScrollTop = list.scrollHeight - list.clientHeight;
+      var nextScrollTop = list.scrollTop + contribution;
 
-        config.onScroll && config.onScroll();
+      if (nextScrollTop != target && nextScrollTop >= minScrollTop && nextScrollTop <= maxScrollTop) {
+        // continue
+      } else {
+        nextScrollTop = target;
+      }
+      list.scroll(0, nextScrollTop);
+      list.fire('scroll');
+      PolymerFlush();
+      config.onScroll && config.onScroll();
 
-        if (list.scrollTop < target && contribution > 0 && list.scrollTop < maxScrollTop) {
-          list.scrollTop = Math.min(maxScrollTop, list.scrollTop + contribution);
-
-        } else if (list.scrollTop > target && contribution < 0 && list.scrollTop > minScrollTop) {
-          list.scrollTop = Math.max(minScrollTop, list.scrollTop + contribution);
-
-        } else {
-          list.removeEventListener('scroll', scrollHandler);
-          list.scrollTop = target;
-          config.onScrollEnd && config.onScrollEnd();
-        }
-      }, delay);
+      if (nextScrollTop === target) {
+        config.onScrollEnd && config.onScrollEnd();
+      } else {
+        setTimeout(scrollHandler, 1);
+      }
     }
-    list.addEventListener('scroll', scrollHandler);
+    PolymerFlush();
     scrollHandler();
+  }
+
+  function deepElementFromPoint(x, y) {
+    var r, el;
+    var root = document;
+    while (root && root.elementFromPoint) {
+      el = root.elementFromPoint(x, y);
+      r = el || r;
+      root = el ? el.shadowRoot : null;
+    }
+    return r;
   }
 
   function getGridRowFromIndex(grid, index) {
@@ -79,7 +89,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var gridRect = grid.getBoundingClientRect();
     var x = gridRect.left + ((n % grid._itemsPerRow) * itemSize) + (itemSize / 2);
     var y = gridRect.top + (Math.floor(n / grid._itemsPerRow) * itemSize) + (itemSize / 2);
-    return document.elementFromPoint(x, y);
+    return deepElementFromPoint(x, y);
   }
 
   function getNthItemFromRTLGrid(grid, n, itemSize) {
@@ -92,7 +102,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   function getFirstItemFromList(list) {
     var listRect = list.getBoundingClientRect();
-    return document.elementFromPoint(listRect.left + 100, listRect.top + 1);
+    return deepElementFromPoint(listRect.left + 100, listRect.top + 1);
   }
 
   function getNthItemFromList(list, n, itemHeight) {
@@ -105,7 +115,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   function getLastItemFromList(list) {
     var listRect = list.getBoundingClientRect();
-    return document.elementFromPoint(listRect.left + 100, listRect.top + listRect.height - 1);
+    return deepElementFromPoint(listRect.left + 100, listRect.top + listRect.height - 1);
   }
 
   function isFullOfItems(list) {
@@ -115,8 +125,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // IE 10 & 11 doesn't render propertly :(
     var badPixels = 0;
     while (y < listHeight) {
-      item = document.elementFromPoint(listRect.left + 100, y);
-      if (!item || (item.parentNode && !item.parentNode._templateInstance)) {
+      item = deepElementFromPoint(listRect.left + 100, y);
+      if (!item || (item.parentNode && !list.modelForElement(item.parentNode))) {
         badPixels++;
       }
       y++;
@@ -136,10 +146,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var itemKey;
       var y = listRect.top;
       while (y < listHeight) {
-        item = document.elementFromPoint(listRect.left + 100, y + 2);
+        item = deepElementFromPoint(listRect.left + 100, y + 2);
         itemKey = item.textContent || item.innerText;
 
-        if (item.parentNode && item.parentNode._templateInstance) {
+        if (item.parentNode && list.modelForElement(item.parentNode)) {
           if (listItems[itemKey] && listItems[itemKey] != item) {
             return true;
           }
@@ -153,5 +163,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   function getNthItemRowStart(grid, n) {
     return n - (n % grid._itemsPerRow);
+  }
+
+  function PolymerFlush() {
+    if (Polymer.flush) {
+      Polymer.flush();
+    } else if (Polymer.dom.flush) {
+      Polymer.dom.flush();
+    }
   }
 </script>

@@ -8,17 +8,14 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS
 -->
 
-<link rel="import" href="../../polymer/polymer.html">
-<link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../iron-list.html">
+<link rel="import" href="../../../polymer/polymer.html">
+<link rel="import" href="../../../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../iron-list.html">
 
 <dom-module id="x-list">
   <template>
     <style>
       :host {
-        @apply(--layout-fit);
-        @apply(--layout-vertical);
-
         display: block;
       }
 
@@ -39,9 +36,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     </style>
 
-    <iron-list style$="[[_computedListHeight(listHeight)]]" items="[[data]]" as="item" id="list">
+    <iron-list items="[[data]]" as="item" id="list">
       <template>
-        <div class="item">
+        <div class="item" selected$="[[selected]]">
           <div style$="[[_computedItemHeight(item)]]" tabindex$="[[_computedTabIndex(tabIndex, useTabIndex)]]" hidden$="[[primitive]]">[[item.index]]</div>
           <div style$="[[_computedItemHeight(item)]]" tabindex$="[[_computedTabIndex(tabIndex, useTabIndex)]]" hidden$="[[!primitive]]">[[item]]</div>
         </div>
@@ -67,7 +64,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       listHeight: {
         type: Number,
-        value: 300
+        value: 300,
+        observer: '_listHeightChanged'
       },
 
       pre: {
@@ -99,12 +97,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       return css;
     },
 
-    _computedListHeight: function(listHeight) {
-      return 'height: ' + (listHeight) + 'px; overflow: auto;';
-    },
-
     _computedTabIndex: function(tabIndex, useTabIndex) {
       return useTabIndex ? tabIndex : undefined;
+    },
+
+    _listHeightChanged(height) {
+      this.$.list.style.height = height + 'px';
+      this.style.height = height + 'px';
     }
   });
+
 </script>

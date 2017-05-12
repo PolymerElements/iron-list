@@ -8,16 +8,16 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS
 -->
 
-<link rel="import" href="../../polymer/polymer.html">
-<link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../iron-list.html">
+<link rel="import" href="../../../polymer/polymer.html">
+<link rel="import" href="../../../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../iron-list.html">
 
 <dom-module id="x-grid">
   <template>
     <style>
       :host {
-        @apply(--layout-fit);
-        @apply(--layout-vertical);
+        @apply --layout-fit;
+        @apply --layout-vertical;
 
         display: block;
       }
@@ -26,11 +26,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         overflow: hidden;
       }
     </style>
-
-    <iron-list style$="[[_computedListSize(listSize)]]" items="[[data]]" as="item" id="list" grid>
+    
+    <iron-list items="[[data]]" as="item" id="list" grid>
       <template>
         <div class="item">
-          <div style$="[[_computeItemSize(item)]]" tabindex$="[[_computedTabIndex(tabIndex, useTabIndex)]]">[[item.index]]</div>
+          <div style$="[[_computeItemSize(itemSize, pre)]]" tabindex$="[[_computedTabIndex(tabIndex, useTabIndex)]]">[[item.index]]</div>
         </div>
       </template>
     </iron-list>
@@ -54,11 +54,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       listSize: {
         type: Number,
-        value: 300
+        value: 300,
+        observer: '_listSizeChanged'
       },
 
       pre: {
-        type: Boolean
+        type: Boolean,
+        value: false
       },
 
       useTabIndex: {
@@ -71,11 +73,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       return this.$.list;
     },
 
-    _computeItemSize: function(item) {
-      var css = this.pre ? 'white-space:pre;' : '';
-      css += 'height: ' + (this.itemSize) + 'px;';
-      css += 'width: ' + (this.itemSize) + 'px;';
+    _computeItemSize: function(itemSize, pre) {
+      var css = 'overflow: hidden;';
+      css += pre ? 'white-space:pre;' : '';
+      css += 'height: ' + itemSize + 'px;';
+      css += 'width: ' + itemSize + 'px;';
       return css;
+    },
+
+    _listSizeChanged: function(listSize) {
+      this.$.list.style.width = listSize + 'px';
+      this.$.list.style.height = listSize + 'px';
     },
 
     _computedListSize: function(listHeight) {
@@ -86,4 +94,5 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       return useTabIndex ? tabIndex : undefined;
     }
   });
+
 </script>
