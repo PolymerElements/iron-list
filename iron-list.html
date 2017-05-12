@@ -1462,6 +1462,17 @@ will only render 20.
     },
 
     /**
+     * Get's the created Physical Item for a given Item (if it exists).
+     *
+     * @method getPhysicalItemForItem
+     * @param {Object} item The item instance.
+     */
+    getPhysicalItemForItem: function(item) {
+        let index = this.items.indexOf(item);
+        return this._physicalItems[this._getPhysicalIndex(index)];
+    },
+    
+    /**
      * Selects the given item.
      *
      * @method selectItem
