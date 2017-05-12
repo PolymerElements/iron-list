@@ -38,9 +38,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <iron-list items="[[data]]" as="item" id="list">
       <template>
-        <div class="item" tabindex$="[[_computedTabIndex(tabIndex, useTabIndex)]]" selected$="[[selected]]">
-          <div style$="[[_computedItemHeight(item)]]" tabindex="0" hidden$="[[primitive]]">[[item.index]]</div>
-          <div style$="[[_computedItemHeight(item)]]" tabindex="0" hidden$="[[!primitive]]">[[item]]</div>
+        <div class="item" selected$="[[selected]]">
+          <div style$="[[_computedItemHeight(item)]]" tabindex$="[[_computedTabIndex(tabIndex, useTabIndex)]]" hidden$="[[primitive]]">[[item.index]]</div>
+          <div style$="[[_computedItemHeight(item)]]" tabindex$="[[_computedTabIndex(tabIndex, useTabIndex)]]" hidden$="[[!primitive]]">[[item]]</div>
         </div>
       </template>
     </iron-list>

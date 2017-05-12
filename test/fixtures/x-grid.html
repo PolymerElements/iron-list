@@ -30,7 +30,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <iron-list items="[[data]]" as="item" id="list" grid>
       <template>
         <div class="item">
-          <div style$="[[_computeItemSize(itemSize, pre)]]">[[item.index]]</div>
+          <div style$="[[_computeItemSize(itemSize, pre)]]" tabindex$="[[_computedTabIndex(tabIndex, useTabIndex)]]">[[item.index]]</div>
         </div>
       </template>
     </iron-list>
@@ -62,6 +62,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: Boolean,
         value: false
       },
+
+      useTabIndex: {
+        value: true,
+        type: Boolean
+      }
     },
 
     get list() {
@@ -79,7 +84,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     _listSizeChanged: function(listSize) {
       this.$.list.style.width = listSize + 'px';
       this.$.list.style.height = listSize + 'px';
+    },
 
+    _computedListSize: function(listHeight) {
+      return 'height: ' + (listHeight) + 'px;' + 'width: ' + (listHeight) + 'px;';
+    },
+
+    _computedTabIndex: function(tabIndex, useTabIndex) {
+      return useTabIndex ? tabIndex : undefined;
     }
   });
 

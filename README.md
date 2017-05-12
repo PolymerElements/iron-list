@@ -176,8 +176,8 @@ per row are determined automatically based on the size of the list viewport.
 
 `iron-list` automatically manages the focus state for the items. It also provides
 a `tabIndex` property within the template scope that can be used for keyboard navigation.
-For example, users can press the up and down keys to move to previous and next
-items in the list:
+For example, users can press the up and down keys, as well as the left and right
+keys (the `grid` attribute is present), to move to focus between items in the list:
 
 ```html
 <iron-list items="[[data]]" as="item">
