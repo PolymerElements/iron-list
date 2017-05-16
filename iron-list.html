@@ -22,7 +22,7 @@ The `items` property specifies an array of list item data.
 For performance reasons, not every item in the list is rendered at once;
 instead a small subset of actual template elements *(enough to fill the viewport)*
 are rendered and reused as the user scrolls. As such, it is important that all
-state of the list template be bound to the model driving it, since the view may
+state of the list template is bound to the model driving it, since the view may
 be reused with a new model at any time. Particularly, any state that may change
 as the result of a user interaction with the list item must be bound to the model
 to avoid view state inconsistency.
