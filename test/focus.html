@@ -92,6 +92,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
     });
 
+    test('blur when focused item is removed', function(done) {
+      list.items = buildDataSet(100);
+
+      flush(function() {
+        getFirstItemFromList(list).focus();
+
+        assert.notEqual(document.activeElement, document.body);
+
+        list.splice('items', 0, 1);
+
+        // HACK(keanulee): This test fails in IE11 if the window is not focused, so
+        // skip this test in that case.
+        if (document.hasFocus()) {
+          assert.equal(document.activeElement, document.body);
+        }
+        done();
+      });
+    });
+
+    test('focusItem()', function(done) {
+      list.items = buildDataSet(100);
+
+      flush(function() {
+        var i = 1;
+        var item = getNthItemFromList(list, i);
+
+        assert.equal(item.tabIndex, -1);
+
+        list.focusItem(i);
+
+        assert.equal(item.tabIndex, 0);
+        done();
+      });
+    });
+
     test('should not hide the list', function(done) {
       container.useTabIndex = true;
       list.items = buildDataSet(100);
