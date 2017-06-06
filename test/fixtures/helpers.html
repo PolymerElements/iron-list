@@ -110,7 +110,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var listRect = list.getBoundingClientRect();
     var x = listRect.left + (listRect.width / 2);
     var y = listRect.top + (n * itemHeight) + (itemHeight / 2);
-    return document.elementFromPoint(x, y);
+    return deepElementFromPoint(x, y);
   }
 
   function getLastItemFromList(list) {
