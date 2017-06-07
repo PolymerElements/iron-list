@@ -1367,10 +1367,13 @@ will only render 20.
       }
       forceUpdate = forceUpdate || this._scrollHeight === 0;
       forceUpdate = forceUpdate || this._scrollPosition >= this._estScrollHeight - this._physicalSize;
+      // Probably a bug that style.height is a string like '100px' and it is being compared to
+      // a number?
       forceUpdate = forceUpdate || this.grid && this.$.items.style.height < this._estScrollHeight;
       // Amortize height adjustment, so it won't trigger large repaints too often.
       if (forceUpdate || Math.abs(this._estScrollHeight - this._scrollHeight) >= this._optPhysicalSize) {
         this.$.items.style.height = this._estScrollHeight + 'px';
+        this.updateViewportBoundaries();
         this._scrollHeight = this._estScrollHeight;
       }
     },
