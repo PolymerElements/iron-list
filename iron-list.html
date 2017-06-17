@@ -1426,6 +1426,7 @@ will only render 20.
       this._updateScrollerSize(true);
       this._positionItems();
       this._resetScrollPosition(this._physicalTop + this._scrollOffset + targetOffsetTop);
+
       this._increasePoolIfNeeded(0);
       // clear cached visible index.
       this._firstVisibleIndexVal = null;
@@ -1445,6 +1446,9 @@ will only render 20.
      * when the element is resized.
      */
     _resizeHandler: function() {
+      // clear cached visible index.
+      this._firstVisibleIndexVal = null;
+      this._lastVisibleIndexVal = null;
       this._debounceRender(function() {
         // Skip the resize event on touch devices when the address bar slides up.
         var delta = Math.abs(this._viewportHeight - this._scrollTargetHeight);
