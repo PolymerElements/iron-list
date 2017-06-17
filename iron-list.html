@@ -817,6 +817,10 @@ will only render 20.
           parseInt(styles['padding-top'], 10);
       this._isRTL = Boolean(styles.direction === 'rtl');
       this._viewportWidth = this.$.items.offsetWidth;
+      var viewportHeight = this._scrollTargetHeight;
+      if (viewportHeight !== this._viewportHeight) {
+        this._resetScrollPosition(this.scrollTarget.scrollTop);
+      }
       this._viewportHeight = this._scrollTargetHeight;
       this.grid && this._updateGridMetrics();
     },
@@ -1426,7 +1430,6 @@ will only render 20.
       this._updateScrollerSize(true);
       this._positionItems();
       this._resetScrollPosition(this._physicalTop + this._scrollOffset + targetOffsetTop);
-
       this._increasePoolIfNeeded(0);
       // clear cached visible index.
       this._firstVisibleIndexVal = null;
