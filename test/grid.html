@@ -247,7 +247,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         list.items = buildDataSet(64);
         Polymer.dom.flush();
         assert.equal(list.lastVisibleIndex, 8, 'The 50th item should be visible.');
-        list.style.height = '400px'
+        list.style.height = '400px';
         list.fire('iron-resize');
         PolymerFlush();
         assert.equal(list.lastVisibleIndex, 11, 'The last visible changed as expected.')
@@ -264,7 +264,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           setTimeout(function() {
             assert.equal(list.lastVisibleIndex, 64, 'Scroll is maxed out.');
             assert.equal(list.firstVisibleIndex, 57, 'The first visible index is appropriately set.');
-            list.style.height = '400px'
+            list.style.height = '400px';
             list.fire('iron-resize');
             PolymerFlush();
             assert.equal(list.lastVisibleIndex, 64, 'Scroll is maxed out.');
