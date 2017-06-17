@@ -248,10 +248,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         Polymer.dom.flush();
         assert.equal(list.lastVisibleIndex, 8, 'The 50th item should be visible.');
         list.style.height = '400px';
-        list.fire('iron-resize');
-        PolymerFlush();
-        assert.equal(list.lastVisibleIndex, 11, 'The last visible changed as expected.')
-        done();
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            list.fire('iron-resize');
+            PolymerFlush();
+            assert.equal(list.lastVisibleIndex, 11, 'The last visible changed as expected.')
+            done();
+          });
+        });
       });
     });
 
@@ -265,11 +269,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             assert.equal(list.lastVisibleIndex, 64, 'Scroll is maxed out.');
             assert.equal(list.firstVisibleIndex, 57, 'The first visible index is appropriately set.');
             list.style.height = '400px';
-            list.fire('iron-resize');
-            PolymerFlush();
-            assert.equal(list.lastVisibleIndex, 64, 'Scroll is maxed out.');
-            assert.equal(list.firstVisibleIndex, 54, 'The first visible item changed as expected.')
-            done();
+            requestAnimationFrame(function() {
+              requestAnimationFrame(function() {
+                list.fire('iron-resize');
+                PolymerFlush();
+                assert.equal(list.lastVisibleIndex, 64, 'Scroll is maxed out.');
+                assert.equal(list.firstVisibleIndex, 54, 'The first visible item changed as expected.')
+                done();
+              });
+            });
           });
         });
       });
