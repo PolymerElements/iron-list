@@ -1063,7 +1063,8 @@ will only render 20.
       this.templatize(this._userTemplate, this.mutableData);
     },
 
-    _gridChanged: function() {
+    _gridChanged: function(newGrid, oldGrid) {
+      if (typeof oldGrid === 'undefined') return;
       this.fire('iron-resize');
       Polymer.flush ? Polymer.flush() : Polymer.dom.flush();
       this._updateGridMetrics();
