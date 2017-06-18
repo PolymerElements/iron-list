@@ -976,7 +976,7 @@ will only render 20.
           DEFAULT_PHYSICAL_COUNT, this._virtualCount - this._virtualStart);
       nextPhysicalCount = this._convertIndexToCompleteRow(nextPhysicalCount);
       var correction = nextPhysicalCount % this._itemsPerRow;
-      if (correction && nextPhysicalCount - correction < this._physicalCount) {
+      if (correction && nextPhysicalCount - correction <= this._physicalCount) {
         nextPhysicalCount += this._itemsPerRow;
       }
       nextPhysicalCount -= correction;
@@ -1004,7 +1004,9 @@ will only render 20.
         this._templateCost = (window.performance.now() - ts) / delta;
         nextIncrease = Math.round(this._physicalCount * 0.5);
       }
-      if (this._virtualEnd === this._virtualCount - 1 || nextIncrease === 0) {
+      // The upper bounds is not fixed when dealing with a grid that doesn't
+      // fill it's last row with the exact number of items per row.
+      if (this._virtualEnd >= this._virtualCount - 1 || nextIncrease === 0) {
         // Do nothing.
       } else if (!this._isClientFull()) {
         this._debounceRender(
