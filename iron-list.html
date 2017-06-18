@@ -420,7 +420,8 @@ will only render 20.
       '_itemsChanged(items.*)',
       '_selectionEnabledChanged(selectionEnabled)',
       '_multiSelectionChanged(multiSelection)',
-      '_setOverflow(scrollTarget, scrollOffset)'
+      '_setOverflow(scrollTarget, scrollOffset)',
+      '_gridChanged(grid)'
     ],
 
     behaviors: [
@@ -1056,6 +1057,10 @@ will only render 20.
       instanceProps.tabIndex = true;
       this._instanceProps = instanceProps;
       this.templatize(this._userTemplate, this.mutableData);
+    },
+
+    _gridChanged: function() {
+      this.fire('iron-resize');
     },
 
     /**
