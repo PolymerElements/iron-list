@@ -359,7 +359,8 @@ will only render 20.
       grid: {
         type: Boolean,
         value: false,
-        reflectToAttribute: true
+        reflectToAttribute: true,
+        observer: '_gridChanged'
       },
 
       /**
@@ -420,8 +421,7 @@ will only render 20.
       '_itemsChanged(items.*)',
       '_selectionEnabledChanged(selectionEnabled)',
       '_multiSelectionChanged(multiSelection)',
-      '_setOverflow(scrollTarget, scrollOffset)',
-      '_gridChanged(grid)'
+      '_setOverflow(scrollTarget, scrollOffset)'
     ],
 
     behaviors: [
