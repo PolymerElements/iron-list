@@ -976,7 +976,7 @@ will only render 20.
           DEFAULT_PHYSICAL_COUNT, this._virtualCount - this._virtualStart);
       nextPhysicalCount = this._convertIndexToCompleteRow(nextPhysicalCount);
       var correction = nextPhysicalCount % this._itemsPerRow;
-      if (correction && nextPhysicalCount - correction <= this._physicalCount) {
+      if (correction && nextPhysicalCount - correction < this._physicalCount) {
         nextPhysicalCount += this._itemsPerRow;
       }
       nextPhysicalCount -= correction;
