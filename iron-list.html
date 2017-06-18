@@ -629,7 +629,8 @@ will only render 20.
      * The largest n-th value for an item such that it can be rendered in `_physicalStart`.
      */
     get _maxVirtualStart() {
-      return Math.max(0, this._virtualCount - this._physicalCount);
+      var virtualCount = this._convertIndexToCompleteRow(this._virtualCount);
+      return Math.max(0, virtualCount - this._physicalCount);
     },
 
     set _virtualStart(val) {
@@ -973,6 +974,12 @@ will only render 20.
     _increasePoolIfNeeded: function(count) {
       var nextPhysicalCount = this._clamp(this._physicalCount + count,
           DEFAULT_PHYSICAL_COUNT, this._virtualCount - this._virtualStart);
+      nextPhysicalCount = this._convertIndexToCompleteRow(nextPhysicalCount);
+      var correction = nextPhysicalCount % this._itemsPerRow;
+      if (correction && nextPhysicalCount - correction <= this._physicalCount) {
+        nextPhysicalCount += this._itemsPerRow;
+      }
+      nextPhysicalCount -= correction;
       var delta = nextPhysicalCount - this._physicalCount;
       var nextIncrease = Math.round(this._physicalCount * 0.5);
 
@@ -1666,6 +1673,16 @@ will only render 20.
         this._focusedVirtualIndex = this._virtualStart;
         this._focusedItem = this._physicalItems[this._physicalStart];
       }
+    },
+
+    /**
+     * Converts a random index to the index of the item that completes it's row.
+     * Allows for better order and fill computation when grid == true.
+     */
+    _convertIndexToCompleteRow: function(idx) {
+      // when grid == false _itemPerRow can be unset.
+      this._itemsPerRow = this._itemsPerRow || 1;
+      return Math.ceil(idx / this._itemsPerRow) * this._itemsPerRow;
     },
 
     _isIndexRendered: function(idx) {
