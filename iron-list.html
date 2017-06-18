@@ -1061,6 +1061,8 @@ will only render 20.
 
     _gridChanged: function() {
       this.fire('iron-resize');
+      Polymer.flush ? Polymer.flush() : Polymer.dom.flush();
+      this._updateGridMetrics();
     },
 
     /**
@@ -1262,7 +1264,9 @@ will only render 20.
         this._updateGridMetrics();
         this._physicalSize = Math.ceil(this._physicalCount / this._itemsPerRow) * this._rowHeight;
       } else {
+        oldPhysicalSize = (this._itemsPerRow === 1) ? oldPhysicalSize :  Math.ceil(this._physicalCount / this._itemsPerRow) * this._rowHeight;
         this._physicalSize = this._physicalSize + newPhysicalSize - oldPhysicalSize;
+        this._itemsPerRow = 1;
       }
       // Update the average if it measured something.
       if (this._physicalAverageCount !== prevAvgCount) {
