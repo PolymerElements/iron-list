@@ -1459,10 +1459,10 @@ will only render 20.
      * when the element is resized.
      */
     _resizeHandler: function() {
-      // clear cached visible index.
-      this._firstVisibleIndexVal = null;
-      this._lastVisibleIndexVal = null;
       this._debounceRender(function() {
+        // clear cached visible index.
+        this._firstVisibleIndexVal = null;
+        this._lastVisibleIndexVal = null;
         // Skip the resize event on touch devices when the address bar slides up.
         var delta = Math.abs(this._viewportHeight - this._scrollTargetHeight);
         this.updateViewportBoundaries();
