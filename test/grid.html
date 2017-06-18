@@ -244,9 +244,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     test('last visible items should change on resize', function(done) {
       flush(function() {
+        // Physical scroll bar causes there to be less columns than expected.
+        // Force list to be wide enough to allow for 3 columns and the scroller.
+        list.style.width = '320px';
         list.items = buildDataSet(64);
         Polymer.dom.flush();
-        assert.equal(list.lastVisibleIndex, 8, 'The 50th item should be visible.');
+        assert.equal(list.lastVisibleIndex, 8, 'The 8th item should be visible.');
         list.style.height = '400px';
         requestAnimationFrame(function() {
           setTimeout(function() {
@@ -262,6 +265,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     test('first visible items should change on resize when scrolled to the end of the list', function(done) {
       flush(function() {
+        // Physical scroll bar causes there to be less columns than expected.
+        // Force list to be wide enough to allow for 3 columns and the scroller.
+        list.style.width = '320px';
         list.items = buildDataSet(64);
         Polymer.dom.flush();
         list.scroll(0, 10000000);
