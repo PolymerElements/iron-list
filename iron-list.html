@@ -1563,21 +1563,47 @@ will only render 20.
     },
 
     selectIndexesV2: function(indexes) {
-        this.$.selector.__selectedMap.clear();
-        var items = indexes.map(function(idx) {
-          var item = this.items[idx];
-          if (this._isIndexRendered(idx)) {
-            var model = this.modelForElement(this._physicalItems[this._getPhysicalIndex(idx)]);
+        this.selectedItems.map(function(item){
+          var index = this.items.indexOf(item);
+          if (this._isIndexRendered(index)) {
+            var model = this.modelForElement(this._physicalItems[this._getPhysicalIndex(index)]);
+            model[this.selectedAs] = false;
+            this.updateSizeForIndex(index);
+          }
+        }.bind(this));
+        indexes.forEach(function(index) {
+          if (this._isIndexRendered(index)) {
+            var model = this.modelForElement(this._physicalItems[this._getPhysicalIndex(index)]);
             if (model) {
               model[this.selectedAs] = true;
             }
-            this.updateSizeForIndex(idx);
+            this.updateSizeForIndex(index);
           }
-          this.$.selector.__selectedMap.set(item, idx);
-          return item;
         }.bind(this));
-        this.$.selector.__updateLinks();
-        this.$.selector.set('selected', items);
+        this.$.selector.selectIndexes(indexes);
+    },
+
+    selectAll: function() {
+      if (this.$.selector.selectIndex) {
+        // v2
+        this.selectAllV2();
+      } else {
+        // v1
+        this.selectIndexes();
+      }
+    },
+
+    selectAllV2: function() {
+      this.items.forEach(function(item, index) {
+        if (this._isIndexRendered(index)) {
+          var model = this.modelForElement(this._physicalItems[this._getPhysicalIndex(index)]);
+          if (model) {
+            model[this.selectedAs] = true;
+          }
+          this.updateSizeForIndex(index);
+        }
+      }.bind(this));
+      this.$.selector.selectAll();
     },
 
     /**
