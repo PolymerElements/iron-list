@@ -1538,15 +1538,13 @@ will only render 20.
       var icol = Polymer.Collection.get((this.$.selector).items);
       var key = '';
       // Cast an arguments list that doesn't consist of a single array to an array
-      if (arguments.length > 1 || (typeof items !== 'undefined' && !Array.isArray(items))) {
-        items = !!Array.from ? Array.from(arguments) : [].slice.call(arguments);
-      }
-      if (typeof indexes === 'undefined' || !indexes.length) {
-        items = this.items;
-      } else {
+      if (arguments.length > 1 || (typeof indexes !== 'undefined' && !Array.isArray(indexes))) {
+        indexes = !!Array.from ? Array.from(arguments) : [].slice.call(arguments);
         item = indexes.map(function(idx) {
           return this.items[idx];
         }.bind(this));
+      } else {
+        items = this.items;
       }
       this.$.selector.set('selected', items);
       items = items.filter(function(item) {
