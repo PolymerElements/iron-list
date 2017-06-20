@@ -1531,6 +1531,7 @@ will only render 20.
 
     // TODO: finish me!!
     selectIndexesV1: function(indexes) {
+      var items = [];
       var item = {};
       var model = {};
       var skey = '';
@@ -1540,10 +1541,13 @@ will only render 20.
       if (arguments.length > 1 || (typeof items !== 'undefined' && !Array.isArray(items))) {
         items = !!Array.from ? Array.from(arguments) : [].slice.call(arguments);
       }
-      items = items || this.items;
-      items = items.map(function(item) {
-        return this._getNormalizedItem(item);
-      }.bind(this));
+      if (!indexes.length) {
+        items = this.items;
+      } else {
+        item = indexes.map(function(idx) {
+          return this.items[idx];
+        }.bind(this));
+      }
       this.$.selector.set('selected', items);
       items = items.filter(function(item) {
         return !(this.$.selector).isSelected(item);
