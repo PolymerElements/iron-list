@@ -1541,7 +1541,7 @@ will only render 20.
       if (arguments.length > 1 || (typeof items !== 'undefined' && !Array.isArray(items))) {
         items = !!Array.from ? Array.from(arguments) : [].slice.call(arguments);
       }
-      if (!indexes.length) {
+      if (typeof indexes === 'undefined' || !indexes.length) {
         items = this.items;
       } else {
         item = indexes.map(function(idx) {
