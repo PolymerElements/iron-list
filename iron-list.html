@@ -1533,6 +1533,7 @@ will only render 20.
     selectIndexesV1: function(indexes) {
       var items = [];
       var item = {};
+      var index = -1;
       var model = {};
       var skey = '';
       var icol = Polymer.Collection.get((this.$.selector).items);
@@ -1553,14 +1554,17 @@ will only render 20.
       this.$.selector._selectedColl = Polymer.Collection.get((this.$.selector).selected);
       for (var i = 0, l = items.length; i < l; i++) {
         item = items[i];
-        model = this._getModelFromItem(item);
-        if (model) {
-          model[this.selectedAs] = true;
+        index = (indexes) ? indexes[i] : i;
+        if (this._isIndexRendered(index)) {
+          model = this.modelForElement(this._physicalItems[this._getPhysicalIndex(index)]);
+          if (model) {
+            model[this.selectedAs] = true;
+          }
+          this.updateSizeForIndex(index);
         }
         key = icol.getKey(item);
         skey = (this.$.selector)._selectedColl.getKey(item);
         (this.$.selector).linkPaths("selected." + skey, "items." + key);
-        this.updateSizeForItem(item);
       }
     },
 
