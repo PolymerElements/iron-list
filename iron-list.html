@@ -1529,29 +1529,23 @@ will only render 20.
       }
     },
 
-    // TODO: finish me!!
     selectIndexesV1: function(indexes) {
       var items = [];
       var item = {};
       var index = -1;
       var model = {};
-      var skey = '';
-      var icol = Polymer.Collection.get((this.$.selector).items);
-      var key = '';
       // Cast an arguments list that doesn't consist of a single array to an array
       if (arguments.length > 1 || (typeof indexes !== 'undefined' && !Array.isArray(indexes))) {
         indexes = !!Array.from ? Array.from(arguments) : [].slice.call(arguments);
-        item = indexes.map(function(idx) {
+        items = indexes.map(function(idx) {
           return this.items[idx];
         }.bind(this));
       } else {
         items = this.items;
       }
-      this.$.selector.set('selected', items);
       items = items.filter(function(item) {
         return !(this.$.selector).isSelected(item);
       }.bind(this));
-      this.$.selector._selectedColl = Polymer.Collection.get((this.$.selector).selected);
       for (var i = 0, l = items.length; i < l; i++) {
         item = items[i];
         index = (indexes) ? indexes[i] : i;
@@ -1562,10 +1556,8 @@ will only render 20.
           }
           this.updateSizeForIndex(index);
         }
-        key = icol.getKey(item);
-        skey = (this.$.selector)._selectedColl.getKey(item);
-        (this.$.selector).linkPaths("selected." + skey, "items." + key);
       }
+      this.$.selector.selectItems(items);
     },
 
     selectIndexesV2: function(indexes) {
