@@ -294,6 +294,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
     });
 
+    test('Items display in the correct column after scroll', function(done) {
+      list.style.width = '500px';
+      list.style.height = '500px';
+      list.fire('iron-resize');
+      container.data = buildDataSet(5000);
+      PolymerFlush();
+
+      var setSize = list.items.length;
+      var rowHeight = container.itemSize;
+      var viewportHeight = list.offsetHeight;
+      var scrollToItem = 100;
+
+      function afterScroll() {
+        var firstItem = getNthItemFromGrid(list, 0);
+        assert.equal(firstItem.innerText, '100');
+        done();
+      }
+
+      simulateScroll({
+        list: list,
+        contribution: rowHeight,
+        target: getGridRowFromIndex(list, scrollToItem)*rowHeight,
+        onScrollEnd: afterScroll
+      });
+    });
+
   });
 </script>
 

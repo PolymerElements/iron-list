@@ -108,8 +108,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   function getNthItemFromList(list, n, itemHeight) {
     itemHeight = itemHeight || 100;
     var listRect = list.getBoundingClientRect();
-    var x = listRect.left + (listRect.width / 2);
-    var y = listRect.top + (n * itemHeight) + (itemHeight / 2);
+    var x = listRect.left + 1;
+    var y = listRect.top + (n * itemHeight) + 1;
     return deepElementFromPoint(x, y);
   }
 
