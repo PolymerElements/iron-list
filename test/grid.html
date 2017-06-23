@@ -278,13 +278,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             assert.equal(list.firstVisibleIndex, 57, 'The first visible index is appropriately set.');
             list.style.height = '400px';
             requestAnimationFrame(function() {
-              setTimeout(function() {
-                PolymerFlush();
-                list.fire('iron-resize');
-                PolymerFlush();
-                assert.equal(list.lastVisibleIndex, 64, 'Scroll is maxed out.');
-                assert.equal(list.firstVisibleIndex, 54, 'The first visible item changed as expected.')
-                done();
+              requestAnimationFrame(function() {
+                setTimeout(function() {
+                  PolymerFlush();
+                  list.fire('iron-resize');
+                  PolymerFlush();
+                  assert.equal(list.lastVisibleIndex, 64, 'Scroll is maxed out.');
+                  assert.equal(list.firstVisibleIndex, 54, 'The first visible item changed as expected.')
+                  done();
+                });
               });
             });
           });
