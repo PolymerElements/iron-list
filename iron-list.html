@@ -630,7 +630,8 @@ will only render 20.
      * The largest n-th value for an item such that it can be rendered in `_physicalStart`.
      */
     get _maxVirtualStart() {
-      return Math.max(0, this._virtualCount - this._physicalCount);
+      var virtualCount = this._convertIndexToCompleteRow(this._virtualCount);
+      return Math.max(0, virtualCount - this._physicalCount);
     },
 
     set _virtualStart(val) {
@@ -818,10 +819,6 @@ will only render 20.
           parseInt(styles['padding-top'], 10);
       this._isRTL = Boolean(styles.direction === 'rtl');
       this._viewportWidth = this.$.items.offsetWidth;
-      var viewportHeight = this._scrollTargetHeight;
-      if (viewportHeight !== this._viewportHeight) {
-        this._resetScrollPosition(this.scrollTarget.scrollTop);
-      }
       this._viewportHeight = this._scrollTargetHeight;
       this.grid && this._updateGridMetrics();
     },
@@ -978,6 +975,14 @@ will only render 20.
     _increasePoolIfNeeded: function(count) {
       var nextPhysicalCount = this._clamp(this._physicalCount + count,
           DEFAULT_PHYSICAL_COUNT, this._virtualCount - this._virtualStart);
+      nextPhysicalCount = this._convertIndexToCompleteRow(nextPhysicalCount);
+      if (this.grid) {
+        var correction = nextPhysicalCount % this._itemsPerRow;
+        if (correction && nextPhysicalCount - correction <= this._physicalCount) {
+          nextPhysicalCount += this._itemsPerRow;
+        }
+        nextPhysicalCount -= correction;
+      }
       var delta = nextPhysicalCount - this._physicalCount;
       var nextIncrease = Math.round(this._physicalCount * 0.5);
 
@@ -1002,7 +1007,9 @@ will only render 20.
         this._templateCost = (window.performance.now() - ts) / delta;
         nextIncrease = Math.round(this._physicalCount * 0.5);
       }
-      if (this._virtualEnd === this._virtualCount - 1 || nextIncrease === 0) {
+      // The upper bounds is not fixed when dealing with a grid that doesn't
+      // fill it's last row with the exact number of items per row.
+      if (this._virtualEnd >= this._virtualCount - 1 || nextIncrease === 0) {
         // Do nothing.
       } else if (!this._isClientFull()) {
         this._debounceRender(
@@ -1169,6 +1176,7 @@ will only render 20.
       // remove the current focused item
       if (this._focusedItem && this.modelForElement(this._focusedItem)[this.as] === item) {
         this._removeFocusedItem();
+        document.activeElement && document.activeElement.blur && document.activeElement.blur();
       }
     },
 
@@ -1685,6 +1693,16 @@ will only render 20.
       }
     },
 
+    /**
+     * Converts a random index to the index of the item that completes it's row.
+     * Allows for better order and fill computation when grid == true.
+     */
+    _convertIndexToCompleteRow: function(idx) {
+      // when grid == false _itemPerRow can be unset.
+      this._itemsPerRow = this._itemsPerRow || 1;
+      return this.grid ? Math.ceil(idx / this._itemsPerRow) * this._itemsPerRow : idx;
+    },
+
     _isIndexRendered: function(idx) {
       return idx >= this._virtualStart && idx <= this._virtualEnd;
     },
@@ -1739,7 +1757,6 @@ will only render 20.
       this._focusedItem = null;
       this._focusedVirtualIndex = -1;
       this._focusedPhysicalIndex = -1;
-      document.activeElement && document.activeElement.blur && document.activeElement.blur();
     },
 
     _createFocusBackfillItem: function() {

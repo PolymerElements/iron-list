@@ -48,6 +48,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
         </template>
       </iron-list>
+
+      <a href="#" on-click="_setItems">set items</a>
     </template>
 
     <script>
@@ -56,6 +58,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         is: 'x-demo',
         
         attached() {
+          this._setItems();
+        },
+        
+        _removeItem(e) {
+          e.preventDefault();
+
+          var i = this.$.list.modelForElement(e.target.parentElement).index;
+          this.splice('items', i, 1);
+          // this.async(_ => this.$.list.focusItem(i));
+        },
+
+        _setItems() {
           var items = [];
           for (var i = 0; i < 1000; ++i) {
             items.push({
@@ -64,14 +78,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             });
           }
           this.items = items;
-        },
-        
-        _removeItem(e) {
-          e.preventDefault();
-
-          var i = this.$.list.modelForElement(e.target.parentElement).index;
-          this.splice('items', i, 1);
-          this.async(_ => this.$.list.focusItem(i));
         }
       });
     });
