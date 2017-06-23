@@ -1610,6 +1610,46 @@ will only render 20.
       this.updateSizeForItem(item);
     },
 
+
+    /**
+     * Select the array of list items provided or
+	 * select the entire list.
+     *
+     * @method selectItems
+     * @param {array} items The array of item objects or indexes
+     */
+    selectItems: function(items) {
+      var item = {};
+      var model = {};
+      var skey = '';
+      var icol = Polymer.Collection.get((this.$.selector).items);
+      var key = '';
+      // Cast an arguments list that doesn't consist of a single array to an array
+      if (arguments.length > 1 || (typeof items !== 'undefined' && !Array.isArray(items))) {
+        items = !!Array.from ? Array.from(arguments) : [].slice.call(arguments);
+      }
+      items = items || this.items;
+      items = items.map(function(item) {
+        return this._getNormalizedItem(item);
+      }.bind(this));
+      this.$.selector.set('selected', items);
+      items = items.filter(function(item) {
+        return !(this.$.selector).isSelected(item);
+      }.bind(this));
+      this.$.selector._selectedColl = Polymer.Collection.get((this.$.selector).selected);
+      for (var i = 0, l = items.length; i < l; i++) {
+        item = items[i];
+        model = this._getModelFromItem(item);
+        if (model) {
+          model[this.selectedAs] = true;
+        }
+        key = icol.getKey(item);
+        skey = (this.$.selector)._selectedColl.getKey(item);
+        (this.$.selector).linkPaths("selected." + skey, "items." + key);
+        this.updateSizeForItem(item);
+      }
+    },
+
     /**
      * Select or deselect a given item depending on whether the item
      * has already been selected.

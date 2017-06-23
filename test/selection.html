@@ -423,6 +423,52 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         MockInteractions.tap(item);
         assert.isNotNull(list.selectedItem);
       });
+
+      test('select items: all', function() {
+        container.useTabIndex = false;
+        list.items = buildDataSet(5000);
+        list.multiSelection = true;
+        Polymer.dom.flush();
+        assert.isArray(list.selectedItems);
+        assert.equal(list.selectedItems.length, 0);
+        list.selectItems();
+        assert.equal(list.selectedItems.length, 5000);
+      });
+
+      test('select items: array', function() {
+        container.useTabIndex = false;
+        list.items = buildDataSet(100);
+        list.multiSelection = true;
+        Polymer.dom.flush();
+        assert.isArray(list.selectedItems);
+        assert.equal(list.selectedItems.length, 0);
+        var arrayToSelect = [0,3,7,9,30,39,41,42,55,60,67,68,71,82,88,90,97];
+        list.selectItems(arrayToSelect);
+        assert.equal(list.selectedItems.length, arrayToSelect.length);
+      });
+
+      test('select items: arguments', function() {
+        container.useTabIndex = false;
+        list.items = buildDataSet(100);
+        list.multiSelection = true;
+        Polymer.dom.flush();
+        assert.isArray(list.selectedItems);
+        assert.equal(list.selectedItems.length, 0);
+        var argumentsToSelect = [0,3,7,9,30,39,41,42,55,60,67,68,71,82,88,90,97];
+        list.selectItems.apply(list, argumentsToSelect);
+        assert.equal(list.selectedItems.length, argumentsToSelect.length);
+      });
+
+      test('select items: single', function() {
+        container.useTabIndex = false;
+        list.items = buildDataSet(100);
+        list.multiSelection = true;
+        Polymer.dom.flush();
+        assert.isArray(list.selectedItems);
+        assert.equal(list.selectedItems.length, 0);
+        list.selectItems(4);
+        assert.equal(list.selectedItems.length, 1);
+      });
     });
 
   </script>
