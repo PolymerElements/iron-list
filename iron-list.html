@@ -975,11 +975,13 @@ will only render 20.
       var nextPhysicalCount = this._clamp(this._physicalCount + count,
           DEFAULT_PHYSICAL_COUNT, this._virtualCount - this._virtualStart);
       nextPhysicalCount = this._convertIndexToCompleteRow(nextPhysicalCount);
-      var correction = nextPhysicalCount % this._itemsPerRow;
-      if (correction && nextPhysicalCount - correction <= this._physicalCount) {
-        nextPhysicalCount += this._itemsPerRow;
+      if (this.grid) {
+        var correction = nextPhysicalCount % this._itemsPerRow;
+        if (correction && nextPhysicalCount - correction <= this._physicalCount) {
+          nextPhysicalCount += this._itemsPerRow;
+        }
+        nextPhysicalCount -= correction;
       }
-      nextPhysicalCount -= correction;
       var delta = nextPhysicalCount - this._physicalCount;
       var nextIncrease = Math.round(this._physicalCount * 0.5);
 
@@ -1684,7 +1686,7 @@ will only render 20.
     _convertIndexToCompleteRow: function(idx) {
       // when grid == false _itemPerRow can be unset.
       this._itemsPerRow = this._itemsPerRow || 1;
-      return Math.ceil(idx / this._itemsPerRow) * this._itemsPerRow;
+      return this.grid ? Math.ceil(idx / this._itemsPerRow) * this._itemsPerRow : idx;
     },
 
     _isIndexRendered: function(idx) {
