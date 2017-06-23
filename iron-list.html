@@ -359,7 +359,8 @@ will only render 20.
       grid: {
         type: Boolean,
         value: false,
-        reflectToAttribute: true
+        reflectToAttribute: true,
+        observer: '_gridChanged'
       },
 
       /**
@@ -1069,6 +1070,13 @@ will only render 20.
       this.templatize(this._userTemplate, this.mutableData);
     },
 
+    _gridChanged: function(newGrid, oldGrid) {
+      if (typeof oldGrid === 'undefined') return;
+      this.notifyResize();
+      Polymer.flush ? Polymer.flush() : Polymer.dom.flush();
+      this._updateGridMetrics();
+    },
+
     /**
      * Called when the items have changed. That is, ressignments
      * to `items`, splices or updates to a single item.
@@ -1269,7 +1277,9 @@ will only render 20.
         this._updateGridMetrics();
         this._physicalSize = Math.ceil(this._physicalCount / this._itemsPerRow) * this._rowHeight;
       } else {
+        oldPhysicalSize = (this._itemsPerRow === 1) ? oldPhysicalSize :  Math.ceil(this._physicalCount / this._itemsPerRow) * this._rowHeight;
         this._physicalSize = this._physicalSize + newPhysicalSize - oldPhysicalSize;
+        this._itemsPerRow = 1;
       }
       // Update the average if it measured something.
       if (this._physicalAverageCount !== prevAvgCount) {
