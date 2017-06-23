@@ -800,7 +800,7 @@ will only render 20.
      */
     _setOverflow: function(scrollTarget) {
       this.style.webkitOverflowScrolling = scrollTarget === this ? 'touch' : '';
-      this.style.overflow = scrollTarget === this ? 'auto' : '';
+      this.style.overflowY = scrollTarget === this ? 'auto' : '';
       // Clear cache.
       this._lastVisibleIndexVal = null;
       this._firstVisibleIndexVal = null;

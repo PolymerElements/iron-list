@@ -225,6 +225,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       PolymerFlush();
       list.scroll(0, 1000);
       PolymerFlush();
+      assert.equal(list.style.overflowY, 'auto');
       assert.equal(list._scrollTop, 1000);
       list.items = buildDataSet(100);
       PolymerFlush();
@@ -234,6 +235,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       list.scrollTarget = document.documentElement;
       list.updateViewportBoundaries();
       list.scroll(0, 50);
+      assert.equal(list.style.overflowY, '');
       assert.equal(list._scrollTop, 50);
       list.items = buildDataSet(100);
       PolymerFlush();
