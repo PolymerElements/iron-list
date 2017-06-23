@@ -1074,7 +1074,7 @@ will only render 20.
       if (typeof oldGrid === 'undefined') return;
       this.notifyResize();
       Polymer.flush ? Polymer.flush() : Polymer.dom.flush();
-      this._updateGridMetrics();
+      newGrid && this._updateGridMetrics();
     },
 
     /**
