@@ -1065,7 +1065,7 @@ will only render 20.
 
     _gridChanged: function(newGrid, oldGrid) {
       if (typeof oldGrid === 'undefined') return;
-      this.fire('iron-resize');
+      this.notifyResize();
       Polymer.flush ? Polymer.flush() : Polymer.dom.flush();
       this._updateGridMetrics();
     },
