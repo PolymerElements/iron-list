@@ -1882,7 +1882,7 @@ will only render 20.
       }
     },
 
-    _forwardProperty(inst, name, value) {
+    _forwardProperty: function(inst, name, value) {
       if (IS_V2) {
         inst._setPendingProperty(name, value);
       } else {
