@@ -767,13 +767,6 @@ will only render 20.
       return Math.ceil(this._physicalCount / this._itemsPerRow);
     },
 
-    /**
-     * The parent node for the _userTemplate.
-     */
-    get _itemsParent() {
-      return Polymer.dom(Polymer.dom(this._userTemplate).parentNode);
-    },
-
     get _scrollOffset() {
       return this._scrollerPaddingTop + this.scrollOffset;
     },
