@@ -248,6 +248,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
       });
 
+      test('Issue #468: forwardItemPath updates correct item', function(done) {
+        list.items = buildDataSet(100);
+        container.itemHeight = 'auto';
+        PolymerFlush();
+        var itemHeight = getFirstItemFromList(list).offsetHeight;
+        var hasRepeatedItems = checkRepeatedItems(list);
+
+        simulateScroll({
+          list: list,
+          target: itemHeight * 40,
+          onScrollEnd: function() {
+            assert.doesNotThrow(function() {
+              list.set('items.43.index', '43a');
+            });
+            done();
+          }
+        });
+      });
+
       test('empty items array', function() {
         list.items = buildDataSet(100);
         PolymerFlush();
