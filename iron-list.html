@@ -1139,7 +1139,7 @@ will only render 20.
       inst._flushProperties && inst._flushProperties(true);
       // TODO(blasten): V1 doesn't do this and it's a bug
       if (isIndexRendered) {
-        this._updateMetrics([idx]);
+        this._updateMetrics([this._getPhysicalIndex(idx)]);
         this._positionItems();
         this._updateScrollerSize();
       }
