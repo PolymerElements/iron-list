@@ -1122,9 +1122,11 @@ will only render 20.
       var offscreenItem = this._offscreenFocusedItem;
       var isIndexRendered = this._isIndexRendered(idx);
       var inst;
+      var pidx;
 
       if (isIndexRendered) {
-        inst = this.modelForElement(this._physicalItems[this._getPhysicalIndex(idx)]);
+        pidx = this._getPhysicalIndex(idx);
+        inst = this.modelForElement(this._physicalItems[pidx]);
       } else if (offscreenItem) {
         inst = this.modelForElement(offscreenItem);
       }
@@ -1139,7 +1141,7 @@ will only render 20.
       inst._flushProperties && inst._flushProperties(true);
       // TODO(blasten): V1 doesn't do this and it's a bug
       if (isIndexRendered) {
-        this._updateMetrics([this._getPhysicalIndex(idx)]);
+        this._updateMetrics([pidx]);
         this._positionItems();
         this._updateScrollerSize();
       }
