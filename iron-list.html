@@ -311,14 +311,6 @@ will only render 20.
       },
 
       /**
-       * The max count of physical items the pool can extend to.
-       */
-      maxPhysicalCount: {
-        type: Number,
-        value: 500
-      },
-
-      /**
        * The name of the variable to add to the binding scope for the array
        * element associated with a given template instance.
        */
@@ -688,9 +680,6 @@ will only render 20.
      * to a viewport of physical items above and below the user's viewport.
      */
     get _optPhysicalSize() {
-      if (this.grid) {
-        return this._estRowsInView * this._rowHeight * this._maxPages;
-      }
       return this._viewportHeight === 0 ? Infinity : this._viewportHeight * this._maxPages;
     },
 
@@ -1387,7 +1376,7 @@ will only render 20.
       forceUpdate = forceUpdate || this._scrollPosition >= this._estScrollHeight - this._physicalSize;
       forceUpdate = forceUpdate || this.grid && this.$.items.style.height < this._estScrollHeight;
       // Amortize height adjustment, so it won't trigger large repaints too often.
-      if (forceUpdate || Math.abs(this._estScrollHeight - this._scrollHeight) >= this._optPhysicalSize) {
+      if (forceUpdate || Math.abs(this._estScrollHeight - this._scrollHeight) >= this._viewportHeight) {
         this.$.items.style.height = this._estScrollHeight + 'px';
         this._scrollHeight = this._estScrollHeight;
       }

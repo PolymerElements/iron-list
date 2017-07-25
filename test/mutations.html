@@ -267,6 +267,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
       });
 
+      test('Issue #463: scroller size is updated', function() {
+        list.items = buildDataSet(2);
+        PolymerFlush();
+
+        assert.equal(list.$.items.style.height, '200px');
+
+        list.items = buildDataSet(7);
+        PolymerFlush();
+
+        assert.equal(list.$.items.style.height, '700px');
+
+        list.items = buildDataSet(11);
+        PolymerFlush();
+
+        assert.equal(list.$.items.style.height, '1100px');
+      });
+
       test('empty items array', function() {
         list.items = buildDataSet(100);
         PolymerFlush();
