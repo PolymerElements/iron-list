@@ -235,14 +235,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           target: itemHeight * list.items.length,
           onScrollEnd: function() {
             list.items = list.items.slice(0);
-            simulateScroll({
-              list: list,
-              contribution: itemHeight,
-              target: itemHeight * list.items.length,
-              onScroll: function() {
-                assert.isFalse(hasRepeatedItems(), 'List should not have repeated items');
-              },
-              onScrollEnd: done
+            // NOTE(keanulee): you shouldn't need to call Polymer.flush() here (#475).
+            requestAnimationFrame(function() {
+              assert.equal(getFirstItemFromList(list).textContent, '0');
+
+              simulateScroll({
+                list: list,
+                contribution: itemHeight,
+                target: itemHeight * list.items.length,
+                onScroll: function() {
+                  assert.isFalse(hasRepeatedItems(), 'List should not have repeated items');
+                },
+                onScrollEnd: done
+              });
             });
           }
         });

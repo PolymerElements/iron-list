@@ -766,7 +766,7 @@ will only render 20.
     },
 
     attached: function() {
-      this._debounceRender(this._render, ANIMATION_FRAME);
+      this._debounce('_render', this._render, ANIMATION_FRAME);
       // `iron-resize` is fired when the list is attached if the event is added
       // before attached causing unnecessary work.
       this.listen(this, 'iron-resize', '_resizeHandler');
@@ -787,7 +787,7 @@ will only render 20.
       // Clear cache.
       this._lastVisibleIndexVal = null;
       this._firstVisibleIndexVal = null;
-      this._debounceRender(this._render, ANIMATION_FRAME);
+      this._debounce('_render', this._render, ANIMATION_FRAME);
     },
 
     /**
@@ -838,7 +838,7 @@ will only render 20.
           this._physicalStart = this._physicalStart - reusables.indexes.length;
         }
         this._update(reusables.indexes, isScrollingDown ? null : reusables.indexes);
-        this._debounceRender(this._increasePoolIfNeeded.bind(this, 0), MICRO_TASK);
+        this._debounce('_increasePoolIfNeeded', this._increasePoolIfNeeded.bind(this, 0), MICRO_TASK);
       }
     },
 
@@ -995,14 +995,16 @@ will only render 20.
       if (this._virtualEnd >= this._virtualCount - 1 || nextIncrease === 0) {
         // Do nothing.
       } else if (!this._isClientFull()) {
-        this._debounceRender(
+        this._debounce(
+          '_increasePoolIfNeeded',
           this._increasePoolIfNeeded.bind(
             this,
             nextIncrease
           ), MICRO_TASK);
       } else if (this._physicalSize < this._optPhysicalSize) {
         // Yield and increase the pool during idle time until the physical size is optimal.
-        this._debounceRender(
+        this._debounce(
+          '_increasePoolIfNeeded',
           this._increasePoolIfNeeded.bind(
             this,
             this._clamp(Math.round(50 / this._templateCost), 1, nextIncrease)
@@ -1082,7 +1084,7 @@ will only render 20.
           this._resetScrollPosition(0);
         }
         this._removeFocusedItem();
-        this._debounceRender(this._render, ANIMATION_FRAME);
+        this._debounce('_render', this._render, ANIMATION_FRAME);
       } else if (change.path === 'items.splices') {
         this._adjustVirtualIndex(change.value.indexSplices);
         this._virtualCount = this.items ? this.items.length : 0;
@@ -1091,7 +1093,7 @@ will only render 20.
           return this._isIndexRendered(splice.index);
         }, this);
         if (!this._isClientFull() || affectedIndexRendered) {
-          this._debounceRender(this._render, ANIMATION_FRAME);
+          this._debounce('_render', this._render, ANIMATION_FRAME);
         }
       } else if (change.path !== 'items.length') {
         this._forwardItemPath(change.path, change.value);
@@ -1452,7 +1454,7 @@ will only render 20.
      * when the element is resized.
      */
     _resizeHandler: function() {
-      this._debounceRender(function() {
+      this._debounce('_render', function() {
         // clear cached visible index.
         this._firstVisibleIndexVal = null;
         this._lastVisibleIndexVal = null;
@@ -1855,15 +1857,16 @@ will only render 20.
       return Math.min(max, Math.max(min, v));
     },
 
-    _debounceRender: function(cb, asyncModule) {
+    _debounce: function(name, cb, asyncModule) {
       if (IS_V2) {
-        this._renderDebouncer = Polymer.Debouncer.debounce(
-          this._renderDebouncer,
+        this._debouncers = this._debouncers || {};
+        this._debouncers[name] = Polymer.Debouncer.debounce(
+          this._debouncers[name],
           asyncModule,
           cb.bind(this));
-        Polymer.enqueueDebouncer(this._renderDebouncer);
+        Polymer.enqueueDebouncer(this._debouncers[name]);
       } else {
-        this._debounceTemplate(cb);
+        Polymer.dom.addDebouncer(this.debounce(name, cb));
       }
     },
 
