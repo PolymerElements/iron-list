@@ -941,7 +941,12 @@ will only render 20.
         // TODO(blasten):
         // First element child is item; Safari doesn't support children[0]
         // on a doc fragment. Test this to see if it still matters.
-        physicalItems[i] = inst.root.querySelector('*');
+        var newItem = inst.root.querySelector('*');
+        var templateSlotAttribute = this._userTemplate.getAttribute('slot');
+        if (templateSlotAttribute) {
+          newItem.setAttribute('slot', templateSlotAttribute);
+        }
+        physicalItems[i] = newItem;
         this._itemsParent.appendChild(inst.root);
       }
       return physicalItems;
