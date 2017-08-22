@@ -21,16 +21,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 
-  <link rel="import" href="../../polymer/polymer.html">
-  <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
-  <link rel="import" href="../../app-layout/app-toolbar/app-toolbar.html">
-  <link rel="import" href="../../paper-icon-button/paper-icon-button.html">
-  <link rel="import" href="../../paper-styles/color.html">
-  <link rel="import" href="../../paper-styles/typography.html">
-  <link rel="import" href="../../iron-ajax/iron-ajax.html">
-  <link rel="import" href="../../iron-icons/iron-icons.html">
-  <link rel="import" href="../../iron-image/iron-image.html">
-  <link rel="import" href="../iron-list.html">
+  <script type="module" src="../../polymer/polymer.js"></script>
+  <script type="module" src="../../iron-flex-layout/iron-flex-layout.js"></script>
+  <script type="module" src="../../app-layout/app-toolbar/app-toolbar.js"></script>
+  <script type="module" src="../../paper-icon-button/paper-icon-button.js"></script>
+  <script type="module" src="../../paper-styles/color.js"></script>
+  <script type="module" src="../../paper-styles/typography.js"></script>
+  <script type="module" src="../../iron-ajax/iron-ajax.js"></script>
+  <script type="module" src="../../iron-icons/iron-icons.js"></script>
+  <script type="module" src="../../iron-image/iron-image.js"></script>
+  <script type="module" src="../iron-list.js"></script>
 
   <style>
     body {
@@ -169,42 +169,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   </template>
 
-  <script>
+  <script type="module">
+import '../../polymer/polymer.js';
+import '../../iron-flex-layout/iron-flex-layout.js';
+import '../../app-layout/app-toolbar/app-toolbar.js';
+import '../../paper-icon-button/paper-icon-button.js';
+import '../../paper-styles/color.js';
+import '../../paper-styles/typography.js';
+import '../../iron-ajax/iron-ajax.js';
+import '../../iron-icons/iron-icons.js';
+import '../../iron-image/iron-image.js';
+import '../iron-list.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
 
-    HTMLImports.whenReady(function() {
+Polymer({
+  is: 'x-collapse',
 
-      Polymer({
-        is: 'x-collapse',
+  properties: {
 
-        properties: {
+    items: {
+      type: Array,
+      value: function() {
+        return [];
+      }
+    }
 
-          items: {
-            type: Array,
-            value: function() {
-              return [];
-            }
-          }
+  },
 
-        },
+  attached: function() {
+    // Use the document element
+    this.$.list.scrollTarget = this.ownerDocument.documentElement;
+  },
 
-        attached: function() {
-          // Use the document element
-          this.$.list.scrollTarget = this.ownerDocument.documentElement;
-        },
+  iconForItem: function(item) {
+    return item ? (item.integer < 50 ? 'star-border' : 'star') : '';
+  },
 
-        iconForItem: function(item) {
-          return item ? (item.integer < 50 ? 'star-border' : 'star') : '';
-        },
+  getClassForItem: function(item, selected) {
+    return selected ? 'item expanded' : 'item';
+  }
 
-        getClassForItem: function(item, selected) {
-          return selected ? 'item expanded' : 'item';
-        }
-
-      });
-
-    });
-
-  </script>
+});
+</script>
 </dom-module>
 
 <x-collapse></x-collapse>

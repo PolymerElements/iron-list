@@ -20,8 +20,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <script src="../../../webcomponentsjs/webcomponents-lite.js"></script>
 
-  <link rel="import" href="../../../polymer/polymer.html">
-  <link rel="import" href="../../iron-list.html">
+  <script type="module" src="../../../polymer/polymer.js"></script>
+  <script type="module" src="../../iron-list.js"></script>
 
   <style>
 
@@ -77,35 +77,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </template>
   </dom-module>
-  <script>
-
-    HTMLImports.whenReady(function() {
-      Polymer({
-        is: 'x-list',
-        properties: {
-          items: {
-            type: Array,
-            value: function() {
-              var data = [];
-              
-              for (var i = 1; i <= 64; i++) {
-                data.push(i);
-              }
-              
-              return data;
-            }
-          }
-        },
+  <script type="module">
+import '../../../polymer/polymer.js';
+import '../../iron-list.js';
+import { Polymer } from '../../../polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'x-list',
+  properties: {
+    items: {
+      type: Array,
+      value: function() {
+        var data = [];
         
-        removeItems:function() {
-          for (var i = 0; i < 16; i++ ) {
-            this.shift("items");
-          }
-          console.log("16 items removed")
-        },
-      });
-    });
-  </script>
+        for (var i = 1; i <= 64; i++) {
+          data.push(i);
+        }
+        
+        return data;
+      }
+    }
+  },
+  
+  removeItems:function() {
+    for (var i = 0; i < 16; i++ ) {
+      this.shift("items");
+    }
+    console.log("16 items removed")
+  },
+});
+</script>
   
   <x-list></x-list>
 

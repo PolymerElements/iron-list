@@ -21,20 +21,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 
-  <link rel="import" href="../../polymer/polymer.html">
-  <link rel="import" href="../../app-layout/app-toolbar/app-toolbar.html">
-  <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
-  <link rel="import" href="../../iron-icons/iron-icons.html">
-  <link rel="import" href="../../paper-item/paper-item.html">
-  <link rel="import" href="../../paper-menu-button/paper-menu-button.html">
-  <link rel="import" href="../../paper-icon-button/paper-icon-button.html">
-  <link rel="import" href="../../paper-styles/color.html">
-  <link rel="import" href="../../paper-styles/typography.html">
+  <script type="module" src="../../polymer/polymer.js"></script>
+  <script type="module" src="../../app-layout/app-toolbar/app-toolbar.js"></script>
+  <script type="module" src="../../iron-flex-layout/iron-flex-layout.js"></script>
+  <script type="module" src="../../iron-icons/iron-icons.js"></script>
+  <script type="module" src="../../paper-item/paper-item.js"></script>
+  <script type="module" src="../../paper-menu-button/paper-menu-button.js"></script>
+  <script type="module" src="../../paper-icon-button/paper-icon-button.js"></script>
+  <script type="module" src="../../paper-styles/color.js"></script>
+  <script type="module" src="../../paper-styles/typography.js"></script>
 
 
-  <link rel="import" href="../../iron-ajax/iron-ajax.html">
-  <link rel="import" href="../../iron-image/iron-image.html">
-  <link rel="import" href="../iron-list.html">
+  <script type="module" src="../../iron-ajax/iron-ajax.js"></script>
+  <script type="module" src="../../iron-image/iron-image.js"></script>
+  <script type="module" src="../iron-list.js"></script>
 
   <style>
     body {
@@ -166,70 +166,78 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   </template>
 
-  <script>
+  <script type="module">
+import '../../polymer/polymer.js';
+import '../../app-layout/app-toolbar/app-toolbar.js';
+import '../../iron-flex-layout/iron-flex-layout.js';
+import '../../iron-icons/iron-icons.js';
+import '../../paper-item/paper-item.js';
+import '../../paper-menu-button/paper-menu-button.js';
+import '../../paper-icon-button/paper-icon-button.js';
+import '../../paper-styles/color.js';
+import '../../paper-styles/typography.js';
+import '../../iron-ajax/iron-ajax.js';
+import '../../iron-image/iron-image.js';
+import '../iron-list.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
 
-    HTMLImports.whenReady(function() {
+Polymer({
+  is: 'x-group',
 
-      Polymer({
-        is: 'x-group',
+  properties: {
 
-        properties: {
+    items: {
+      type: Array,
+      value: function() {
+        return [];
+      }
+    },
 
-          items: {
-            type: Array,
-            value: function() {
-              return [];
-            }
-          },
+    states: {
+      type: Array,
+      value: function() {
+        return [];
+      }
+    }
 
-          states: {
-            type: Array,
-            value: function() {
-              return [];
-            }
-          }
+  },
 
-        },
+  attached: function() {
+    this._groupIdxMap = {};
+  },
 
-        attached: function() {
-          this._groupIdxMap = {};
-        },
-
-        _generateGroupsFor: function(items) {
-          // Sort by state name
-          var items = items.slice().sort(function(a, b) {
-            return a.state.localeCompare(b.state);
-          });
-          var states = [];
-          // Group by state where _groupIdxMap[index] = true means that items[index] starts a new group
-          this._groupIdxMap = items.reduce(function(map, item, idx, arr) {
-            if (idx == 0 || item.state != arr[idx-1].state) {
-              map[idx] = true;
-              states.push({ state: item.state, index: idx });
-            }
-            return map;
-          }, {});
-
-          this.states = states;
-          console.log('items', items);
-          return items;
-        },
-
-        _hasGroup: function(idx) {
-          return this._groupIdxMap[idx] == true;
-        },
-
-        _onStateClick: function(e) {
-          // scroll on the main list
-          this.$.menu.close();
-          this.$.list.scrollToIndex(e.model.item.index);
-        }
-
-      });
-
+  _generateGroupsFor: function(items) {
+    // Sort by state name
+    var items = items.slice().sort(function(a, b) {
+      return a.state.localeCompare(b.state);
     });
+    var states = [];
+    // Group by state where _groupIdxMap[index] = true means that items[index] starts a new group
+    this._groupIdxMap = items.reduce(function(map, item, idx, arr) {
+      if (idx == 0 || item.state != arr[idx-1].state) {
+        map[idx] = true;
+        states.push({ state: item.state, index: idx });
+      }
+      return map;
+    }, {});
 
-  </script>
+    this.states = states;
+    console.log('items', items);
+    return items;
+  },
+
+  _hasGroup: function(idx) {
+    return this._groupIdxMap[idx] == true;
+  },
+
+  _onStateClick: function(e) {
+    // scroll on the main list
+    this.$.menu.close();
+    this.$.list.scrollToIndex(e.model.item.index);
+  }
+
+});
+</script>
 </dom-module>
 
 <x-group></x-group>

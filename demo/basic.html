@@ -21,10 +21,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 
-  <link rel="import" href="../../polymer/polymer.html">
-  <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
-  <link rel="import" href="../../iron-ajax/iron-ajax.html">
-  <link rel="import" href="../iron-list.html">
+  <script type="module" src="../../polymer/polymer.js"></script>
+  <script type="module" src="../../iron-flex-layout/iron-flex-layout.js"></script>
+  <script type="module" src="../../iron-ajax/iron-ajax.js"></script>
+  <script type="module" src="../iron-list.js"></script>
 </head>
 <body>
 
@@ -49,11 +49,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </template>
       </iron-list> 
     </template>
-    <script>
-    window.addEventListener('WebComponentsReady', function() {
-      Polymer({ is: 'x-list' });
-    });
-    </script>
+    <script type="module">
+import '../../polymer/polymer.js';
+import '../../iron-flex-layout/iron-flex-layout.js';
+import '../../iron-ajax/iron-ajax.js';
+import '../iron-list.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({ is: 'x-list' });
+</script>
   </dom-module>
 
   <x-list></x-list>

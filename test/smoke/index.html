@@ -19,12 +19,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <script src="../../../webcomponentsjs/webcomponents-lite.js"></script>
 
-  <link rel="import" href="../../../polymer/polymer.html">
-  <link rel="import" href="../../../paper-styles/demo-pages.html">
+  <script type="module" src="../../../polymer/polymer.js"></script>
+  <script type="module" src="../../../paper-styles/demo-pages.js"></script>
 
-  <link rel="import" href="../../../iron-flex-layout/iron-flex-layout.html">
-  <link rel="import" href="../../iron-list.html">
-  <link rel="import" href="dummy-data.html">
+  <script type="module" src="../../../iron-flex-layout/iron-flex-layout.js"></script>
+  <script type="module" src="../../iron-list.js"></script>
+  <script type="module" src="./dummy-data.js"></script>
 
   <dom-module id="x-app">
     <template>
@@ -159,43 +159,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </template>
   </dom-module>
 
-  <script>
+  <script type="module">
+import '../../../polymer/polymer.js';
+import '../../../paper-styles/demo-pages.js';
+import '../../../iron-flex-layout/iron-flex-layout.js';
+import '../../iron-list.js';
+import './dummy-data.js';
+import { Polymer } from '../../../polymer/lib/legacy/polymer-fn.js';
 
-    HTMLImports.whenReady(function() {
+Polymer({
 
-      Polymer({
+  is: 'x-app',
 
-        is: 'x-app',
-
-        properties: {
-          data: {
-            type: Array,
-            value: window.dummyData
-          },
-          separator: {
-            type: String,
-            value: '|'
-          },
-          showing: {
-            type: Boolean,
-            value: false
-          }
-        },
-        pictureForItem: function(item, index) {
-          if (item == null || index == null) {
-            console.log('bad');
-            return '';
-          }
-          return item.picture + '/' + item.guid.slice(0,6);
-        },
-        iconForItem: function(item) {
-          return item.gender == 'female' ? 'star' : 'star-outline';
-        }
-      });
-
-    });
-
-  </script>
+  properties: {
+    data: {
+      type: Array,
+      value: window.dummyData
+    },
+    separator: {
+      type: String,
+      value: '|'
+    },
+    showing: {
+      type: Boolean,
+      value: false
+    }
+  },
+  pictureForItem: function(item, index) {
+    if (item == null || index == null) {
+      console.log('bad');
+      return '';
+    }
+    return item.picture + '/' + item.guid.slice(0,6);
+  },
+  iconForItem: function(item) {
+    return item.gender == 'female' ? 'star' : 'star-outline';
+  }
+});
+</script>
 
   <custom-style>
     <style is="custom-style">

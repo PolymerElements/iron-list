@@ -19,16 +19,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 
-  <link rel="import" href="../../polymer/polymer.html">
-  <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
-  <link rel="import" href="../../iron-scroll-threshold/iron-scroll-threshold.html">
-  <link rel="import" href="../../iron-image/iron-image.html">
-  <link rel="import" href="../../paper-styles/color.html">
-  <link rel="import" href="../../paper-styles/typography.html">
-  <link rel="import" href="../../app-layout/app-toolbar/app-toolbar.html">
-  <link rel="import" href="../../paper-spinner/paper-spinner.html">
-  <link rel="import" href="../../iron-ajax/iron-ajax.html">
-  <link rel="import" href="../iron-list.html">
+  <script type="module" src="../../polymer/polymer.js"></script>
+  <script type="module" src="../../iron-flex-layout/iron-flex-layout.js"></script>
+  <script type="module" src="../../iron-scroll-threshold/iron-scroll-threshold.js"></script>
+  <script type="module" src="../../iron-image/iron-image.js"></script>
+  <script type="module" src="../../paper-styles/color.js"></script>
+  <script type="module" src="../../paper-styles/typography.js"></script>
+  <script type="module" src="../../app-layout/app-toolbar/app-toolbar.js"></script>
+  <script type="module" src="../../paper-spinner/paper-spinner.js"></script>
+  <script type="module" src="../../iron-ajax/iron-ajax.js"></script>
+  <script type="module" src="../iron-list.js"></script>
 
   <custom-style>
     <style is="custom-style">
@@ -169,27 +169,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           on-lower-threshold="_load"
           scroll-target="document"></iron-scroll-threshold>
     </template>
-    <script>
-    HTMLImports.whenReady(function() {
-      Polymer({
-        is: 'x-app',
+    <script type="module">
+import '../../polymer/polymer.js';
+import '../../iron-flex-layout/iron-flex-layout.js';
+import '../../iron-scroll-threshold/iron-scroll-threshold.js';
+import '../../iron-image/iron-image.js';
+import '../../paper-styles/color.js';
+import '../../paper-styles/typography.js';
+import '../../app-layout/app-toolbar/app-toolbar.js';
+import '../../paper-spinner/paper-spinner.js';
+import '../../iron-ajax/iron-ajax.js';
+import '../iron-list.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'x-app',
 
-        _load: function() {
-          this.$.ajax.generateRequest();
-        },
+  _load: function() {
+    this.$.ajax.generateRequest();
+  },
 
-        _didRespond: function(e) {
-          var people = e.detail.response.results;
+  _didRespond: function(e) {
+    var people = e.detail.response.results;
 
-          people.forEach(function(person) {
-            this.$.list.push('items', person);
-          }, this);
-          // Clear the lower threshold so we can load more data when the user scrolls down again.
-          this.$.scrollTheshold.clearTriggers();
-        }
-      });
-    });
-    </script>
+    people.forEach(function(person) {
+      this.$.list.push('items', person);
+    }, this);
+    // Clear the lower threshold so we can load more data when the user scrolls down again.
+    this.$.scrollTheshold.clearTriggers();
+  }
+});
+</script>
   </dom-module>
 
   <x-app></x-app>
