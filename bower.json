@@ -14,7 +14,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/PolymerElements/iron-list"
+    "url": "git://github.com/riversandtechnologies/iron-list"
   },
   "main": "iron-list.html",
   "license": "http://polymer.github.io/LICENSE.txt",
