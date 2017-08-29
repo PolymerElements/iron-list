@@ -8,13 +8,13 @@
     "virtual-list"
   ],
   "version": "1.4.6",
-  "homepage": "https://github.com/riversandtechnologies/iron-list",
+  "homepage": "https://github.com/bala89thangavel/iron-list",
   "authors": [
     "The Polymer Authors"
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/riversandtechnologies/iron-list"
+    "url": "git://github.com/bala89thangavel/iron-list"
   },
   "main": "iron-list.html",
   "license": "http://polymer.github.io/LICENSE.txt",
