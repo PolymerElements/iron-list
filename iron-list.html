@@ -683,9 +683,9 @@ will only render 20.
       return this._viewportHeight === 0 ? Infinity : this._viewportHeight * this._maxPages;
     },
 
-   /**
-    * True if the current list is visible.
-    */
+    /**
+     * True if the current list is visible.
+     */
     get _isVisible() {
       return Boolean(this.offsetWidth || this.offsetHeight);
     },
@@ -1215,6 +1215,15 @@ will only render 20.
     },
 
     /**
+     * Can be used to expand the item update logic to include any fields that
+     *  you need to update within the template for your virtual item.
+     *
+     * @param {Object} item - the item that you passed in
+     * @param {Object} instance - the current instance in the list
+     */
+    _propagateUpdates(item, instance) {},
+
+    /**
      * Assigns the data models to a given set of items.
      * @param {!Array<number>=} itemSet
      */
@@ -1224,6 +1233,7 @@ will only render 20.
         var item = this.items && this.items[vidx];
         if (item != null) {
           var inst = this.modelForElement(el);
+          this._propagateUpdates(item, inst);
           inst.__key__ = this._collection ? this._collection.getKey(item) : null;
           this._forwardProperty(inst, this.as, item);
           this._forwardProperty(inst, this.selectedAs, this.$.selector.isSelected(item));
