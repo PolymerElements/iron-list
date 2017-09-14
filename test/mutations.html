@@ -326,7 +326,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         assert.equal(getFirstItemFromList(list).textContent, 'correct');
       });
 
-      test.only('Issue #300: update properties when item properties update', () => {
+      test('Issue #300: update properties when item properties update', () => {
         list.items = buildDataSet(10);
         PolymerFlush();
         list.scrollToIndex(1);
