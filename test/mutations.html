@@ -325,6 +325,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         PolymerFlush();
         assert.equal(getFirstItemFromList(list).textContent, 'correct');
       });
+
+      test.only('Issue #300: update properties when item properties update', () => {
+        list.items = buildDataSet(10);
+        PolymerFlush();
+        list.scrollToIndex(1);
+        assert.equal(list.children[2].querySelector('#prop').innerHTML, '');
+        assert.equal(list.children[3].querySelector('#prop').innerHTML, '');
+        var item = list.items[1];
+        item.prop = 'prop';
+        list.splice('items', 1, 1, item);
+        PolymerFlush();
+        assert.equal(list.children[2].querySelector('#prop').innerHTML, '');
+        item = list.items[2];
+        item.prop = 'prop2';
+        list._propagateUpdates = function (item, instance) {
+          instance.notifyPath('item.prop', item.prop);
+        };
+        list.splice('items', 2, 1, item);
+        PolymerFlush();
+        assert.equal(list.children[3].querySelector('#prop').innerHTML, 'prop2');
+      });
     });
 
     suite('mutableData', function() {
@@ -338,7 +359,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       test('should not use dirty checking if mutableData is true', function() {
         /**
          * This feature and Polymer.OptionalMutableDataBehavior is only available
-         * with Polymer 2.0. 
+         * with Polymer 2.0.
          */
         if (!Polymer.OptionalMutableDataBehavior.properties) {
           return;
