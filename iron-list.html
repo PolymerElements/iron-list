@@ -976,7 +976,7 @@ will only render 20.
         var ts = window.performance.now();
         // Concat arrays in place.
         [].push.apply(this._physicalItems, this._createPool(delta));
-        [].push.apply(this._physicalSizes, new Array(delta));
+        [].push.apply(this._physicalSizes, new Array(delta).fill(0));
         this._physicalCount = this._physicalCount + delta;
         // Update the physical start if it needs to preserve the model of the focused item.
         // In this situation, the focused item is currently rendered and its model would
@@ -1254,7 +1254,7 @@ will only render 20.
       var prevPhysicalAvg = this._physicalAverage;
 
       this._iterateItems(function(pidx, vidx) {
-        oldPhysicalSize += this._physicalSizes[pidx] || 0;
+        oldPhysicalSize += this._physicalSizes[pidx];
         this._physicalSizes[pidx] = this._physicalItems[pidx].offsetHeight;
         newPhysicalSize += this._physicalSizes[pidx];
         this._physicalAverageCount += this._physicalSizes[pidx] ? 1 : 0;
