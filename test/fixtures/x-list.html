@@ -42,6 +42,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="item" selected$="[[selected]]">
           <div style$="[[_computedItemHeight(item)]]" tabindex$="[[_computedTabIndex(tabIndex, useTabIndex)]]" hidden$="[[primitive]]">[[item.index]]</div>
           <div style$="[[_computedItemHeight(item)]]" tabindex$="[[_computedTabIndex(tabIndex, useTabIndex)]]" hidden$="[[!primitive]]">[[item]]</div>
+          <div id="prop">[[item.prop]]</div>
         </div>
       </template>
     </iron-list>
