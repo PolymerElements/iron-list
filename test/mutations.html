@@ -324,15 +324,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         assert.equal(getFirstItemFromList(list).textContent, 'correct');
       });
 
-      test('Issue #492: recycle visible item', function() {
-        container.set('data', buildDataSet(2));
+      test('should update correct item on screen', function() {
+        container.set('data', buildDataSet(3));
         PolymerFlush();
         container.splice('data', 0, 1);
         PolymerFlush();
         container.set('data.0.index', 'correct');
         PolymerFlush();
         assert.equal(getFirstItemFromList(list).textContent, 'correct');
+        container.splice('data', 0, 1);
+        PolymerFlush();
+        container.set('data.0.index', 'correct again');
+        PolymerFlush();
+        assert.equal(getFirstItemFromList(list).textContent, 'correct again');
       });
+
     });
 
     suite('mutableData', function() {

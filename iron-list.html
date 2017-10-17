@@ -1113,15 +1113,14 @@ will only render 20.
           ? parseInt(path.substring(0, dot), 10)
           // Extract `#` from `path`.
           : parseInt(path.substring(1, dot), 10);
-      idx = this._clamp(idx, 0, this._virtualCount-1);
       var offscreenItem = this._offscreenFocusedItem;
       var isIndexRendered = this._isIndexRendered(idx);
       var inst;
-      var pidx;
 
+      // If rendered, convert virtual index to physical index.
       if (isIndexRendered) {
-        pidx = this._getPhysicalIndex(idx);
-        inst = this.modelForElement(this._physicalItems[pidx]);
+        idx = this._getPhysicalIndex(idx);
+        inst = this.modelForElement(this._physicalItems[idx]);
       } else if (offscreenItem) {
         inst = this.modelForElement(offscreenItem);
       }
@@ -1136,7 +1135,7 @@ will only render 20.
       inst._flushProperties && inst._flushProperties(true);
       // TODO(blasten): V1 doesn't do this and it's a bug
       if (isIndexRendered) {
-        this._updateMetrics([pidx]);
+        this._updateMetrics([idx]);
         this._positionItems();
         this._updateScrollerSize();
       }
@@ -1703,7 +1702,9 @@ will only render 20.
     },
 
     _getPhysicalIndex: function(idx) {
-      return (this._physicalStart + (idx - this._virtualStart)) % this._physicalCount;
+      return IS_V2 
+        ? (this._physicalStart + (idx - this._virtualStart)) % this._physicalCount
+        : this._physicalIndexForKey['#' + idx];
     },
 
     focusItem: function(idx) {
