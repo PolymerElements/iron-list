@@ -1126,7 +1126,7 @@ will only render 20.
       }
       if (!inst || inst[this.indexAs] !== vidx) {
         // NOTE: consider valid instance if it has correct __key__ (Polymer 1.x).
-        if (!inst || inst.__key__ !== '#' + vidx) {
+        if (!inst || !this._collection || this._collection.getKey(this.items[vidx]) !== inst.__key__) {
           return;
         }
       }
@@ -1707,7 +1707,7 @@ will only render 20.
     _getPhysicalIndex: function(vidx) {
       return IS_V2
         ? (this._physicalStart + (vidx - this._virtualStart)) % this._physicalCount
-        : this._physicalIndexForKey['#' + vidx];
+        : this._physicalIndexForKey[this._collection.getKey(this.items[vidx])];
     },
 
     focusItem: function(idx) {
