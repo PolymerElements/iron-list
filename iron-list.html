@@ -1093,7 +1093,8 @@ will only render 20.
         this._virtualCount = this.items ? this.items.length : 0;
         // Render only if the affected index is rendered.
         var affectedIndexRendered = change.value.indexSplices.some(function(splice) {
-          return this._isIndexRendered(splice.index);
+          return splice.index + splice.addedCount >= this._virtualStart &&
+              splice.index <= this._virtualEnd;
         }, this);
         if (!this._isClientFull() || affectedIndexRendered) {
           this._debounce('_render', this._render, ANIMATION_FRAME);
