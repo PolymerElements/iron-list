@@ -45,7 +45,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </test-fixture>
 
   <script>
-
+    'use strict';
     suite('mutations to the collection of items', function() {
       var list, container;
 
@@ -364,7 +364,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       test('should not use dirty checking if mutableData is true', function() {
         /**
          * This feature and Polymer.OptionalMutableDataBehavior is only available
-         * with Polymer 2.0. 
+         * with Polymer 2.0.
          */
         if (!Polymer.OptionalMutableDataBehavior.properties) {
           return;
