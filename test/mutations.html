@@ -179,7 +179,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         list.scrollToIndex(45);
         PolymerFlush();
         assert.equal(getFirstItemFromList(list).textContent, '45');
-        var spliceItems = new Array(50).fill(buildItem(phrase));
+        var spliceItems = new Array(50);
+        var item = buildItem(phrase);
+        for (var i = 0; i < 50; ++i) {
+          spliceItems[i] = item;
+        }
         list.splice.apply(list, ['items', 0, 50].concat(spliceItems));
         PolymerFlush();
         assert.equal(getFirstItemFromList(list).textContent, phrase);
