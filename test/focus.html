@@ -194,6 +194,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
     });
 
+    test('list focus change with down arrow after removing item (#512)', function(done) {
+      container.useTabIndex = true;
+      list.items = buildDataSet(100);
+      list.splice('items', 0, 1);
+
+      flush(function() {
+        var initialItem = getFirstItemFromList(list);
+        var itemToFocus = getNthItemFromList(list, 1);
+        initialItem.focus();
+        flush(function() {
+          MockInteractions.pressAndReleaseKeyOn(list, 40); // down
+          flush(function() {
+            assert.notEqual(itemToFocus.tabIndex, -1);
+            done();
+          });
+        });
+      });
+    });
+
     test('list focus change with up arrow', function(done) {
       list.items = buildDataSet(100);
 
