@@ -109,6 +109,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
     });
 
+    test('don\'t blur if no items are added or removed', function(done) {
+      list.items = buildDataSet(100);
+
+      flush(function() {
+        getFirstItemFromList(list).focus();
+
+        assert.notEqual(document.activeElement, document.body);
+
+        list.items[0]['foo'] = 'bar';
+        list.notifySplices('items', [{
+          index: 0,
+          addedCount: 0,
+          object: list.items,
+          type: 'splice',
+          removed: []
+        }]);
+
+        assert.notEqual(document.activeElement, document.body);
+        done();
+      });
+    });
+
     test('don\'t blur when items changed (#449)', function(done) {
       list.items = buildDataSet(100);
 
