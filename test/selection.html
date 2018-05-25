@@ -187,6 +187,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         MockInteractions.tap(list._physicalItems[1]);
 
         assert.equal(list.selectedItems.length, 0);
+
+        list._physicalItems[1].focus();
+        MockInteractions.keyDownOn(list._physicalItems[1], 13 /* ENTER */);
+
+        assert.equal(list.selectedItems.length, 0);
       });
 
     test('toggle', function() {
