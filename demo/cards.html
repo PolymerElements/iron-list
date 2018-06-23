@@ -19,18 +19,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
 
-  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
 
-  <link rel="import" href="../../polymer/polymer.html">
-  <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
-  <link rel="import" href="../../app-layout/app-scroll-effects/app-scroll-effects.html">
-  <link rel="import" href="../../app-layout/app-header/app-header.html">
-  <link rel="import" href="../../app-layout/app-toolbar/app-toolbar.html">
-  <link rel="import" href="../../paper-icon-button/paper-icon-button.html">
-  <link rel="import" href="../../iron-ajax/iron-ajax.html">
-  <link rel="import" href="../../iron-icons/iron-icons.html">
-  <link rel="import" href="../../iron-image/iron-image.html">
-  <link rel="import" href="../iron-list.html">
+  <script type="module" src="../../polymer/polymer-legacy.js"></script>
+  <script type="module" src="../../iron-flex-layout/iron-flex-layout.js"></script>
+  <script type="module" src="../../app-layout/app-scroll-effects/app-scroll-effects.js"></script>
+  <script type="module" src="../../app-layout/app-header/app-header.js"></script>
+  <script type="module" src="../../app-layout/app-toolbar/app-toolbar.js"></script>
+  <script type="module" src="../../paper-icon-button/paper-icon-button.js"></script>
+  <script type="module" src="../../iron-ajax/iron-ajax.js"></script>
+  <script type="module" src="../../iron-icons/iron-icons.js"></script>
+  <script type="module" src="../../iron-image/iron-image.js"></script>
+  <script type="module" src="../iron-list.js"></script>
 
   <custom-style>
     <style is="custom-style">
@@ -173,13 +173,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </template>
       </iron-list>
     </template>
-    <script>
-    HTMLImports.whenReady(function() {
-      Polymer({
-        is: 'x-list'
-      });
-    });
-    </script>
+    <script type="module">
+import '@polymer/polymer/polymer-legacy.js';
+import '@polymer/iron-flex-layout/iron-flex-layout.js';
+import '@polymer/app-layout/app-scroll-effects/app-scroll-effects.js';
+import '@polymer/app-layout/app-header/app-header.js';
+import '@polymer/app-layout/app-toolbar/app-toolbar.js';
+import '@polymer/paper-icon-button/paper-icon-button.js';
+import '@polymer/iron-ajax/iron-ajax.js';
+import '@polymer/iron-icons/iron-icons.js';
+import '@polymer/iron-image/iron-image.js';
+import '../iron-list.js';
+import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'x-list'
+});
+</script>
   </dom-module>
   
   <x-list></x-list>

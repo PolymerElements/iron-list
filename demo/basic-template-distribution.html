@@ -19,12 +19,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
 
-  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
 
-  <link rel="import" href="../../polymer/polymer.html">
-  <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
-  <link rel="import" href="../../iron-ajax/iron-ajax.html">
-  <link rel="import" href="../iron-list.html">
+  <script type="module" src="../../polymer/polymer-legacy.js"></script>
+  <script type="module" src="../../iron-flex-layout/iron-flex-layout.js"></script>
+  <script type="module" src="../../iron-ajax/iron-ajax.js"></script>
+  <script type="module" src="../iron-list.js"></script>
   
   <style>
     body, html {
@@ -51,20 +51,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <slot></slot>
       </iron-list>
     </template>
-    <script>
-    window.addEventListener('WebComponentsReady', function() {
-      Polymer({
-        is: 'x-list',
-        properties: {
-          items: Array,
-          as: {
-            type: String,
-            value: 'item'
-          }
-        }
-      });
-    });
-    </script>
+    <script type="module">
+import '@polymer/polymer/polymer-legacy.js';
+import '@polymer/iron-flex-layout/iron-flex-layout.js';
+import '@polymer/iron-ajax/iron-ajax.js';
+import '../iron-list.js';
+import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'x-list',
+  properties: {
+    items: Array,
+    as: {
+      type: String,
+      value: 'item'
+    }
+  }
+});
+</script>
   </dom-module>
 
   <dom-module id="x-example">
@@ -90,11 +93,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </template>
       </x-list>
     </template>
-    <script>
-    window.addEventListener('WebComponentsReady', function() {
-      Polymer({ is: 'x-example' });
-    });
-    </script>
+    <script type="module">
+import '@polymer/polymer/polymer-legacy.js';
+import '@polymer/iron-flex-layout/iron-flex-layout.js';
+import '@polymer/iron-ajax/iron-ajax.js';
+import '../iron-list.js';
+import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
+Polymer({ is: 'x-example' });
+</script>
   </dom-module>
 
   <x-example></x-example>

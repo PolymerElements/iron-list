@@ -1,0 +1,52 @@
+{
+  "description": "Displays a virtual, 'infinite' scrolling list of items",
+  "keywords": [
+    "web-components",
+    "polymer",
+    "list",
+    "virtual-list"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/PolymerElements/iron-list"
+  },
+  "homepage": "https://github.com/PolymerElements/iron-list",
+  "name": "@polymer/iron-list",
+  "version": "3.0.0-pre.20",
+  "resolutions": {
+    "inherits": "2.0.3",
+    "samsam": "1.1.3",
+    "supports-color": "3.1.2",
+    "type-detect": "1.0.0",
+    "@webcomponents/webcomponentsjs": "2.0.0-beta.2"
+  },
+  "main": "iron-list.js",
+  "author": "The Polymer Authors",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "@polymer/polymer": "^3.0.0",
+    "@polymer/iron-resizable-behavior": "^3.0.0-pre.20",
+    "@polymer/iron-a11y-keys-behavior": "^3.0.0-pre.20",
+    "@polymer/iron-scroll-target-behavior": "^3.0.0-pre.20"
+  },
+  "devDependencies": {
+    "@polymer/app-layout": "^3.0.0-pre.20",
+    "@polymer/iron-flex-layout": "^3.0.0-pre.20",
+    "@polymer/iron-component-page": "^3.0.0-pre.20",
+    "@polymer/iron-ajax": "^3.0.0-pre.20",
+    "@polymer/iron-icon": "^3.0.0-pre.20",
+    "@polymer/iron-icons": "^3.0.0-pre.20",
+    "@polymer/iron-scroll-threshold": "^3.0.0-pre.20",
+    "@polymer/iron-image": "^3.0.0-pre.20",
+    "@polymer/paper-menu-button": "^3.0.0-pre.20",
+    "@polymer/paper-item": "^3.0.0-pre.20",
+    "@polymer/paper-icon-button": "^3.0.0-pre.20",
+    "@polymer/paper-button": "^3.0.0-pre.20",
+    "@polymer/paper-badge": "^3.0.0-pre.20",
+    "@polymer/paper-spinner": "^3.0.0-pre.20",
+    "@polymer/test-fixture": "^3.0.0-pre.20",
+    "@polymer/iron-test-helpers": "^3.0.0-pre.20",
+    "@webcomponents/webcomponentsjs": "^2.0.0",
+    "wct-browser-legacy": "^1.0.1"
+  }
+}

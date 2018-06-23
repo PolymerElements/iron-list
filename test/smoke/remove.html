@@ -19,10 +19,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
 
-  <script src="../../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
 
-  <link rel="import" href="../../../polymer/polymer.html">
-  <link rel="import" href="../../iron-list.html">
+  <script type="module" src="../../../polymer/polymer-legacy.js"></script>
+  <script type="module" src="../../iron-list.js"></script>
 
 </head>
 <body unresolved>
@@ -52,36 +52,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <a href="#" on-click="_setItems">set items</a>
     </template>
 
-    <script>
-    HTMLImports.whenReady(function() {
-      Polymer({
-        is: 'x-demo',
-        
-        attached() {
-          this._setItems();
-        },
-        
-        _removeItem(e) {
-          e.preventDefault();
+    <script type="module">
+import '@polymer/polymer/polymer-legacy.js';
+import '../../iron-list.js';
+import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'x-demo',
+  
+  attached() {
+    this._setItems();
+  },
+  
+  _removeItem(e) {
+    e.preventDefault();
 
-          var i = this.$.list.modelForElement(e.target.parentElement).index;
-          this.splice('items', i, 1);
-          // this.async(_ => this.$.list.focusItem(i));
-        },
+    var i = this.$.list.modelForElement(e.target.parentElement).index;
+    this.splice('items', i, 1);
+    // this.async(_ => this.$.list.focusItem(i));
+  },
 
-        _setItems() {
-          var items = [];
-          for (var i = 0; i < 1000; ++i) {
-            items.push({
-              name: 'a'+i,
-              modelIndex: i
-            });
-          }
-          this.items = items;
-        }
+  _setItems() {
+    var items = [];
+    for (var i = 0; i < 1000; ++i) {
+      items.push({
+        name: 'a'+i,
+        modelIndex: i
       });
-    });
-    </script>
+    }
+    this.items = items;
+  }
+});
+</script>
   </dom-module>
 
   <x-demo></x-demo>

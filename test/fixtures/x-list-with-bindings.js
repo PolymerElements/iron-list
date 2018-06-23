@@ -1,4 +1,4 @@
-<!--
+/**
 @license
 Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
 This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE
@@ -6,14 +6,15 @@ The complete set of authors may be found at http://polymer.github.io/AUTHORS
 The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS
--->
+*/
+import '@polymer/polymer/polymer-legacy.js';
 
-<link rel="import" href="../../../polymer/polymer.html">
-<link rel="import" href="../../../iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../../iron-list.html">
-
-<dom-module id="x-list-with-bindings">
-  <template>
+import '@polymer/iron-flex-layout/iron-flex-layout.js';
+import '../../iron-list.js';
+import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
+import { html } from '@polymer/polymer/lib/utils/html-tag.js';
+Polymer({
+  _template: html`
     <style>
       :host {
         @apply --layout-fit;
@@ -37,38 +38,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <iron-list items="[[data]]" as="item" id="list">
       <template>
         <div class="item">
-          <div item-scope-binding>[[item.index]]</div>
-          <div host-scope-property-binding>[[propertyForReassignmentForwarding]]</div>
-          <div host-scope-subproperty-binding>[[propertyForPathChangeForwarding.text]]</div>
+          <div item-scope-binding="">[[item.index]]</div>
+          <div host-scope-property-binding="">[[propertyForReassignmentForwarding]]</div>
+          <div host-scope-subproperty-binding="">[[propertyForPathChangeForwarding.text]]</div>
         </div>
       </template>
     </iron-list>
-  </template>
+`,
 
-</dom-module>
+  is: 'x-list-with-bindings',
 
-<script>
-  Polymer({
-    is: 'x-list-with-bindings',
-
-    properties: {
-      data: {
-        type: Array
-      },
-      propertyForReassignmentForwarding: {
-        type: String,
-        value:"somePropertyText"
-      },
-      propertyForPathChangeForwarding: {
-        type: Object,
-        value: function(){
-          return {text:"someSubPropertyText"}
-        }
-      }
+  properties: {
+    data: {
+      type: Array
     },
-
-    get list() {
-      return this.$.list;
+    propertyForReassignmentForwarding: {
+      type: String,
+      value:"somePropertyText"
+    },
+    propertyForPathChangeForwarding: {
+      type: Object,
+      value: function(){
+        return {text:"someSubPropertyText"}
+      }
     }
-  });
-</script>
+  },
+
+  get list() {
+    return this.$.list;
+  }
+});

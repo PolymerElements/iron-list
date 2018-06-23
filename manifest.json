@@ -1,0 +1,168 @@
+{
+  "files": {
+    "iron-list.html": {
+      "convertedUrl": "iron-list.js",
+      "exports": {}
+    },
+    "index.html": {
+      "convertedUrl": "index.html",
+      "exports": {}
+    },
+    "demo/basic-document.html": {
+      "convertedUrl": "demo/basic-document.html",
+      "exports": {}
+    },
+    "demo/basic-template-distribution.html": {
+      "convertedUrl": "demo/basic-template-distribution.html",
+      "exports": {}
+    },
+    "demo/basic.html": {
+      "convertedUrl": "demo/basic.html",
+      "exports": {}
+    },
+    "demo/cards.html": {
+      "convertedUrl": "demo/cards.html",
+      "exports": {}
+    },
+    "demo/collapse.html": {
+      "convertedUrl": "demo/collapse.html",
+      "exports": {}
+    },
+    "demo/grid.html": {
+      "convertedUrl": "demo/grid.html",
+      "exports": {}
+    },
+    "demo/grouping.html": {
+      "convertedUrl": "demo/grouping.html",
+      "exports": {}
+    },
+    "demo/index.html": {
+      "convertedUrl": "demo/index.html",
+      "exports": {}
+    },
+    "demo/scroll-threshold.html": {
+      "convertedUrl": "demo/scroll-threshold.html",
+      "exports": {}
+    },
+    "demo/selection.html": {
+      "convertedUrl": "demo/selection.html",
+      "exports": {}
+    },
+    "test/basic.html": {
+      "convertedUrl": "test/basic.html",
+      "exports": {}
+    },
+    "test/fixtures/helpers.html": {
+      "convertedUrl": "test/fixtures/helpers.js",
+      "exports": {}
+    },
+    "test/fixtures/x-list.html": {
+      "convertedUrl": "test/fixtures/x-list.js",
+      "exports": {}
+    },
+    "test/bindings-host-to-item.html": {
+      "convertedUrl": "test/bindings-host-to-item.html",
+      "exports": {}
+    },
+    "test/fixtures/x-list-with-bindings.html": {
+      "convertedUrl": "test/fixtures/x-list-with-bindings.js",
+      "exports": {}
+    },
+    "test/different-heights.html": {
+      "convertedUrl": "test/different-heights.html",
+      "exports": {}
+    },
+    "test/dynamic-item-size.html": {
+      "convertedUrl": "test/dynamic-item-size.html",
+      "exports": {}
+    },
+    "test/events.html": {
+      "convertedUrl": "test/events.html",
+      "exports": {}
+    },
+    "test/focus.html": {
+      "convertedUrl": "test/focus.html",
+      "exports": {}
+    },
+    "test/grid-changed.html": {
+      "convertedUrl": "test/grid-changed.html",
+      "exports": {}
+    },
+    "test/fixtures/x-grid.html": {
+      "convertedUrl": "test/fixtures/x-grid.js",
+      "exports": {}
+    },
+    "test/grid-rtl.html": {
+      "convertedUrl": "test/grid-rtl.html",
+      "exports": {}
+    },
+    "test/grid.html": {
+      "convertedUrl": "test/grid.html",
+      "exports": {}
+    },
+    "test/hidden-list.html": {
+      "convertedUrl": "test/hidden-list.html",
+      "exports": {}
+    },
+    "test/index.html": {
+      "convertedUrl": "test/index.html",
+      "exports": {}
+    },
+    "test/mutations.html": {
+      "convertedUrl": "test/mutations.html",
+      "exports": {}
+    },
+    "test/fixtures/mutable-list.html": {
+      "convertedUrl": "test/fixtures/mutable-list.js",
+      "exports": {}
+    },
+    "test/physical-count.html": {
+      "convertedUrl": "test/physical-count.html",
+      "exports": {}
+    },
+    "test/scroll-offset.html": {
+      "convertedUrl": "test/scroll-offset.html",
+      "exports": {}
+    },
+    "test/selection.html": {
+      "convertedUrl": "test/selection.html",
+      "exports": {}
+    },
+    "test/template-overload.html": {
+      "convertedUrl": "test/template-overload.html",
+      "exports": {}
+    },
+    "test/fixtures/o-list.html": {
+      "convertedUrl": "test/fixtures/o-list.js",
+      "exports": {}
+    },
+    "test/smoke/avg-worst-case.html": {
+      "convertedUrl": "test/smoke/avg-worst-case.html",
+      "exports": {}
+    },
+    "test/smoke/debugging.html": {
+      "convertedUrl": "test/smoke/debugging.html",
+      "exports": {}
+    },
+    "test/smoke/history.html": {
+      "convertedUrl": "test/smoke/history.html",
+      "exports": {}
+    },
+    "test/smoke/index.html": {
+      "convertedUrl": "test/smoke/index.html",
+      "exports": {}
+    },
+    "test/smoke/dummy-data.html": {
+      "convertedUrl": "test/smoke/dummy-data.js",
+      "exports": {}
+    },
+    "test/smoke/remove.html": {
+      "convertedUrl": "test/smoke/remove.html",
+      "exports": {}
+    },
+    "test/smoke/scroll-position-adjustment.html": {
+      "convertedUrl": "test/smoke/scroll-position-adjustment.html",
+      "exports": {}
+    }
+  }
+}
