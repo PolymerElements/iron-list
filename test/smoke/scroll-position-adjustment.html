@@ -18,10 +18,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
 
-  <script src="../../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
-
-  <script type="module" src="../../../polymer/polymer-legacy.js"></script>
-  <script type="module" src="../../iron-list.js"></script>
+  <script src="../../node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
 
   <style>
 
@@ -78,34 +75,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </template>
   </dom-module>
   <script type="module">
-import '@polymer/polymer/polymer-legacy.js';
-import '../../iron-list.js';
-import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
-Polymer({
-  is: 'x-list',
-  properties: {
-    items: {
-      type: Array,
-      value: function() {
-        var data = [];
-        
-        for (var i = 1; i <= 64; i++) {
-          data.push(i);
+    import '@polymer/polymer/polymer-legacy.js';
+    import '../../iron-list.js';
+    import {Polymer} from '@polymer/polymer/lib/legacy/polymer-fn.js';
+    Polymer({
+      is: 'x-list',
+      properties: {
+        items: {
+          type: Array,
+          value: function() {
+            var data = [];
+
+            for (var i = 1; i <= 64; i++) {
+              data.push(i);
+            }
+
+            return data;
+          }
         }
-        
-        return data;
-      }
-    }
-  },
-  
-  removeItems:function() {
-    for (var i = 0; i < 16; i++ ) {
-      this.shift("items");
-    }
-    console.log("16 items removed")
-  },
-});
-</script>
+      },
+
+      removeItems: function() {
+        for (var i = 0; i < 16; i++) {
+          this.shift('items');
+        }
+        console.log('16 items removed')
+      },
+    });
+  </script>
   
   <x-list></x-list>
 

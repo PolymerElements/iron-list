@@ -13,15 +13,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta charset="UTF-8">
   <title>iron-list test</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-
-  <script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
-  <script src="../../iron-test-helpers/mock-interactions.js" type="module"></script>
-  <script src="../../../wct-browser-legacy/browser.js"></script>
-  <script src="../../test-fixture/test-fixture-mocha.js"></script>
-
-  <script type="module" src="./fixtures/helpers.js"></script>
-  <script type="module" src="./fixtures/x-grid.js"></script>
-
+  <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+  <script src="../node_modules/wct-browser-legacy/browser.js"></script>
+  <script src="../node_modules/@polymer/test-fixture/test-fixture-mocha.js"></script>
 </head>
 <body>
 
@@ -32,54 +26,53 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </test-fixture>
 
 <script type="module">
-import './fixtures/helpers.js';
-import './fixtures/x-grid.js';
-suite('basic features', function() {
-  var list, container;
+  import './fixtures/helpers.js';
+  import './fixtures/x-grid.js';
+  suite('basic features', function() {
+    var list, container;
 
-  setup(function() {
-    container = fixture('trivialList');
-    list = container.list;
+    setup(function() {
+      container = fixture('trivialList');
+      list = container.list;
+    });
+
+    test('check from grid=true to grid=false and back', function() {
+      // Physical scroll bar causes there to be less columns than expected.
+      // Force list to be wide enough to allow for 3 columns and the scroller.
+      list.style.width = '320px';
+      container.data = buildDataSet(100);
+      PolymerFlush();
+      assert.equal(list.lastVisibleIndex, 8);
+      assert.equal(list._scrollHeight, 3400);
+      list.grid = false;
+      PolymerFlush();
+      assert.equal(list.lastVisibleIndex, 2);
+      assert.equal(list._scrollHeight, 10000);
+      list.grid = true;
+      PolymerFlush();
+      assert.equal(list.lastVisibleIndex, 8);
+      assert.equal(list._scrollHeight, 3400);
+    });
+
+    test('check from grid=false to grid=true and back', function() {
+      // Physical scroll bar causes there to be less columns than expected.
+      // Force list to be wide enough to allow for 3 columns and the scroller.
+      list.style.width = '320px';
+      list.grid = false;
+      container.data = buildDataSet(100);
+      PolymerFlush();
+      assert.equal(list.lastVisibleIndex, 2);
+      assert.equal(list._scrollHeight, 10000);
+      list.grid = true;
+      PolymerFlush();
+      assert.equal(list.lastVisibleIndex, 8, 'Grid should show more items.');
+      assert.equal(list._scrollHeight, 3400);
+      list.grid = false;
+      PolymerFlush();
+      assert.equal(list.lastVisibleIndex, 2);
+      assert.equal(list._scrollHeight, 10000);
+    });
   });
-
-  test('check from grid=true to grid=false and back', function() {
-    // Physical scroll bar causes there to be less columns than expected.
-    // Force list to be wide enough to allow for 3 columns and the scroller.
-    list.style.width = '320px';
-    container.data = buildDataSet(100);
-    PolymerFlush();
-    assert.equal(list.lastVisibleIndex, 8);
-    assert.equal(list._scrollHeight, 3400);
-    list.grid = false;
-    PolymerFlush();
-    assert.equal(list.lastVisibleIndex, 2);
-    assert.equal(list._scrollHeight, 10000);
-    list.grid = true;
-    PolymerFlush();
-    assert.equal(list.lastVisibleIndex, 8);
-    assert.equal(list._scrollHeight, 3400);
-  });
-
-  test('check from grid=false to grid=true and back', function() {
-    // Physical scroll bar causes there to be less columns than expected.
-    // Force list to be wide enough to allow for 3 columns and the scroller.
-    list.style.width = '320px';
-    list.grid = false;
-    container.data = buildDataSet(100);
-    PolymerFlush();
-    assert.equal(list.lastVisibleIndex, 2);
-    assert.equal(list._scrollHeight, 10000);
-    list.grid = true;
-    PolymerFlush();
-    assert.equal(list.lastVisibleIndex, 8, 'Grid should show more items.');
-    assert.equal(list._scrollHeight, 3400);
-    list.grid = false;
-    PolymerFlush();
-    assert.equal(list.lastVisibleIndex, 2);
-    assert.equal(list._scrollHeight, 10000);
-  });
-
-});
 </script>
 
 </body>

@@ -17,14 +17,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <script src="../../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
-
-  <script type="module" src="../../../polymer/polymer-legacy.js"></script>
-  <script type="module" src="../../../paper-styles/demo-pages.js"></script>
-
-  <script type="module" src="../../../iron-flex-layout/iron-flex-layout.js"></script>
-  <script type="module" src="../../iron-list.js"></script>
-  <script type="module" src="./dummy-data.js"></script>
+  <script src="../../node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
 
   <dom-module id="x-app">
     <template>
@@ -160,43 +153,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </dom-module>
 
   <script type="module">
-import '@polymer/polymer/polymer-legacy.js';
-import '@polymer/paper-styles/demo-pages.js';
-import '@polymer/iron-flex-layout/iron-flex-layout.js';
-import '../../iron-list.js';
-import './dummy-data.js';
-import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
+    import '@polymer/polymer/polymer-legacy.js';
+    import '@polymer/paper-styles/demo-pages.js';
+    import '@polymer/iron-flex-layout/iron-flex-layout.js';
+    import '../../iron-list.js';
 
-Polymer({
+    import {Polymer} from '@polymer/polymer/lib/legacy/polymer-fn.js';
 
-  is: 'x-app',
+    import {dummyData} from './dummy-data.js';
 
-  properties: {
-    data: {
-      type: Array,
-      value: window.dummyData
-    },
-    separator: {
-      type: String,
-      value: '|'
-    },
-    showing: {
-      type: Boolean,
-      value: false
-    }
-  },
-  pictureForItem: function(item, index) {
-    if (item == null || index == null) {
-      console.log('bad');
-      return '';
-    }
-    return item.picture + '/' + item.guid.slice(0,6);
-  },
-  iconForItem: function(item) {
-    return item.gender == 'female' ? 'star' : 'star-outline';
-  }
-});
-</script>
+    Polymer({
+
+      is: 'x-app',
+
+      properties: {
+        data: {type: Array, value: dummyData},
+        separator: {type: String, value: '|'},
+        showing: {type: Boolean, value: false}
+      },
+      pictureForItem: function(item, index) {
+        if (item == null || index == null) {
+          console.log('bad');
+          return '';
+        }
+        return item.picture + '/' + item.guid.slice(0, 6);
+      },
+      iconForItem: function(item) {
+        return item.gender == 'female' ? 'star' : 'star-outline';
+      }
+    });
+  </script>
 
   <custom-style>
     <style is="custom-style">

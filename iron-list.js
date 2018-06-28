@@ -1,12 +1,46 @@
 /**
 @license
 Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+This code may only be used under the BSD style license found at
+http://polymer.github.io/LICENSE.txt The complete set of authors may be found at
+http://polymer.github.io/AUTHORS.txt The complete set of contributors may be
+found at http://polymer.github.io/CONTRIBUTORS.txt Code distributed by Google as
+part of the polymer project is also subject to an additional IP rights grant
+found at http://polymer.github.io/PATENTS.txt
 */
+import '@polymer/polymer/polymer-legacy.js';
+import '@polymer/iron-a11y-keys-behavior/iron-a11y-keys-behavior.js';
+
+import {IronResizableBehavior} from '@polymer/iron-resizable-behavior/iron-resizable-behavior.js';
+import {IronScrollTargetBehavior} from '@polymer/iron-scroll-target-behavior/iron-scroll-target-behavior.js';
+import {OptionalMutableDataBehavior as OptionalMutableDataBehavior$0} from '@polymer/polymer/lib/legacy/mutable-data-behavior.js';
+import {Polymer as Polymer$0} from '@polymer/polymer/lib/legacy/polymer-fn.js';
+import {addDebouncer, dom, flush as flush$0} from '@polymer/polymer/lib/legacy/polymer.dom.js';
+import {Templatizer} from '@polymer/polymer/lib/legacy/templatizer-behavior.js';
+import {animationFrame, idlePeriod, microTask} from '@polymer/polymer/lib/utils/async.js';
+import {Debouncer} from '@polymer/polymer/lib/utils/debounce.js';
+import {enqueueDebouncer, flush} from '@polymer/polymer/lib/utils/flush.js';
+import {html} from '@polymer/polymer/lib/utils/html-tag.js';
+import {matches, translate} from '@polymer/polymer/lib/utils/path.js';
+
+var IOS = navigator.userAgent.match(/iP(?:hone|ad;(?: U;)? CPU) OS (\d+)/);
+var IOS_TOUCH_SCROLLING = IOS && IOS[1] >= 8;
+var DEFAULT_PHYSICAL_COUNT = 3;
+var HIDDEN_Y = '-10000px';
+var ITEM_WIDTH = 0;
+var ITEM_HEIGHT = 1;
+var SECRET_TABINDEX = -100;
+var IS_V2 = flush != null;
+var ANIMATION_FRAME = IS_V2 ? animationFrame : 0;
+var IDLE_TIME = IS_V2 ? idlePeriod : 1;
+var MICRO_TASK = IS_V2 ? microTask : 2;
+
+/* Polymer.OptionalMutableDataBehavior is only available with Polymer 2.0. */
+if (!OptionalMutableDataBehavior$0) {
+  /** @polymerBehavior */
+  Polymer.OptionalMutableDataBehavior = {};
+}
+
 /**
 
 `iron-list` displays a virtual, 'infinite' list. The template inside
@@ -14,19 +48,19 @@ the iron-list element represents the DOM to create for each list item.
 The `items` property specifies an array of list item data.
 
 For performance reasons, not every item in the list is rendered at once;
-instead a small subset of actual template elements *(enough to fill the viewport)*
-are rendered and reused as the user scrolls. As such, it is important that all
-state of the list template is bound to the model driving it, since the view may
-be reused with a new model at any time. Particularly, any state that may change
-as the result of a user interaction with the list item must be bound to the model
-to avoid view state inconsistency.
+instead a small subset of actual template elements *(enough to fill the
+viewport)* are rendered and reused as the user scrolls. As such, it is important
+that all state of the list template is bound to the model driving it, since the
+view may be reused with a new model at any time. Particularly, any state that
+may change as the result of a user interaction with the list item must be bound
+to the model to avoid view state inconsistency.
 
 ### Sizing iron-list
 
 `iron-list` must either be explicitly sized, or delegate scrolling to an
-explicitly sized parent. By "explicitly sized", we mean it either has an explicit
-CSS `height` property set via a class or inline style, or else is sized by other
-layout means (e.g. the `flex` or `fit` classes).
+explicitly sized parent. By "explicitly sized", we mean it either has an
+explicit CSS `height` property set via a class or inline style, or else is sized
+by other layout means (e.g. the `flex` or `fit` classes).
 
 #### Flexbox - [jsbin](https://jsbin.com/vejoni/edit?html,output)
 
@@ -63,7 +97,8 @@ layout means (e.g. the `flex` or `fit` classes).
     }
 
     iron-list {
-      height: 100vh; /* don't use % values unless the parent element is sized. *\/
+      height: 100vh; /* don't use % values unless the parent element is sized.
+*\/
     }
   </style>
   <iron-list items="[[items]]">
@@ -75,7 +110,8 @@ layout means (e.g. the `flex` or `fit` classes).
   </iron-list>
 </template>
 ```
-#### Main document scrolling - [jsbin](https://jsbin.com/wevirow/edit?html,output)
+#### Main document scrolling -
+[jsbin](https://jsbin.com/wevirow/edit?html,output)
 ```html
 <head>
   <style>
@@ -111,8 +147,9 @@ layout means (e.g. the `flex` or `fit` classes).
 </body>
 ```
 
-`iron-list` must be given a `<template>` which contains exactly one element. In the examples
-above we used a `<div>`, but you can provide any element (including custom elements).
+`iron-list` must be given a `<template>` which contains exactly one element. In
+the examples above we used a `<div>`, but you can provide any element (including
+custom elements).
 
 ### Template model
 
@@ -127,9 +164,9 @@ List item templates should bind to template models of the following structure:
 }
 ```
 
-Alternatively, you can change the property name used as data index by changing the
-`indexAs` property. The `as` property defines the name of the variable to add to the binding
-scope for the array.
+Alternatively, you can change the property name used as data index by changing
+the `indexAs` property. The `as` property defines the name of the variable to
+add to the binding scope for the array.
 
 For example, given the following `data` array:
 
@@ -143,8 +180,8 @@ For example, given the following `data` array:
 ]
 ```
 
-The following code would render the list (note the name property is bound from the model
-object provided to the template scope):
+The following code would render the list (note the name property is bound from
+the model object provided to the template scope):
 
 ```html
 <iron-ajax url="data.json" last-response="{{data}}" auto></iron-ajax>
@@ -166,10 +203,10 @@ per row are determined automatically based on the size of the list viewport.
 
 ### Accessibility
 
-`iron-list` automatically manages the focus state for the items. It also provides
-a `tabIndex` property within the template scope that can be used for keyboard navigation.
-For example, users can press the up and down keys to move to previous and next
-items in the list:
+`iron-list` automatically manages the focus state for the items. It also
+provides a `tabIndex` property within the template scope that can be used for
+keyboard navigation. For example, users can press the up and down keys to move
+to previous and next items in the list:
 
 ```html
 <iron-list items="[[data]]" as="item">
@@ -183,7 +220,8 @@ items in the list:
 
 ### Styling
 
-You can use the `--iron-list-items-container` mixin to style the container of items:
+You can use the `--iron-list-items-container` mixin to style the container of
+items:
 
 ```css
 iron-list {
@@ -195,13 +233,14 @@ iron-list {
 
 ### Resizing
 
-`iron-list` lays out the items when it receives a notification via the `iron-resize` event.
-This event is fired by any element that implements `IronResizableBehavior`.
+`iron-list` lays out the items when it receives a notification via the
+`iron-resize` event. This event is fired by any element that implements
+`IronResizableBehavior`.
 
-By default, elements such as `iron-pages`, `paper-tabs` or `paper-dialog` will trigger
-this event automatically. If you hide the list manually (e.g. you use `display: none`)
-you might want to implement `IronResizableBehavior` or fire this event manually right
-after the list became visible again. For example:
+By default, elements such as `iron-pages`, `paper-tabs` or `paper-dialog` will
+trigger this event automatically. If you hide the list manually (e.g. you use
+`display: none`) you might want to implement `IronResizableBehavior` or fire
+this event manually right after the list became visible again. For example:
 
 ```js
 document.querySelector('iron-list').fire('iron-resize');
@@ -209,58 +248,22 @@ document.querySelector('iron-list').fire('iron-resize');
 
 ### When should `<iron-list>` be used?
 
-`iron-list` should be used when a page has significantly more DOM nodes than the ones
-visible on the screen. e.g. the page has 500 nodes, but only 20 are visible at a time.
-This is why we refer to it as a `virtual` list. In this case, a `dom-repeat` will still
-create 500 nodes which could slow down the web app, but `iron-list` will only create 20.
+`iron-list` should be used when a page has significantly more DOM nodes than the
+ones visible on the screen. e.g. the page has 500 nodes, but only 20 are visible
+at a time. This is why we refer to it as a `virtual` list. In this case, a
+`dom-repeat` will still create 500 nodes which could slow down the web app, but
+`iron-list` will only create 20.
 
-However, having an `iron-list` does not mean that you can load all the data at once.
-Say you have a million records in the database, you want to split the data into pages
-so you can bring in a page at the time. The page could contain 500 items, and iron-list
-will only render 20.
+However, having an `iron-list` does not mean that you can load all the data at
+once. Say you have a million records in the database, you want to split the data
+into pages so you can bring in a page at the time. The page could contain 500
+items, and iron-list will only render 20.
 
 @group Iron Element
 @element iron-list
 @demo demo/index.html
 
 */
-/*
-  FIXME(polymer-modulizer): the above comments were extracted
-  from HTML and may be out of place here. Review them and
-  then delete this comment!
-*/
-import '@polymer/polymer/polymer-legacy.js';
-
-import { IronResizableBehavior } from '@polymer/iron-resizable-behavior/iron-resizable-behavior.js';
-import '@polymer/iron-a11y-keys-behavior/iron-a11y-keys-behavior.js';
-import { IronScrollTargetBehavior } from '@polymer/iron-scroll-target-behavior/iron-scroll-target-behavior.js';
-import { flush, enqueueDebouncer } from '@polymer/polymer/lib/utils/flush.js';
-import { animationFrame, idlePeriod, microTask } from '@polymer/polymer/lib/utils/async.js';
-import { OptionalMutableDataBehavior as OptionalMutableDataBehavior$0 } from '@polymer/polymer/lib/legacy/mutable-data-behavior.js';
-import { Polymer as Polymer$0 } from '@polymer/polymer/lib/legacy/polymer-fn.js';
-import { html } from '@polymer/polymer/lib/utils/html-tag.js';
-import { Templatizer } from '@polymer/polymer/lib/legacy/templatizer-behavior.js';
-import { dom, flush as flush$0, addDebouncer } from '@polymer/polymer/lib/legacy/polymer.dom.js';
-import { Debouncer } from '@polymer/polymer/lib/utils/debounce.js';
-import { matches, translate } from '@polymer/polymer/lib/utils/path.js';
-var IOS = navigator.userAgent.match(/iP(?:hone|ad;(?: U;)? CPU) OS (\d+)/);
-var IOS_TOUCH_SCROLLING = IOS && IOS[1] >= 8;
-var DEFAULT_PHYSICAL_COUNT = 3;
-var HIDDEN_Y = '-10000px';
-var ITEM_WIDTH = 0;
-var ITEM_HEIGHT = 1;
-var SECRET_TABINDEX = -100;
-var IS_V2 = flush != null;
-var ANIMATION_FRAME = IS_V2 ? animationFrame : 0;
-var IDLE_TIME = IS_V2 ? idlePeriod : 1;
-var MICRO_TASK = IS_V2 ? microTask : 2;
-
-/* Polymer.OptionalMutableDataBehavior is only available with Polymer 2.0. */
-if (!OptionalMutableDataBehavior$0) {
-  /** @polymerBehavior */
-  Polymer.OptionalMutableDataBehavior = {};
-}
-
 Polymer$0({
   _template: html`
     <style>
@@ -307,36 +310,25 @@ Polymer$0({
      * An array containing items determining how many instances of the template
      * to stamp and that that each template instance should bind to.
      */
-    items: {
-      type: Array
-    },
+    items: {type: Array},
 
     /**
      * The name of the variable to add to the binding scope for the array
      * element associated with a given template instance.
      */
-    as: {
-      type: String,
-      value: 'item'
-    },
+    as: {type: String, value: 'item'},
 
     /**
      * The name of the variable to add to the binding scope with the index
      * for the row.
      */
-    indexAs: {
-      type: String,
-      value: 'index'
-    },
+    indexAs: {type: String, value: 'index'},
 
     /**
      * The name of the variable to add to the binding scope to indicate
      * if the row is selected.
      */
-    selectedAs: {
-      type: String,
-      value: 'selected'
-    },
+    selectedAs: {type: String, value: 'selected'},
 
     /**
      * When true, the list is rendered as a grid. Grid items must have
@@ -364,51 +356,38 @@ Polymer$0({
      * Note that tapping focusable elements within the list item will not
      * result in selection, since they are presumed to have their * own action.
      */
-    selectionEnabled: {
-      type: Boolean,
-      value: false
-    },
+    selectionEnabled: {type: Boolean, value: false},
 
     /**
-     * When `multiSelection` is false, this is the currently selected item, or `null`
-     * if no item is selected.
+     * When `multiSelection` is false, this is the currently selected item, or
+     * `null` if no item is selected.
      */
-    selectedItem: {
-      type: Object,
-      notify: true
-    },
+    selectedItem: {type: Object, notify: true},
 
     /**
-     * When `multiSelection` is true, this is an array that contains the selected items.
+     * When `multiSelection` is true, this is an array that contains the
+     * selected items.
      */
-    selectedItems: {
-      type: Object,
-      notify: true
-    },
+    selectedItems: {type: Object, notify: true},
 
     /**
      * When `true`, multiple items may be selected at once (in this case,
      * `selected` is an array of currently selected items).  When `false`,
      * only one item may be selected at a time.
      */
-    multiSelection: {
-      type: Boolean,
-      value: false
-    },
+    multiSelection: {type: Boolean, value: false},
 
     /**
      * The offset top from the scrolling element to the iron-list element.
-     * This value can be computed using the position returned by `getBoundingClientRect()`
-     * although it's preferred to use a constant value when possible.
+     * This value can be computed using the position returned by
+     * `getBoundingClientRect()` although it's preferred to use a constant value
+     * when possible.
      *
-     * This property is useful when an external scrolling element is used and there's
-     * some offset between the scrolling element and the list.
-     * For example: a header is placed above the list.
+     * This property is useful when an external scrolling element is used and
+     * there's some offset between the scrolling element and the list. For
+     * example: a header is placed above the list.
      */
-    scrollOffset: {
-      type: Number,
-      value: 0
-    }
+    scrollOffset: {type: Number, value: 0}
   },
 
   observers: [
@@ -427,7 +406,8 @@ Polymer$0({
 
   /**
    * The ratio of hidden tiles that should remain in the scroll direction.
-   * Recommended value ~0.5, so it will distribute tiles evenly in both directions.
+   * Recommended value ~0.5, so it will distribute tiles evenly in both
+   * directions.
    */
   _ratio: 0.5,
 
@@ -478,12 +458,14 @@ Polymer$0({
   _scrollHeight: 0,
 
   /**
-   * The height of the list. This is referred as the viewport in the context of list.
+   * The height of the list. This is referred as the viewport in the context of
+   * list.
    */
   _viewportHeight: 0,
 
   /**
-   * The width of the list. This is referred as the viewport in the context of list.
+   * The width of the list. This is referred as the viewport in the context of
+   * list.
    */
   _viewportWidth: 0,
 
@@ -520,7 +502,8 @@ Polymer$0({
   _lastVisibleIndexVal: null,
 
   /**
-   * The max number of pages to render. One page is equivalent to the height of the list.
+   * The max number of pages to render. One page is equivalent to the height of
+   * the list.
    */
   _maxPages: 2,
 
@@ -602,7 +585,8 @@ Polymer$0({
    * The height of the physical content that isn't on the screen.
    */
   get _hiddenContentSize() {
-    var size = this.grid ? this._physicalRows * this._rowHeight : this._physicalSize;
+    var size =
+        this.grid ? this._physicalRows * this._rowHeight : this._physicalSize;
     return size - this._viewportHeight;
   },
 
@@ -621,7 +605,8 @@ Polymer$0({
   },
 
   /**
-   * The largest n-th value for an item such that it can be rendered in `_physicalStart`.
+   * The largest n-th value for an item such that it can be rendered in
+   * `_physicalStart`.
    */
   get _maxVirtualStart() {
     var virtualCount = this._convertIndexToCompleteRow(this._virtualCount);
@@ -662,7 +647,8 @@ Polymer$0({
    * The k-th tile that is at the bottom of the scrolling list.
    */
   get _physicalEnd() {
-    return (this._physicalStart + this._physicalCount - 1) % this._physicalCount;
+    return (this._physicalStart + this._physicalCount - 1) %
+        this._physicalCount;
   },
 
   set _physicalCount(val) {
@@ -681,7 +667,8 @@ Polymer$0({
    * to a viewport of physical items above and below the user's viewport.
    */
   get _optPhysicalSize() {
-    return this._viewportHeight === 0 ? Infinity : this._viewportHeight * this._maxPages;
+    return this._viewportHeight === 0 ? Infinity :
+                                        this._viewportHeight * this._maxPages;
   },
 
   /**
@@ -711,7 +698,8 @@ Polymer$0({
         if (this.grid && this._virtualCount - 1 === vidx) {
           return vidx - (vidx % this._itemsPerRow);
         }
-      }) || 0;
+      }) ||
+          0;
       this._firstVisibleIndexVal = idx;
     }
     return idx;
@@ -726,8 +714,10 @@ Polymer$0({
     var idx = this._lastVisibleIndexVal;
     if (idx == null) {
       if (this.grid) {
-        idx = Math.min(this._virtualCount,
-            this.firstVisibleIndex + this._estRowsInView * this._itemsPerRow - 1);
+        idx = Math.min(
+            this._virtualCount,
+            this.firstVisibleIndex + this._estRowsInView * this._itemsPerRow -
+                1);
       } else {
         var physicalOffset = this._physicalTop + this._scrollOffset;
         this._iterateItems(function(pidx, vidx) {
@@ -799,8 +789,8 @@ Polymer$0({
    */
   updateViewportBoundaries: function() {
     var styles = window.getComputedStyle(this);
-    this._scrollerPaddingTop = this.scrollTarget === this ? 0 :
-        parseInt(styles['padding-top'], 10);
+    this._scrollerPaddingTop =
+        this.scrollTarget === this ? 0 : parseInt(styles['padding-top'], 10);
     this._isRTL = Boolean(styles.direction === 'rtl');
     this._viewportWidth = this.$.items.offsetWidth;
     this._viewportHeight = this._scrollTargetHeight;
@@ -822,11 +812,13 @@ Polymer$0({
     // Random access.
     if (Math.abs(delta) > this._physicalSize && this._physicalSize > 0) {
       delta = delta - this._scrollOffset;
-      var idxAdjustment = Math.round(delta / this._physicalAverage) * this._itemsPerRow;
+      var idxAdjustment =
+          Math.round(delta / this._physicalAverage) * this._itemsPerRow;
       this._virtualStart = this._virtualStart + idxAdjustment;
       this._physicalStart = this._physicalStart + idxAdjustment;
       // Estimate new physical offset.
-      this._physicalTop = Math.floor(this._virtualStart / this._itemsPerRow) * this._physicalAverage;
+      this._physicalTop = Math.floor(this._virtualStart / this._itemsPerRow) *
+          this._physicalAverage;
       this._update();
     } else if (this._physicalCount > 0) {
       var reusables = this._getReusables(isScrollingDown);
@@ -838,8 +830,12 @@ Polymer$0({
         this._virtualStart = this._virtualStart - reusables.indexes.length;
         this._physicalStart = this._physicalStart - reusables.indexes.length;
       }
-      this._update(reusables.indexes, isScrollingDown ? null : reusables.indexes);
-      this._debounce('_increasePoolIfNeeded', this._increasePoolIfNeeded.bind(this, 0), MICRO_TASK);
+      this._update(
+          reusables.indexes, isScrollingDown ? null : reusables.indexes);
+      this._debounce(
+          '_increasePoolIfNeeded',
+          this._increasePoolIfNeeded.bind(this, 0),
+          MICRO_TASK);
     }
   },
 
@@ -873,7 +869,8 @@ Polymer$0({
     while (true) {
       physicalItemHeight = this._getPhysicalSizeIncrement(ith);
       offsetContent = offsetContent - physicalItemHeight;
-      if (idxs.length >= physicalCount || offsetContent <= protectedOffsetContent) {
+      if (idxs.length >= physicalCount ||
+          offsetContent <= protectedOffsetContent) {
         break;
       }
       if (fromTop) {
@@ -902,7 +899,7 @@ Polymer$0({
         ith = (ith === 0) ? physicalCount - 1 : ith - 1;
       }
     }
-    return { indexes: idxs, physicalTop: top - this._scrollOffset };
+    return {indexes: idxs, physicalTop: top - this._scrollOffset};
   },
 
   /**
@@ -949,7 +946,8 @@ Polymer$0({
   },
 
   _isClientFull: function() {
-    return this._scrollBottom != 0 && this._physicalBottom-1 >= this._scrollBottom &&
+    return this._scrollBottom != 0 &&
+        this._physicalBottom - 1 >= this._scrollBottom &&
         this._physicalTop <= this._scrollPosition;
   },
 
@@ -957,8 +955,10 @@ Polymer$0({
    * Increases the pool size.
    */
   _increasePoolIfNeeded: function(count) {
-    var nextPhysicalCount = this._clamp(this._physicalCount + count,
-        DEFAULT_PHYSICAL_COUNT, this._virtualCount - this._virtualStart);
+    var nextPhysicalCount = this._clamp(
+        this._physicalCount + count,
+        DEFAULT_PHYSICAL_COUNT,
+        this._virtualCount - this._virtualStart);
     nextPhysicalCount = this._convertIndexToCompleteRow(nextPhysicalCount);
     if (this.grid) {
       var correction = nextPhysicalCount % this._itemsPerRow;
@@ -977,17 +977,20 @@ Polymer$0({
       var ts = window.performance.now();
       // Concat arrays in place.
       [].push.apply(this._physicalItems, this._createPool(delta));
-      // Push 0s into physicalSizes. Can't use Array.fill because IE11 doesn't support it.
+      // Push 0s into physicalSizes. Can't use Array.fill because IE11 doesn't
+      // support it.
       for (var i = 0; i < delta; i++) {
         this._physicalSizes.push(0);
       }
       this._physicalCount = this._physicalCount + delta;
-      // Update the physical start if it needs to preserve the model of the focused item.
-      // In this situation, the focused item is currently rendered and its model would
-      // have changed after increasing the pool if the physical start remained unchanged.
+      // Update the physical start if it needs to preserve the model of the
+      // focused item. In this situation, the focused item is currently rendered
+      // and its model would have changed after increasing the pool if the
+      // physical start remained unchanged.
       if (this._physicalStart > this._physicalEnd &&
           this._isIndexRendered(this._focusedVirtualIndex) &&
-          this._getPhysicalIndex(this._focusedVirtualIndex) < this._physicalEnd) {
+          this._getPhysicalIndex(this._focusedVirtualIndex) <
+              this._physicalEnd) {
         this._physicalStart = this._physicalStart + delta;
       }
       this._update();
@@ -1000,19 +1003,19 @@ Polymer$0({
       // Do nothing.
     } else if (!this._isClientFull()) {
       this._debounce(
-        '_increasePoolIfNeeded',
-        this._increasePoolIfNeeded.bind(
-          this,
-          nextIncrease
-        ), MICRO_TASK);
+          '_increasePoolIfNeeded',
+          this._increasePoolIfNeeded.bind(this, nextIncrease),
+          MICRO_TASK);
     } else if (this._physicalSize < this._optPhysicalSize) {
-      // Yield and increase the pool during idle time until the physical size is optimal.
+      // Yield and increase the pool during idle time until the physical size is
+      // optimal.
       this._debounce(
-        '_increasePoolIfNeeded',
-        this._increasePoolIfNeeded.bind(
-          this,
-          this._clamp(Math.round(50 / this._templateCost), 1, nextIncrease)
-        ), IDLE_TIME);
+          '_increasePoolIfNeeded',
+          this._increasePoolIfNeeded.bind(
+              this,
+              this._clamp(
+                  Math.round(50 / this._templateCost), 1, nextIncrease)),
+          IDLE_TIME);
     }
   },
 
@@ -1060,7 +1063,8 @@ Polymer$0({
   },
 
   _gridChanged: function(newGrid, oldGrid) {
-    if (typeof oldGrid === 'undefined') return;
+    if (typeof oldGrid === 'undefined')
+      return;
     this.notifyResize();
     flush ? flush() : flush$0();
     newGrid && this._updateGridMetrics();
@@ -1075,8 +1079,8 @@ Polymer$0({
       this._virtualStart = 0;
       this._physicalTop = 0;
       this._virtualCount = this.items ? this.items.length : 0;
-      this._collection = this.items && undefined ?
-          undefined.get(this.items) : null;
+      this._collection =
+          this.items && undefined ? undefined.get(this.items) : null;
       this._physicalIndexForKey = {};
       this._firstVisibleIndexVal = null;
       this._lastVisibleIndexVal = null;
@@ -1097,17 +1101,19 @@ Polymer$0({
         return splice.addedCount > 0 || splice.removed.length > 0;
       });
       if (itemAddedOrRemoved) {
-        // Only blur activeElement if it is a descendant of the list (#505, #507).
+        // Only blur activeElement if it is a descendant of the list (#505,
+        // #507).
         var activeElement = this._getActiveElement();
         if (this.contains(activeElement)) {
           activeElement.blur();
         }
       }
       // Render only if the affected index is rendered.
-      var affectedIndexRendered = change.value.indexSplices.some(function(splice) {
-        return splice.index + splice.addedCount >= this._virtualStart &&
-            splice.index <= this._virtualEnd;
-      }, this);
+      var affectedIndexRendered =
+          change.value.indexSplices.some(function(splice) {
+            return splice.index + splice.addedCount >= this._virtualStart &&
+                splice.index <= this._virtualEnd;
+          }, this);
       if (!this._isClientFull() || affectedIndexRendered) {
         this._debounce('_render', this._render, ANIMATION_FRAME);
       }
@@ -1117,7 +1123,7 @@ Polymer$0({
   },
 
   _forwardItemPath: function(path, value) {
-    path = path.slice(6); // 'items.'.length == 6
+    path = path.slice(6);  // 'items.'.length == 6
     var dot = path.indexOf('.');
     if (dot === -1) {
       dot = path.length;
@@ -1155,9 +1161,8 @@ Polymer$0({
     }
     path = path.substring(dot + 1);
     path = this.as + (path ? '.' + path : '');
-    IS_V2
-      ? inst._setPendingPropertyOrPath(path, value, false, true)
-      : inst.notifyPath(path, value, true);
+    IS_V2 ? inst._setPendingPropertyOrPath(path, value, false, true) :
+            inst.notifyPath(path, value, true);
     inst._flushProperties && inst._flushProperties(true);
     // TODO(blasten): V1 doesn't do this and it's a bug
     if (isIndexRendered) {
@@ -1190,14 +1195,16 @@ Polymer$0({
   _removeItem: function(item) {
     this.$.selector.deselect(item);
     // remove the current focused item
-    if (this._focusedItem && this.modelForElement(this._focusedItem)[this.as] === item) {
+    if (this._focusedItem &&
+        this.modelForElement(this._focusedItem)[this.as] === item) {
       this._removeFocusedItem();
     }
   },
 
   /**
    * Executes a provided function per every physical index in `itemSet`
-   * `itemSet` default value is equivalent to the entire set of physical indexes.
+   * `itemSet` default value is equivalent to the entire set of physical
+   * indexes.
    *
    * @param {!function(number, number)} fn
    * @param {!Array<number>=} itemSet
@@ -1239,7 +1246,8 @@ Polymer$0({
     if (pidx >= this._physicalStart) {
       return this._virtualStart + (pidx - this._physicalStart);
     }
-    return this._virtualStart + (this._physicalCount - this._physicalStart) + pidx;
+    return this._virtualStart + (this._physicalCount - this._physicalStart) +
+        pidx;
   },
 
   /**
@@ -1254,9 +1262,11 @@ Polymer$0({
         var inst = this.modelForElement(el);
         inst.__key__ = this._collection ? this._collection.getKey(item) : null;
         this._forwardProperty(inst, this.as, item);
-        this._forwardProperty(inst, this.selectedAs, this.$.selector.isSelected(item));
+        this._forwardProperty(
+            inst, this.selectedAs, this.$.selector.isSelected(item));
         this._forwardProperty(inst, this.indexAs, vidx);
-        this._forwardProperty(inst, 'tabIndex', this._focusedVirtualIndex === vidx ? 0 : -1);
+        this._forwardProperty(
+            inst, 'tabIndex', this._focusedVirtualIndex === vidx ? 0 : -1);
         this._physicalIndexForKey[inst.__key__] = pidx;
         inst._flushProperties && inst._flushProperties(true);
         el.removeAttribute('hidden');
@@ -1290,10 +1300,14 @@ Polymer$0({
 
     if (this.grid) {
       this._updateGridMetrics();
-      this._physicalSize = Math.ceil(this._physicalCount / this._itemsPerRow) * this._rowHeight;
+      this._physicalSize =
+          Math.ceil(this._physicalCount / this._itemsPerRow) * this._rowHeight;
     } else {
-      oldPhysicalSize = (this._itemsPerRow === 1) ? oldPhysicalSize :  Math.ceil(this._physicalCount / this._itemsPerRow) * this._rowHeight;
-      this._physicalSize = this._physicalSize + newPhysicalSize - oldPhysicalSize;
+      oldPhysicalSize = (this._itemsPerRow === 1) ?
+          oldPhysicalSize :
+          Math.ceil(this._physicalCount / this._itemsPerRow) * this._rowHeight;
+      this._physicalSize =
+          this._physicalSize + newPhysicalSize - oldPhysicalSize;
       this._itemsPerRow = 1;
     }
     // Update the average if it measured something.
@@ -1305,9 +1319,14 @@ Polymer$0({
   },
 
   _updateGridMetrics: function() {
-    this._itemWidth = this._physicalCount > 0 ? this._physicalItems[0].getBoundingClientRect().width : 200;
-    this._rowHeight = this._physicalCount > 0 ? this._physicalItems[0].offsetHeight : 200;
-    this._itemsPerRow = this._itemWidth ? Math.floor(this._viewportWidth / this._itemWidth) : this._itemsPerRow;
+    this._itemWidth = this._physicalCount > 0 ?
+        this._physicalItems[0].getBoundingClientRect().width :
+        200;
+    this._rowHeight =
+        this._physicalCount > 0 ? this._physicalItems[0].offsetHeight : 200;
+    this._itemsPerRow = this._itemWidth ?
+        Math.floor(this._viewportWidth / this._itemWidth) :
+        this._itemsPerRow;
   },
 
   /**
@@ -1367,7 +1386,8 @@ Polymer$0({
    * Adjusts the scroll position when it was overestimated.
    */
   _adjustScrollPosition: function() {
-    var deltaHeight = this._virtualStart === 0 ? this._physicalTop :
+    var deltaHeight = this._virtualStart === 0 ?
+        this._physicalTop :
         Math.min(this._scrollPosition + this._physicalTop, 0);
     // Note: the delta can be positive or negative.
     if (deltaHeight !== 0) {
@@ -1399,14 +1419,22 @@ Polymer$0({
     if (this.grid) {
       this._estScrollHeight = this._virtualRowCount * this._rowHeight;
     } else {
-      this._estScrollHeight = (this._physicalBottom +
-          Math.max(this._virtualCount - this._physicalCount - this._virtualStart, 0) * this._physicalAverage);
+      this._estScrollHeight =
+          (this._physicalBottom +
+           Math.max(
+               this._virtualCount - this._physicalCount - this._virtualStart,
+               0) *
+               this._physicalAverage);
     }
     forceUpdate = forceUpdate || this._scrollHeight === 0;
-    forceUpdate = forceUpdate || this._scrollPosition >= this._estScrollHeight - this._physicalSize;
-    forceUpdate = forceUpdate || this.grid && this.$.items.style.height < this._estScrollHeight;
+    forceUpdate = forceUpdate ||
+        this._scrollPosition >= this._estScrollHeight - this._physicalSize;
+    forceUpdate = forceUpdate ||
+        this.grid && this.$.items.style.height < this._estScrollHeight;
     // Amortize height adjustment, so it won't trigger large repaints too often.
-    if (forceUpdate || Math.abs(this._estScrollHeight - this._scrollHeight) >= this._viewportHeight) {
+    if (forceUpdate ||
+        Math.abs(this._estScrollHeight - this._scrollHeight) >=
+            this._viewportHeight) {
       this.$.items.style.height = this._estScrollHeight + 'px';
       this._scrollHeight = this._estScrollHeight;
     }
@@ -1419,7 +1447,7 @@ Polymer$0({
    * @method scrollToItem
    * @param {(Object)} item The item to be scrolled to
    */
-  scrollToItem: function(item){
+  scrollToItem: function(item) {
     return this.scrollToIndex(this.items.indexOf(item));
   },
 
@@ -1439,16 +1467,18 @@ Polymer$0({
     if (this._physicalCount === 0) {
       return;
     }
-    idx = this._clamp(idx, 0, this._virtualCount-1);
+    idx = this._clamp(idx, 0, this._virtualCount - 1);
     // Update the virtual start only when needed.
     if (!this._isIndexRendered(idx) || idx >= this._maxVirtualStart) {
-      this._virtualStart = this.grid ? (idx - this._itemsPerRow * 2) : (idx - 1);
+      this._virtualStart =
+          this.grid ? (idx - this._itemsPerRow * 2) : (idx - 1);
     }
     this._manageFocus();
     this._assignModels();
     this._updateMetrics();
     // Estimate new physical offset.
-    this._physicalTop = Math.floor(this._virtualStart / this._itemsPerRow)  * this._physicalAverage;
+    this._physicalTop = Math.floor(this._virtualStart / this._itemsPerRow) *
+        this._physicalAverage;
 
     var currentTopItem = this._physicalStart;
     var currentVirtualItem = this._virtualStart;
@@ -1456,13 +1486,15 @@ Polymer$0({
     var hiddenContentSize = this._hiddenContentSize;
     // scroll to the item as much as we can.
     while (currentVirtualItem < idx && targetOffsetTop <= hiddenContentSize) {
-      targetOffsetTop = targetOffsetTop + this._getPhysicalSizeIncrement(currentTopItem);
+      targetOffsetTop =
+          targetOffsetTop + this._getPhysicalSizeIncrement(currentTopItem);
       currentTopItem = (currentTopItem + 1) % this._physicalCount;
       currentVirtualItem++;
     }
     this._updateScrollerSize(true);
     this._positionItems();
-    this._resetScrollPosition(this._physicalTop + this._scrollOffset + targetOffsetTop);
+    this._resetScrollPosition(
+        this._physicalTop + this._scrollOffset + targetOffsetTop);
     this._increasePoolIfNeeded(0);
     // clear cached visible index.
     this._firstVisibleIndexVal = null;
@@ -1522,10 +1554,11 @@ Polymer$0({
       return;
     }
     if (!this.multiSelection && this.selectedItem) {
-     this.clearSelection();
+      this.clearSelection();
     }
     if (this._isIndexRendered(index)) {
-      var model = this.modelForElement(this._physicalItems[this._getPhysicalIndex(index)]);
+      var model = this.modelForElement(
+          this._physicalItems[this._getPhysicalIndex(index)]);
       if (model) {
         model[this.selectedAs] = true;
       }
@@ -1561,7 +1594,8 @@ Polymer$0({
       return;
     }
     if (this._isIndexRendered(index)) {
-      var model = this.modelForElement(this._physicalItems[this._getPhysicalIndex(index)]);
+      var model = this.modelForElement(
+          this._physicalItems[this._getPhysicalIndex(index)]);
       model[this.selectedAs] = false;
       this.updateSizeForIndex(index);
     }
@@ -1593,9 +1627,10 @@ Polymer$0({
    * @param {number} index The index of the item in the items array.
    */
   toggleSelectionForIndex: function(index) {
-    var isSelected = this.$.selector.isIndexSelected
-        ? this.$.selector.isIndexSelected(index) : this.$.selector.isSelected(this.items[index]);
-      isSelected ? this.deselectIndex(index) : this.selectIndex(index);
+    var isSelected = this.$.selector.isIndexSelected ?
+        this.$.selector.isIndexSelected(index) :
+        this.$.selector.isSelected(this.items[index]);
+    isSelected ? this.deselectIndex(index) : this.selectIndex(index);
   },
 
   /**
@@ -1630,11 +1665,11 @@ Polymer$0({
     var modelTabIndex, activeElTabIndex;
     var target = dom(e).path[0];
     var activeEl = this._getActiveElement();
-    var physicalItem = this._physicalItems[this._getPhysicalIndex(model[this.indexAs])];
+    var physicalItem =
+        this._physicalItems[this._getPhysicalIndex(model[this.indexAs])];
     // Safari does not focus certain form controls via mouse
     // https://bugs.webkit.org/show_bug.cgi?id=118043
-    if (target.localName === 'input' ||
-        target.localName === 'button' ||
+    if (target.localName === 'input' || target.localName === 'button' ||
         target.localName === 'select') {
       return;
     }
@@ -1645,7 +1680,9 @@ Polymer$0({
     model.tabIndex = modelTabIndex;
     // Only select the item if the tap wasn't on a focusable child
     // or the element bound to `tabIndex`
-    if (activeEl && physicalItem !== activeEl && physicalItem.contains(activeEl) && activeElTabIndex !== SECRET_TABINDEX) {
+    if (activeEl && physicalItem !== activeEl &&
+        physicalItem.contains(activeEl) &&
+        activeElTabIndex !== SECRET_TABINDEX) {
       return;
     }
     this.toggleSelectionForItem(model[this.as]);
@@ -1667,11 +1704,11 @@ Polymer$0({
   },
 
   /**
-  * Updates the size of the item at the given index in the items array.
-  *
-  * @method updateSizeForIndex
-  * @param {number} index The index of the item in the items array.
-  */
+   * Updates the size of the item at the given index in the items array.
+   *
+   * @method updateSizeForIndex
+   * @param {number} index The index of the item in the items array.
+   */
   updateSizeForIndex: function(index) {
     if (!this._isIndexRendered(index)) {
       return null;
@@ -1714,7 +1751,8 @@ Polymer$0({
   _convertIndexToCompleteRow: function(idx) {
     // when grid == false _itemPerRow can be unset.
     this._itemsPerRow = this._itemsPerRow || 1;
-    return this.grid ? Math.ceil(idx / this._itemsPerRow) * this._itemsPerRow : idx;
+    return this.grid ? Math.ceil(idx / this._itemsPerRow) * this._itemsPerRow :
+                       idx;
   },
 
   _isIndexRendered: function(idx) {
@@ -1726,9 +1764,10 @@ Polymer$0({
   },
 
   _getPhysicalIndex: function(vidx) {
-    return IS_V2
-      ? (this._physicalStart + (vidx - this._virtualStart)) % this._physicalCount
-      : this._physicalIndexForKey[this._collection.getKey(this.items[vidx])];
+    return IS_V2 ?
+        (this._physicalStart + (vidx - this._virtualStart)) %
+            this._physicalCount :
+        this._physicalIndexForKey[this._collection.getKey(this.items[vidx])];
   },
 
   focusItem: function(idx) {
@@ -1751,11 +1790,12 @@ Polymer$0({
     model.tabIndex = SECRET_TABINDEX;
     // check if focusable element is the physical item
     if (physicalItem.tabIndex === SECRET_TABINDEX) {
-     focusable = physicalItem;
+      focusable = physicalItem;
     }
     // search for the element which tabindex is bound to the secret tab index
     if (!focusable) {
-      focusable = dom(physicalItem).querySelector('[tabindex="' + SECRET_TABINDEX + '"]');
+      focusable = dom(physicalItem)
+                      .querySelector('[tabindex="' + SECRET_TABINDEX + '"]');
     }
     // restore the tab index
     model.tabIndex = 0;
@@ -1838,7 +1878,8 @@ Polymer$0({
       return;
     }
     if (focusedModel === targetModel) {
-      // If the user focused the same item, then bring it into view if it's not visible.
+      // If the user focused the same item, then bring it into view if it's not
+      // visible.
       if (!this._isIndexVisible(fidx)) {
         this.scrollToIndex(fidx);
       }
@@ -1864,20 +1905,27 @@ Polymer$0({
     switch (e.keyCode) {
       case /* ARROW_DOWN */ 40:
         e.preventDefault();
-        this._focusPhysicalItem(this._focusedVirtualIndex + (this.grid ? this._itemsPerRow : 1));
+        this._focusPhysicalItem(
+            this._focusedVirtualIndex + (this.grid ? this._itemsPerRow : 1));
         break;
       case /* ARROW_RIGHT */ 39:
-        if (this.grid) this._focusPhysicalItem(this._focusedVirtualIndex + (this._isRTL ? -1 : 1));
+        if (this.grid)
+          this._focusPhysicalItem(
+              this._focusedVirtualIndex + (this._isRTL ? -1 : 1));
         break;
       case /* ARROW_UP */ 38:
-        this._focusPhysicalItem(this._focusedVirtualIndex - (this.grid ? this._itemsPerRow : 1));
+        this._focusPhysicalItem(
+            this._focusedVirtualIndex - (this.grid ? this._itemsPerRow : 1));
         break;
       case /* ARROW_LEFT */ 37:
-        if (this.grid) this._focusPhysicalItem(this._focusedVirtualIndex + (this._isRTL ? 1 : -1));
+        if (this.grid)
+          this._focusPhysicalItem(
+              this._focusedVirtualIndex + (this._isRTL ? 1 : -1));
         break;
       case /* ENTER */ 13:
         this._focusPhysicalItem(this._focusedVirtualIndex);
-        if (this.selectionEnabled) this._selectionHandler(e);
+        if (this.selectionEnabled)
+          this._selectionHandler(e);
         break;
     }
   },
@@ -1890,9 +1938,7 @@ Polymer$0({
     if (IS_V2) {
       this._debouncers = this._debouncers || {};
       this._debouncers[name] = Debouncer.debounce(
-        this._debouncers[name],
-        asyncModule,
-        cb.bind(this));
+          this._debouncers[name], asyncModule, cb.bind(this));
       enqueueDebouncer(this._debouncers[name]);
     } else {
       addDebouncer(this.debounce(name, cb));
@@ -1910,16 +1956,16 @@ Polymer$0({
   /* Templatizer bindings for v2 */
   _forwardHostPropV2: function(prop, value) {
     (this._physicalItems || [])
-      .concat([this._offscreenFocusedItem, this._focusBackfillItem])
-      .forEach(function(item) {
-        if (item) {
-          this.modelForElement(item).forwardHostProp(prop, value);
-        }
-      }, this);
+        .concat([this._offscreenFocusedItem, this._focusBackfillItem])
+        .forEach(function(item) {
+          if (item) {
+            this.modelForElement(item).forwardHostProp(prop, value);
+          }
+        }, this);
   },
 
   _notifyInstancePropV2: function(inst, prop, value) {
-   if (matches(this.as, prop)) {
+    if (matches(this.as, prop)) {
       var idx = inst[this.indexAs];
       if (prop == this.as) {
         this.items[idx] = value;
@@ -1935,29 +1981,30 @@ Polymer$0({
 
   _forwardInstancePath: function(inst, path, value) {
     if (path.indexOf(this.as + '.') === 0) {
-      this.notifyPath('items.' + inst.__key__ + '.' +
-          path.slice(this.as.length + 1), value);
+      this.notifyPath(
+          'items.' + inst.__key__ + '.' + path.slice(this.as.length + 1),
+          value);
     }
   },
 
   _forwardParentPath: function(path, value) {
     (this._physicalItems || [])
-      .concat([this._offscreenFocusedItem, this._focusBackfillItem])
-      .forEach(function(item) {
-        if (item) {
-          this.modelForElement(item).notifyPath(path, value, true);
-        }
-      }, this);
+        .concat([this._offscreenFocusedItem, this._focusBackfillItem])
+        .forEach(function(item) {
+          if (item) {
+            this.modelForElement(item).notifyPath(path, value, true);
+          }
+        }, this);
   },
 
   _forwardParentProp: function(prop, value) {
     (this._physicalItems || [])
-      .concat([this._offscreenFocusedItem, this._focusBackfillItem])
-      .forEach(function(item) {
-        if (item) {
-          this.modelForElement(item)[prop] = value;
-        }
-      }, this);
+        .concat([this._offscreenFocusedItem, this._focusBackfillItem])
+        .forEach(function(item) {
+          if (item) {
+            this.modelForElement(item)[prop] = value;
+          }
+        }, this);
   },
 
   /* Gets the activeElement of the shadow root/host that contains the list. */

@@ -19,11 +19,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
 
-  <script src="../../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
-
-  <script type="module" src="../../../polymer/polymer-legacy.js"></script>
-  <script type="module" src="../../../iron-scroll-threshold/iron-scroll-threshold.js"></script>
-  <script type="module" src="../../iron-list.js"></script>
+  <script src="../../node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
 
   <style>
 
@@ -73,41 +69,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </template>
 
     <script type="module">
-import '@polymer/polymer/polymer-legacy.js';
-import '@polymer/iron-scroll-threshold/iron-scroll-threshold.js';
-import '../../iron-list.js';
-import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
-Polymer({
-  is: 'my-element',
-  
-  properties: {
-    items: Array,
-  },
-  
-  loadMoreData: function() {
-    console.log('items before: ' + this.$.list._physicalCount);
-    setTimeout(() => console.log('items after: ' + this.$.list._physicalCount), 0)
-    
-    var newItems = [];
-    for (var i = 0; i < 30; i++) {
-      newItems.push(i);
-    }
-    
-    if (this.items) {
-      //return;
-      newItems.unshift('items');
-      this.push.apply(this, newItems);
-    } else {
-      this.set('items', newItems);
-    }
-    this.$.threshold.clearTriggers();
-  },
-  
-  getItemClass: function(index, length) {
-    return (index == length - 1) ? 'last' : '';
-  }
-});
-</script>
+      import '@polymer/polymer/polymer-legacy.js';
+      import '@polymer/iron-scroll-threshold/iron-scroll-threshold.js';
+      import '../../iron-list.js';
+      import {Polymer} from '@polymer/polymer/lib/legacy/polymer-fn.js';
+      Polymer({
+        is: 'my-element',
+
+        properties: {
+          items: Array,
+        },
+
+        loadMoreData: function() {
+          console.log('items before: ' + this.$.list._physicalCount);
+          setTimeout(
+              () => console.log('items after: ' + this.$.list._physicalCount), 0)
+
+          var newItems = [];
+          for (var i = 0; i < 30; i++) {
+            newItems.push(i);
+          }
+
+          if (this.items) {
+            // return;
+            newItems.unshift('items');
+            this.push.apply(this, newItems);
+          } else {
+            this.set('items', newItems);
+          }
+          this.$.threshold.clearTriggers();
+        },
+
+        getItemClass: function(index, length) {
+          return (index == length - 1) ? 'last' : '';
+        }
+      });
+    </script>
   </dom-module>
 
   <my-element></my-element>

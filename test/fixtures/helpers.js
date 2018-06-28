@@ -1,33 +1,33 @@
 /**
 @license
 Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE
-The complete set of authors may be found at http://polymer.github.io/AUTHORS
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS
+This code may only be used under the BSD style license found at
+http://polymer.github.io/LICENSE The complete set of authors may be found at
+http://polymer.github.io/AUTHORS The complete set of contributors may be found
+at http://polymer.github.io/CONTRIBUTORS Code distributed by Google as part of
+the polymer project is also subject to an additional IP rights grant found at
+http://polymer.github.io/PATENTS
 */
-import { DomApi, flush } from '@polymer/polymer/lib/legacy/polymer.dom.js';
+import {DomApi, flush} from '@polymer/polymer/lib/legacy/polymer.dom.js';
 
-import { flush as flush$0 } from '@polymer/polymer/lib/utils/flush.js';
+import {flush as flush$0} from '@polymer/polymer/lib/utils/flush.js';
 window.findElementInList = function(container, selector) {
   var i = 0;
   var children = container._children;
   var ms = DomApi.matchesSelector;
 
   for (; i < children.length; i++) {
-    if (children[i].nodeType === Node.ELEMENT_NODE && ms.call(children[i], selector)) {
+    if (children[i].nodeType === Node.ELEMENT_NODE &&
+        ms.call(children[i], selector)) {
       return children[i];
     }
   }
   return null;
-}
+};
 
 window.buildItem = function(index) {
-  return {
-    index: index
-  };
-}
+  return {index: index};
+};
 
 window.buildDataSet = function(size) {
   var data = [];
@@ -35,7 +35,7 @@ window.buildDataSet = function(size) {
     data.push(buildItem(data.length));
   }
   return data;
-}
+};
 
 window.simulateScroll = function(config) {
   var list = config.list;
@@ -50,7 +50,8 @@ window.simulateScroll = function(config) {
     var maxScrollTop = list.scrollHeight - list.clientHeight;
     var nextScrollTop = list.scrollTop + contribution;
 
-    if (nextScrollTop != target && nextScrollTop >= minScrollTop && nextScrollTop <= maxScrollTop) {
+    if (nextScrollTop != target && nextScrollTop >= minScrollTop &&
+        nextScrollTop <= maxScrollTop) {
       // continue
     } else {
       nextScrollTop = target;
@@ -65,49 +66,54 @@ window.simulateScroll = function(config) {
     } else {
       setTimeout(scrollHandler, 1);
     }
-  }
+  };
   PolymerFlush();
   scrollHandler();
-}
+};
 
 window.deepElementFromPoint = function(x, y) {
   var r, el;
   var root = document;
   while (root && root.elementFromPoint) {
     el = root.elementFromPoint(x, y);
-    // In Safari, root.elementFromPoint() will return the host if nothing matches
-    // in the shadow root (https://bugs.webkit.org/show_bug.cgi?id=170743).
-    if (el === r) break;
+    // In Safari, root.elementFromPoint() will return the host if nothing
+    // matches in the shadow root
+    // (https://bugs.webkit.org/show_bug.cgi?id=170743).
+    if (el === r)
+      break;
     r = el || r;
     root = el ? el.shadowRoot : null;
   }
   return r;
-}
+};
 
 window.getGridRowFromIndex = function(grid, index) {
   return Math.floor(index / grid._itemsPerRow);
-}
+};
 
 window.getNthItemFromGrid = function(grid, n, itemSize) {
   itemSize = itemSize || 100;
   var gridRect = grid.getBoundingClientRect();
   var x = gridRect.left + ((n % grid._itemsPerRow) * itemSize) + (itemSize / 2);
-  var y = gridRect.top + (Math.floor(n / grid._itemsPerRow) * itemSize) + (itemSize / 2);
+  var y = gridRect.top + (Math.floor(n / grid._itemsPerRow) * itemSize) +
+      (itemSize / 2);
   return deepElementFromPoint(x, y);
-}
+};
 
 window.getNthItemFromRTLGrid = function(grid, n, itemSize) {
   itemSize = itemSize || 100;
   var gridRect = grid.getBoundingClientRect();
-  var x = gridRect.left + gridRect.width - ((n % grid._itemsPerRow) * itemSize) - (itemSize / 2);
-  var y = gridRect.top + (Math.floor(n / grid._itemsPerRow) * itemSize) + (itemSize / 2);
+  var x = gridRect.left + gridRect.width -
+      ((n % grid._itemsPerRow) * itemSize) - (itemSize / 2);
+  var y = gridRect.top + (Math.floor(n / grid._itemsPerRow) * itemSize) +
+      (itemSize / 2);
   return document.elementFromPoint(x, y);
-}
+};
 
 window.getFirstItemFromList = function(list) {
   var listRect = list.getBoundingClientRect();
   return deepElementFromPoint(listRect.left + 100, listRect.top + 1);
-}
+};
 
 window.getNthItemFromList = function(list, n, itemHeight) {
   itemHeight = itemHeight || 100;
@@ -115,12 +121,13 @@ window.getNthItemFromList = function(list, n, itemHeight) {
   var x = listRect.left + 1;
   var y = listRect.top + (n * itemHeight) + 1;
   return deepElementFromPoint(x, y);
-}
+};
 
 window.getLastItemFromList = function(list) {
   var listRect = list.getBoundingClientRect();
-  return deepElementFromPoint(listRect.left + 100, listRect.top + listRect.height - 1);
-}
+  return deepElementFromPoint(
+      listRect.left + 100, listRect.top + listRect.height - 1);
+};
 
 window.isFullOfItems = function(list) {
   var listRect = list.getBoundingClientRect();
@@ -139,7 +146,7 @@ window.isFullOfItems = function(list) {
     }
   }
   return true;
-}
+};
 
 window.checkRepeatedItems = function(list) {
   var listRect = list.getBoundingClientRect();
@@ -164,11 +171,11 @@ window.checkRepeatedItems = function(list) {
     }
     return false;
   };
-}
+};
 
 window.getNthItemRowStart = function(grid, n) {
   return n - (n % grid._itemsPerRow);
-}
+};
 
 window.PolymerFlush = function() {
   if (flush$0) {
@@ -176,4 +183,4 @@ window.PolymerFlush = function() {
   } else if (flush) {
     flush();
   }
-}
+};

@@ -1,18 +1,19 @@
 /**
 @license
 Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE
-The complete set of authors may be found at http://polymer.github.io/AUTHORS
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS
+This code may only be used under the BSD style license found at
+http://polymer.github.io/LICENSE The complete set of authors may be found at
+http://polymer.github.io/AUTHORS The complete set of contributors may be found
+at http://polymer.github.io/CONTRIBUTORS Code distributed by Google as part of
+the polymer project is also subject to an additional IP rights grant found at
+http://polymer.github.io/PATENTS
 */
 import '@polymer/polymer/polymer-legacy.js';
 
 import '@polymer/iron-flex-layout/iron-flex-layout.js';
 import '../../iron-list.js';
-import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
-import { html } from '@polymer/polymer/lib/utils/html-tag.js';
+import {Polymer} from '@polymer/polymer/lib/legacy/polymer-fn.js';
+import {html} from '@polymer/polymer/lib/utils/html-tag.js';
 Polymer({
   _template: html`
     <style>
@@ -51,34 +52,17 @@ Polymer({
   is: 'x-list',
 
   properties: {
-    data: {
-      type: Array
-    },
+    data: {type: Array},
 
-    itemHeight: {
-      type: Number,
-      value: 100
-    },
+    itemHeight: {type: Number, value: 100},
 
-    listHeight: {
-      type: Number,
-      value: 300,
-      observer: '_listHeightChanged'
-    },
+    listHeight: {type: Number, value: 300, observer: '_listHeightChanged'},
 
-    pre: {
-      type: Boolean
-    },
+    pre: {type: Boolean},
 
-    primitive: {
-      value: false,
-      type: Boolean
-    },
+    primitive: {value: false, type: Boolean},
 
-    useTabIndex: {
-      value: true,
-      type: Boolean
-    }
+    useTabIndex: {value: true, type: Boolean}
   },
 
   get list() {

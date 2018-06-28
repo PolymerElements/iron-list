@@ -13,15 +13,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta charset="UTF-8">
   <title>iron-list test</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-
-  <script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
-  <script src="../../../wct-browser-legacy/browser.js"></script>
-  <script src="../../test-fixture/test-fixture-mocha.js"></script>
-  <script src="../../iron-test-helpers/mock-interactions.js" type="module"></script>
-
-  <script type="module" src="./fixtures/helpers.js"></script>
-  <script type="module" src="./fixtures/x-list.js"></script>
-
+  <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+  <script src="../node_modules/wct-browser-legacy/browser.js"></script>
+  <script src="../node_modules/@polymer/test-fixture/test-fixture-mocha.js"></script>
 </head>
 <body>
 
@@ -32,30 +26,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </test-fixture>
 
 <script type="module">
-import './fixtures/helpers.js';
-import './fixtures/x-list.js';
-import { flush as flush$0 } from '@polymer/polymer/lib/legacy/polymer.dom.js';
-suite('basic features', function() {
-  var list, container;
+  import './fixtures/helpers.js';
+  import './fixtures/x-list.js';
+  import '@polymer/iron-test-helpers/mock-interactions.js';
+  import {flush as flush$0} from '@polymer/polymer/lib/legacy/polymer.dom.js';
+  suite('basic features', function() {
+    var list, container;
 
-  setup(function() {
-    container = fixture('trivialList');
-    list = container.list;
-  });
-
-  test('first item should be focusable', function(done) {
-    container.data = buildDataSet(100);
-
-    flush(function() {
-      assert.notEqual(getFirstItemFromList(list).tabIndex, -1);
-      done();
+    setup(function() {
+      container = fixture('trivialList');
+      list = container.list;
     });
-  });
 
-  test('focus the first item and then reset the items', function(done) {
-    list.items = buildDataSet(100);
+    test('first item should be focusable', function() {
+      container.data = buildDataSet(100);
 
-    flush(function() {
+      PolymerFlush();
+      assert.notEqual(getFirstItemFromList(list).tabIndex, -1);
+    });
+
+    test('focus the first item and then reset the items', function(done) {
+      list.items = buildDataSet(100);
+
+      PolymerFlush();
       getFirstItemFromList(list).focus();
 
       simulateScroll({
@@ -64,18 +57,16 @@ suite('basic features', function() {
         target: 3000,
         onScrollEnd: function() {
           list.items = [];
-          flush(function() {
-            done();
-          });
+          PolymerFlush();
+          done();
         }
       });
     });
-  });
 
-  test('focus the first item and then splice all the items', function(done) {
-    list.items = buildDataSet(100);
+    test('focus the first item and then splice all the items', function(done) {
+      list.items = buildDataSet(100);
 
-    flush(function() {
+      PolymerFlush();
       getFirstItemFromList(list).focus();
 
       simulateScroll({
@@ -84,59 +75,53 @@ suite('basic features', function() {
         target: 3000,
         onScrollEnd: function() {
           list.splice('items', 0, list.items.length);
-          flush(function() {
-            done();
-          });
+          PolymerFlush();
+          done();
         }
       });
     });
-  });
 
-  test('blur when focused item is removed (#336)', function(done) {
-    list.items = buildDataSet(100);
+    test('blur when focused item is removed (#336)', function() {
+      list.items = buildDataSet(100);
 
-    flush(function() {
+      PolymerFlush();
       getFirstItemFromList(list).focus();
 
       assert.notEqual(document.activeElement, document.body);
 
       list.splice('items', 0, 1);
 
-      // HACK(keanulee): This test fails in IE11 if the window is not focused, so
-      // skip this test in that case.
+      // HACK(keanulee): This test fails in IE11 if the window is not focused,
+      // so skip this test in that case.
       if (document.hasFocus()) {
         assert.equal(document.activeElement, document.body);
       }
-      done();
     });
-  });
 
-  test('don\'t blur if no items are added or removed', function(done) {
-    list.items = buildDataSet(100);
+    test('don\'t blur if no items are added or removed', function() {
+      list.items = buildDataSet(100);
 
-    flush(function() {
+      PolymerFlush();
       getFirstItemFromList(list).focus();
 
       assert.notEqual(document.activeElement, document.body);
 
       list.items[0]['foo'] = 'bar';
       list.notifySplices('items', [{
-        index: 0,
-        addedCount: 0,
-        object: list.items,
-        type: 'splice',
-        removed: []
-      }]);
+                           index: 0,
+                           addedCount: 0,
+                           object: list.items,
+                           type: 'splice',
+                           removed: []
+                         }]);
 
       assert.notEqual(document.activeElement, document.body);
-      done();
     });
-  });
 
-  test('don\'t blur when items changed (#449)', function(done) {
-    list.items = buildDataSet(100);
+    test('don\'t blur when items changed (#449)', function() {
+      list.items = buildDataSet(100);
 
-    flush(function() {
+      PolymerFlush();
       var button = document.createElement('button');
       list.parentNode.appendChild(button);
       button.focus();
@@ -146,31 +131,29 @@ suite('basic features', function() {
       list.items = buildDataSet(100);
 
       assert.notEqual(document.activeElement, document.body);
-      done();
     });
-  });
 
-  test('don\'t blur when activeElement is not a descendant of the list (#505, #507)', function(done) {
-    list.items = buildDataSet(100);
+    test(
+        'don\'t blur when activeElement is not a descendant of the list (#505, #507)',
+        function() {
+          list.items = buildDataSet(100);
 
-    flush(function() {
-      var button = document.createElement('button');
-      list.parentNode.appendChild(button);
-      button.focus();
+          PolymerFlush();
+          var button = document.createElement('button');
+          list.parentNode.appendChild(button);
+          button.focus();
 
-      assert.notEqual(document.activeElement, document.body);
+          assert.notEqual(document.activeElement, document.body);
 
-      list.splice('items', 0, 1);
+          list.splice('items', 0, 1);
 
-      assert.notEqual(document.activeElement, document.body);
-      done();
-    });
-  });
+          assert.notEqual(document.activeElement, document.body);
+        });
 
-  test('focusItem()', function(done) {
-    list.items = buildDataSet(100);
+    test('focusItem()', function() {
+      list.items = buildDataSet(100);
 
-    flush(function() {
+      PolymerFlush();
       var i = 1;
       var item = getNthItemFromList(list, i);
 
@@ -179,17 +162,15 @@ suite('basic features', function() {
       list.focusItem(i);
 
       assert.equal(item.tabIndex, 0);
-      done();
     });
-  });
 
-  test('should not hide the list', function(done) {
-    container.useTabIndex = true;
-    list.items = buildDataSet(100);
+    test('should not hide the list', function(done) {
+      container.useTabIndex = true;
+      list.items = buildDataSet(100);
 
-    flush(function() {
+      PolymerFlush();
       // this index isn't rendered yet
-      list._focusedIndex = list.items.length-1;
+      list._focusedIndex = list.items.length - 1;
       list.scrollTarget.addEventListener('scroll', function() {
         var rect = list.getBoundingClientRect();
         assert.isTrue(rect.top + rect.height > 0);
@@ -198,87 +179,79 @@ suite('basic features', function() {
       // trigger the scroll event
       list._scrollTop = 1000;
     });
-  });
 
-  test('list focus change with down arrow', function(done) {
-    container.useTabIndex = true;
-    list.items = buildDataSet(100);
+    test('list focus change with down arrow', function() {
+      container.useTabIndex = true;
+      list.items = buildDataSet(100);
 
-    flush(function() {
+      PolymerFlush();
       var initialItem = getFirstItemFromList(list);
       var itemToFocus = getNthItemFromList(list, 1);
       initialItem.focus();
-      flush(function() {
-        MockInteractions.pressAndReleaseKeyOn(list, 40); // down
-        flush(function() {
-          assert.notEqual(itemToFocus.tabIndex, -1);
-          done();
-        });
-      });
+      PolymerFlush();
+      MockInteractions.pressAndReleaseKeyOn(list, 40);  // down
+      PolymerFlush();
+      assert.notEqual(itemToFocus.tabIndex, -1);
     });
-  });
 
-  test('list focus change with down arrow after removing item (#512)', function(done) {
-    container.useTabIndex = true;
-    list.items = buildDataSet(100);
-    list.splice('items', 0, 1);
+    test(
+        'list focus change with down arrow after removing item (#512)',
+        function() {
+          container.useTabIndex = true;
+          list.items = buildDataSet(100);
+          list.splice('items', 0, 1);
 
-    flush(function() {
-      var initialItem = getFirstItemFromList(list);
-      var itemToFocus = getNthItemFromList(list, 1);
-      initialItem.focus();
-      flush(function() {
-        MockInteractions.pressAndReleaseKeyOn(list, 40); // down
-        flush(function() {
+          PolymerFlush();
+          var initialItem = getFirstItemFromList(list);
+          var itemToFocus = getNthItemFromList(list, 1);
+          initialItem.focus();
+          PolymerFlush();
+          MockInteractions.pressAndReleaseKeyOn(list, 40);  // down
+          PolymerFlush();
           assert.notEqual(itemToFocus.tabIndex, -1);
-          done();
         });
-      });
-    });
-  });
 
-  test('list focus change with up arrow', function(done) {
-    list.items = buildDataSet(100);
+    test('list focus change with up arrow', function() {
+      list.items = buildDataSet(100);
 
-    flush(function() {
+      PolymerFlush();
       var initialItem = getNthItemFromList(list, 1);
       var itemToFocus = getFirstItemFromList(list);
       initialItem.focus();
-      flush(function() {
-        MockInteractions.pressAndReleaseKeyOn(list, 38); // up
-        flush(function() {
-          assert.notEqual(itemToFocus.tabIndex, -1);
+      PolymerFlush();
+      MockInteractions.pressAndReleaseKeyOn(list, 38);  // up
+      PolymerFlush();
+      assert.notEqual(itemToFocus.tabIndex, -1);
+    });
+
+    test('Issue #411', function(done) {
+      list.items = buildDataSet(100);
+
+      flush$0();
+
+      list.scroll(
+          0, getFirstItemFromList(list).offsetHeight * list._physicalCount);
+
+      requestAnimationFrame(function() {
+        setTimeout(function() {
+          var lastOffscreenFocusedItem = list._offscreenFocusedItem;
+          var firstItem = getFirstItemFromList(list);
+          MockInteractions.focus(firstItem.parentNode);
+
+          flush$0();
+
+          assert.equal(
+              firstItem,
+              getFirstItemFromList(list),
+              'Should be the same item after focusing it');
+          assert.isNull(
+              lastOffscreenFocusedItem.parentNode,
+              'Should remove the last offscreen focused item');
           done();
         });
       });
     });
   });
-
-  test('Issue #411', function(done) {
-    list.items = buildDataSet(100);
-
-    flush$0();
-
-    list.scroll(0, getFirstItemFromList(list).offsetHeight * list._physicalCount);
-
-    requestAnimationFrame(function() {
-      setTimeout(function() {
-        var lastOffscreenFocusedItem = list._offscreenFocusedItem;
-        var firstItem = getFirstItemFromList(list);
-        MockInteractions.focus(firstItem.parentNode);
-
-        flush$0();
-
-        assert.equal(firstItem, getFirstItemFromList(list),
-          'Should be the same item after focusing it');
-        assert.isNull(lastOffscreenFocusedItem.parentNode,
-          'Should remove the last offscreen focused item');
-        done();
-      });
-    });
-  });
-
-});
 </script>
 
 </body>
