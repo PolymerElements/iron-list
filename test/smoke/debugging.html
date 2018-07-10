@@ -19,12 +19,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
 
-  <script src="../../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
-
-  <script type="module" src="../../../polymer/polymer-legacy.js"></script>
-  <script type="module" src="../../../paper-button/paper-button.js"></script>
-
-  <script type="module" src="../../iron-list.js"></script>
+  <script src="../../node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
 
   <custom-style>
     <style is="custom-style">
@@ -140,44 +135,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </template>
 
     <script type="module">
-import '@polymer/polymer/polymer-legacy.js';
-import '@polymer/paper-button/paper-button.js';
-import '../../iron-list.js';
-import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
-function arrayFill(size, value) {
-  return (new Array(size)).fill(value, 0, size);
-}
+      import '@polymer/polymer/polymer-legacy.js';
+      import '@polymer/paper-button/paper-button.js';
+      import '../../iron-list.js';
+      import {Polymer} from '@polymer/polymer/lib/legacy/polymer-fn.js';
+      function arrayFill(size, value) {
+        return (new Array(size)).fill(value, 0, size);
+      }
 
-function randomArrayFill(size, min, max) {
-  var a = [];
-  while (a.length < size) {
-    a.push(parseInt(Math.random() * (max-min+1)) + min);
-  }
-  return a;
-}
+      function randomArrayFill(size, min, max) {
+        var a = [];
+        while (a.length < size) {
+          a.push(parseInt(Math.random() * (max - min + 1)) + min);
+        }
+        return a;
+      }
 
-function asyncJob(fn) {
-  if (fn()) {
-    setTimeout(asyncJob.bind(null, fn));
-  }
-}
+      function asyncJob(fn) {
+        if (fn()) {
+          setTimeout(asyncJob.bind(null, fn));
+        }
+      }
 
-Polymer({
-  is: 'x-demo',
+      Polymer({
+        is: 'x-demo',
 
-  _getStyle: function(item) {
-    return 'height:' + item + 'px; ';
-  },
+        _getStyle: function(item) {
+          return 'height:' + item + 'px; ';
+        },
 
-  attached: function() {
-    this.$.list1.items = arrayFill(100, 50);
+        attached: function() {
+          this.$.list1.items = arrayFill(100, 50);
 
-    this.$.scroller.addEventListener('scroll', function() {
-      this.$.list1.style.top = (-this.$.scroller.scrollTop+100) + 'px';
-    }.bind(this));
-  }
-});
-</script>
+          this.$.scroller.addEventListener('scroll', function() {
+            this.$.list1.style.top = (-this.$.scroller.scrollTop + 100) + 'px';
+          }.bind(this));
+        }
+      });
+    </script>
   </dom-module>
 
   <x-demo></x-demo>

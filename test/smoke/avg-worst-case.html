@@ -19,10 +19,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
 
-  <script src="../../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
-
-  <script type="module" src="../../../polymer/polymer-legacy.js"></script>
-  <script type="module" src="../../iron-list.js"></script>
+  <script src="../../node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
 
 </head>
 <body unresolved>
@@ -68,27 +65,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </template>
 
     <script type="module">
-import '@polymer/polymer/polymer-legacy.js';
-import '../../iron-list.js';
-import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
-Polymer({
-  is: 'x-demo',
+      import '@polymer/polymer/polymer-legacy.js';
+      import '../../iron-list.js';
+      import {Polymer} from '@polymer/polymer/lib/legacy/polymer-fn.js';
+      Polymer({
+        is: 'x-demo',
 
-  _getStyle: function(item) {
-    return 'height:' + item + 'px; ';
-  },
+        _getStyle: function(item) {
+          return 'height:' + item + 'px; ';
+        },
 
-  attached: function() {
-    this.async(function() {
-      this.$.list.push('items', 251, 191, 151, 191, 51, 51, 51);
-    }, 100);
+        attached: function() {
+          this.async(function() {
+            this.$.list.push('items', 251, 191, 151, 191, 51, 51, 51);
+          }, 100);
 
-    this.async(function() {
-      this.$.list2.push('items', 251, 191, 151, 191, 51, 51, 51);
-    }, 300);
-  }
-});
-</script>
+          this.async(function() {
+            this.$.list2.push('items', 251, 191, 151, 191, 51, 51, 51);
+          }, 300);
+        }
+      });
+    </script>
   </dom-module>
 
   <x-demo></x-demo>

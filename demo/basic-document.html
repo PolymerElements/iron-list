@@ -19,11 +19,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
 
-  <script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
-
-  <script type="module" src="../../polymer/polymer-legacy.js"></script>
-  <script type="module" src="../../iron-ajax/iron-ajax.js"></script>
-  <script type="module" src="../iron-list.js"></script>
+  <script src="https://unpkg.com/@webcomponents/webcomponentsjs@^2.0.0/webcomponents-loader.js"></script>
 
   <style>
     body {
@@ -68,12 +64,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     </template>
     <script type="module">
-import '@polymer/polymer/polymer-legacy.js';
-import '@polymer/iron-ajax/iron-ajax.js';
-import '../iron-list.js';
-import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
-Polymer({ is: 'x-list' });
-</script>
+      import '@polymer/polymer/polymer-legacy.js';
+      import '@polymer/iron-ajax/iron-ajax.js';
+      import '../iron-list.js';
+      import {Polymer} from '@polymer/polymer/lib/legacy/polymer-fn.js';
+      Polymer({is: 'x-list'});
+    </script>
   </dom-module>
 
   <x-list></x-list>

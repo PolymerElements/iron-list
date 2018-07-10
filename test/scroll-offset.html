@@ -13,13 +13,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta charset="UTF-8">
   <title>iron-list test</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-
-  <script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
-  <script src="../../../wct-browser-legacy/browser.js"></script>
-
-  <script type="module" src="./fixtures/helpers.js"></script>
-  <script type="module" src="../iron-list.js"></script>
-
+  <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+  <script src="../node_modules/wct-browser-legacy/browser.js"></script>
   <style>
 
     body {
@@ -64,51 +59,51 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </test-fixture>
 
   <script type="module">
-import './fixtures/helpers.js';
-import '../iron-list.js';
-import { flush } from '@polymer/polymer/lib/legacy/polymer.dom.js';
-suite('scrollOffset property', function() {
-  var list, container;
+    import './fixtures/helpers.js';
+    import '../iron-list.js';
+    import {flush} from '@polymer/polymer/lib/legacy/polymer.dom.js';
+    suite('scrollOffset property', function() {
+      var list, container;
 
-  setup(function() {
-    container = fixture('trivialList');
-    list = container.querySelector('iron-list');
-  });
+      setup(function() {
+        container = fixture('trivialList');
+        list = container.querySelector('iron-list');
+      });
 
-  test('value', function() {
-    list.items = buildDataSet(100);
-    flush();
-    assert.equal(list.scrollOffset, 100);
-  });
+      test('value', function() {
+        list.items = buildDataSet(100);
+        flush();
+        assert.equal(list.scrollOffset, 100);
+      });
 
-  test('firstVisibleIndex', function(done) {
-    list.items = buildDataSet(100);
-    flush();
-    window.scrollTo(0, 1000);
-    requestAnimationFrame(function() {
-      setTimeout(function() {
-        var idx = Math.floor((window.pageYOffset - list.scrollOffset) / 50);
-        assert.equal(list.firstVisibleIndex, idx);
-        done();
+      test('firstVisibleIndex', function(done) {
+        list.items = buildDataSet(100);
+        flush();
+        window.scrollTo(0, 1000);
+        requestAnimationFrame(function() {
+          setTimeout(function() {
+            var idx = Math.floor((window.pageYOffset - list.scrollOffset) / 50);
+            assert.equal(list.firstVisibleIndex, idx);
+            done();
+          });
+        });
+      });
+
+      test('lastVisibleIndex', function(done) {
+        list.items = buildDataSet(100);
+        flush();
+        window.scrollTo(0, 1000);
+        requestAnimationFrame(function() {
+          setTimeout(function() {
+            var idx = Math.floor(
+                (window.pageYOffset + window.innerHeight - list.scrollOffset) / 50);
+            assert.equal(list.lastVisibleIndex, idx);
+            done();
+          });
+        });
       });
     });
-  });
-
-  test('lastVisibleIndex', function(done) {
-    list.items = buildDataSet(100);
-    flush();
-    window.scrollTo(0, 1000);
-    requestAnimationFrame(function() {
-      setTimeout(function() {
-        var idx = Math.floor((window.pageYOffset + window.innerHeight - list.scrollOffset) / 50);
-        assert.equal(list.lastVisibleIndex, idx);
-        done();
-      });
-    });
-  });
-
-});
-</script>
+  </script>
 
 </body>
 </html>

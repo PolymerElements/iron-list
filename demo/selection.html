@@ -19,24 +19,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
 
-  <script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
-
-  <script type="module" src="../../polymer/polymer-legacy.js"></script>
-  <script type="module" src="../../app-layout/app-drawer/app-drawer.js"></script>
-  <script type="module" src="../../app-layout/app-drawer-layout/app-drawer-layout.js"></script>
-  <script type="module" src="../../app-layout/app-toolbar/app-toolbar.js"></script>
-  <script type="module" src="../../iron-flex-layout/iron-flex-layout.js"></script>
-  <script type="module" src="../../iron-ajax/iron-ajax.js"></script>
-  <script type="module" src="../../iron-icons/iron-icons.js"></script>
-  <script type="module" src="../../paper-icon-button/paper-icon-button.js"></script>
-  <script type="module" src="../../iron-icon/iron-icon.js"></script>
-  <script type="module" src="../../paper-styles/color.js"></script>
-  <script type="module" src="../../paper-styles/typography.js"></script>
-  <script type="module" src="../../paper-item/paper-item.js"></script>
-  <script type="module" src="../../paper-badge/paper-badge.js"></script>
-
-  <script type="module" src="../iron-list.js"></script>
-
+  <script src="https://unpkg.com/@webcomponents/webcomponentsjs@^2.0.0/webcomponents-loader.js"></script>
 </head>
 
 <body unresolved>
@@ -234,53 +217,49 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </template>
 
     <script type="module">
-import '@polymer/polymer/polymer-legacy.js';
-import '@polymer/app-layout/app-drawer/app-drawer.js';
-import '@polymer/app-layout/app-drawer-layout/app-drawer-layout.js';
-import '@polymer/app-layout/app-toolbar/app-toolbar.js';
-import '@polymer/iron-flex-layout/iron-flex-layout.js';
-import '@polymer/iron-ajax/iron-ajax.js';
-import '@polymer/iron-icons/iron-icons.js';
-import '@polymer/paper-icon-button/paper-icon-button.js';
-import '@polymer/iron-icon/iron-icon.js';
-import '@polymer/paper-styles/color.js';
-import '@polymer/paper-styles/typography.js';
-import '@polymer/paper-item/paper-item.js';
-import '@polymer/paper-badge/paper-badge.js';
-import '../iron-list.js';
-import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
+      import '@polymer/polymer/polymer-legacy.js';
+      import '@polymer/app-layout/app-drawer/app-drawer.js';
+      import '@polymer/app-layout/app-drawer-layout/app-drawer-layout.js';
+      import '@polymer/app-layout/app-toolbar/app-toolbar.js';
+      import '@polymer/iron-flex-layout/iron-flex-layout.js';
+      import '@polymer/iron-ajax/iron-ajax.js';
+      import '@polymer/iron-icons/iron-icons.js';
+      import '@polymer/paper-icon-button/paper-icon-button.js';
+      import '@polymer/iron-icon/iron-icon.js';
+      import '@polymer/paper-styles/color.js';
+      import '@polymer/paper-styles/typography.js';
+      import '@polymer/paper-item/paper-item.js';
+      import '@polymer/paper-badge/paper-badge.js';
+      import '../iron-list.js';
+      import {Polymer} from '@polymer/polymer/lib/legacy/polymer-fn.js';
 
-Polymer({
+      Polymer({
 
-  is: 'x-app',
+        is: 'x-app',
 
-  properties: {
-    selectedItems: {
-      type: Object
-    }
-  },
+        properties: {selectedItems: {type: Object}},
 
-  iconForItem: function(isSelected) {
-    return isSelected ? 'star' : 'star-border';
-  },
+        iconForItem: function(isSelected) {
+          return isSelected ? 'star' : 'star-border';
+        },
 
-  _computedClass: function(isSelected) {
-    var classes = 'item';
-    if (isSelected) {
-      classes += ' selected';
-    }
-    return classes;
-  },
+        _computedClass: function(isSelected) {
+          var classes = 'item';
+          if (isSelected) {
+            classes += ' selected';
+          }
+          return classes;
+        },
 
-  _unselect: function(e) {
-    this.$.itemsList.deselectItem(e.model.item);
-  },
+        _unselect: function(e) {
+          this.$.itemsList.deselectItem(e.model.item);
+        },
 
-  _getFormattedCount: function(count) {
-    return count > 0 ? '(' + count + ')' : '';
-  }
-});
-</script>
+        _getFormattedCount: function(count) {
+          return count > 0 ? '(' + count + ')' : '';
+        }
+      });
+    </script>
   </dom-module>
 
   <x-app></x-app>
