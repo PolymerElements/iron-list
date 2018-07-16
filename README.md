@@ -1,24 +1,8 @@
-
-<!---
-
-This README is automatically generated from the comments in these files:
-iron-list.html
-
-Edit those files, and our readme bot will duplicate them over here!
-Edit this file, and the bot will squash your changes :)
-
-The bot does some handling of markdown. Please file a bug if it does the wrong
-thing! https://github.com/PolymerLabs/tedium/issues
-
--->
-
+[![Published on NPM](https://img.shields.io/npm/v/@polymer/iron-list.svg)](https://www.npmjs.com/package/@polymer/iron-list)
 [![Build status](https://travis-ci.org/PolymerElements/iron-list.svg?branch=master)](https://travis-ci.org/PolymerElements/iron-list)
-
-_[Demo and API docs](https://elements.polymer-project.org/elements/iron-list)_
-
+[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://webcomponents.org/element/@polymer/iron-list)
 
 ## &lt;iron-list&gt;
-
 `iron-list` displays a virtual, 'infinite' list. The template inside
 the iron-list element represents the DOM to create for each list item.
 The `items` property specifies an array of list item data.
@@ -41,48 +25,44 @@ layout means (e.g. the `flex` or `fit` classes).
 #### Flexbox - [jsbin](https://jsbin.com/vejoni/edit?html,output)
 
 ```html
-<template is="x-list">
-  <style>
-    :host {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+<style>
+  :host {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
 
-    iron-list {
-      flex: 1 1 auto;
-    }
-  </style>
-  <app-toolbar>App name</app-toolbar>
-  <iron-list items="[[items]]">
-    <template>
-      <div>
-        ...
-      </div>
-    </template>
-  </iron-list>
-</template>
+  iron-list {
+    flex: 1 1 auto;
+  }
+</style>
+<app-toolbar>App name</app-toolbar>
+<iron-list items="[[items]]">
+  <template>
+    <div>
+      ...
+    </div>
+  </template>
+</iron-list>
 ```
 #### Explicit size - [jsbin](https://jsbin.com/vopucus/edit?html,output)
 ```html
-<template is="x-list">
-  <style>
-    :host {
-      display: block;
-    }
+<style>
+  :host {
+    display: block;
+  }
 
-    iron-list {
-      height: 100vh; /* don't use % values unless the parent element is sized. */
-    }
-  </style>
-  <iron-list items="[[items]]">
-    <template>
-      <div>
-        ...
-      </div>
-    </template>
-  </iron-list>
-</template>
+  iron-list {
+    height: 100vh; /* don't use % values unless the parent element is sized. */
+  }
+</style>
+<iron-list items="[[items]]">
+  <template>
+    <div>
+      ...
+    </div>
+  </template>
+</iron-list>
 ```
 #### Main document scrolling - [jsbin](https://jsbin.com/wevirow/edit?html,output)
 ```html
@@ -214,18 +194,6 @@ after the list became visible again. For example:
 document.querySelector('iron-list').fire('iron-resize');
 ```
 
-### Changes in v2
-
-* In v1, `selectItem` accepted an item or the index to the item in the `list.items` array. In v2, `selectItem` only accepts an item in the `list.items` array. As a result, `selectIndex` and `deselectIndex` has been introduced to allow for fast selection of items by index. If you are implementing a `selectAll` method, you should use `selectIndex` instead of `selectItem` because it's faster (O(1) run time).
-* Mutating a selected item in v2 isn't supported anymore due to the removal of `Polymer.Collection` in 2.0, for example:
-```js
- list.items = [ item1, item2, ... ,itemN];
- list.selectionEnabled = true;
- list.selectIndex(0);
- list.set('items.0', aDifferentItem);
- // list.selectedItem == item1
-```
-
 ### When should `<iron-list>` be used?
 
 `iron-list` should be used when a page has significantly more DOM nodes than the ones
@@ -237,3 +205,66 @@ However, having an `iron-list` does not mean that you should load all the data a
 For example, if you have a million records in the database, it is better split the data into pages
 so you can bring in a page at a time. The page could contain 500 items, and iron-list
 might only render 20.
+
+See: [Documentation](https://www.webcomponents.org/element/@polymer/iron-list),
+  [Demo](https://www.webcomponents.org/element/@polymer/iron-list/demo/demo/index.html).
+
+## Usage
+
+### Installation
+```
+npm install --save @polymer/iron-list
+```
+
+### In a Polymer 3 element
+```js
+import {PolymerElement, html} from '@polymer/polymer';
+import '@polymer/iron-list/iron-list.js';
+
+class SampleElement extends PolymerElement {
+  static get template() {
+    return html`
+      <style>
+        :host {
+          display: block;
+        }
+
+        iron-list {
+          height: 100vh; /* don't use % values unless the parent element is sized. */
+        }
+      </style>
+      <iron-list items="[[items]]">
+        <template>
+          <div>
+            ...
+          </div>
+        </template>
+      </iron-list>
+    `;
+  }
+}
+customElements.define('sample-element', SampleElement);
+```
+
+## Contributing
+If you want to send a PR to this element, here are
+the instructions for running the tests and demo locally:
+
+### Installation
+```sh
+git clone https://github.com/PolymerElements/iron-list
+cd iron-list
+npm install
+npm install -g polymer-cli
+```
+
+### Running the demo locally
+```sh
+polymer serve --npm
+open http://127.0.0.1:<port>/demo/
+```
+
+### Running the tests
+```sh
+polymer test --npm
+```
