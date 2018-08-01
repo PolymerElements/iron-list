@@ -687,7 +687,7 @@ will only render 20.
     * True if the current list is visible.
     */
     get _isVisible() {
-      return Boolean(this.offsetWidth || this.offsetHeight);
+      return Boolean(this.scrollTarget.offsetWidth || this.scrollTarget.offsetHeight);
     },
 
     /**
