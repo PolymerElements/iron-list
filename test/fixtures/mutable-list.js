@@ -15,7 +15,7 @@ import {Polymer} from '@polymer/polymer/lib/legacy/polymer-fn.js';
 import {html} from '@polymer/polymer/lib/utils/html-tag.js';
 Polymer({
   _template: html`
-    <iron-list id="list" mutable-data="">
+    <iron-list id="list" mutable-data>
       <template>
         <div>[[item.index]]</div>
       </template>
