@@ -39,9 +39,9 @@ Polymer({
     <iron-list items="[[data]]" as="item" id="list">
       <template>
         <div class="item">
-          <div item-scope-binding="">[[item.index]]</div>
-          <div host-scope-property-binding="">[[propertyForReassignmentForwarding]]</div>
-          <div host-scope-subproperty-binding="">[[propertyForPathChangeForwarding.text]]</div>
+          <div item-scope-binding>[[item.index]]</div>
+          <div host-scope-property-binding>[[propertyForReassignmentForwarding]]</div>
+          <div host-scope-subproperty-binding>[[propertyForPathChangeForwarding.text]]</div>
         </div>
       </template>
     </iron-list>

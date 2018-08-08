@@ -29,7 +29,7 @@ Polymer({
       }
     </style>
     
-    <iron-list items="[[data]]" as="item" id="list" grid="">
+    <iron-list items="[[data]]" as="item" id="list" grid>
       <template>
         <div class="item">
           <div style\$="[[_computeItemSize(itemSize, pre)]]" tabindex\$="[[_computedTabIndex(tabIndex, useTabIndex)]]">[[item.index]]</div>
