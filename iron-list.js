@@ -1905,7 +1905,8 @@ Polymer$0({
   _keydownHandler: function(e) {
     switch (e.keyCode) {
       case /* ARROW_DOWN */ 40:
-        e.preventDefault();
+        if (this._focusedVirtualIndex < this._virtualCount - 1)
+          e.preventDefault();
         this._focusPhysicalItem(
             this._focusedVirtualIndex + (this.grid ? this._itemsPerRow : 1));
         break;
@@ -1915,6 +1916,8 @@ Polymer$0({
               this._focusedVirtualIndex + (this._isRTL ? -1 : 1));
         break;
       case /* ARROW_UP */ 38:
+        if (this._focusedVirtualIndex > 0)
+          e.preventDefault();
         this._focusPhysicalItem(
             this._focusedVirtualIndex - (this.grid ? this._itemsPerRow : 1));
         break;
