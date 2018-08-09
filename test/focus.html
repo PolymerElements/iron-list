@@ -235,7 +235,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             done();
           };
           document.addEventListener('keydown', handler);
-          MockInteractions.pressAndReleaseKeyOn(list, 38);  // up
+          requestAnimationFrame(function() {
+            setTimeout(function() {
+              MockInteractions.pressAndReleaseKeyOn(list, 38);  // up
+            });
+          });
         });
 
     test(
@@ -250,7 +254,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             done();
           };
           document.addEventListener('keydown', handler);
-          MockInteractions.pressAndReleaseKeyOn(list, 40);  // down
+          requestAnimationFrame(function() {
+            setTimeout(function() {
+              MockInteractions.pressAndReleaseKeyOn(list, 40);  // down
+            });
+          });
         });
 
     test(
@@ -265,7 +273,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             done();
           };
           document.addEventListener('keydown', handler);
-          MockInteractions.pressAndReleaseKeyOn(list, 38);  // up
+          requestAnimationFrame(function() {
+            setTimeout(function() {
+              MockInteractions.pressAndReleaseKeyOn(list, 38);  // up
+            });
+          });
         });
 
     test(
@@ -280,7 +292,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             done();
           };
           document.addEventListener('keydown', handler);
-          MockInteractions.pressAndReleaseKeyOn(list, 40);  // down
+          requestAnimationFrame(function() {
+            setTimeout(function() {
+              MockInteractions.pressAndReleaseKeyOn(list, 40);  // down
+            });
+          });
         });
 
     test('first click recognized in long lists (#411)', function(done) {
