@@ -41,7 +41,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     import './fixtures/mutable-list.js';
     import './fixtures/x-list.js';
 
-    import {OptionalMutableDataBehavior} from '@polymer/polymer/lib/legacy/mutable-data-behavior.js';
     import {flush} from '@polymer/polymer/lib/legacy/polymer.dom.js';
 
     suite('mutations to the collection of items', function() {
@@ -372,14 +371,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
 
       test('should not use dirty checking if mutableData is true', function() {
-        /**
-         * This feature and Polymer.OptionalMutableDataBehavior is only available
-         * with Polymer 2.0.
-         */
-        if (!OptionalMutableDataBehavior.properties) {
-          return;
-        }
-
         list.items = buildDataSet(100);
         PolymerFlush();
 
