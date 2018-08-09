@@ -262,7 +262,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           done();
         };
         document.addEventListener('keydown', handler);
-        MockInteractions.pressAndReleaseKeyOn(list, 38); // up
+        requestAnimationFrame(function() {
+          setTimeout(function() {
+            MockInteractions.pressAndReleaseKeyOn(list, 38); // up
+          });
+        });
       });
     });
 
@@ -276,7 +280,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           done();
         };
         document.addEventListener('keydown', handler);
-        MockInteractions.pressAndReleaseKeyOn(list, 40); // down
+        requestAnimationFrame(function() {
+          setTimeout(function() {
+            MockInteractions.pressAndReleaseKeyOn(list, 40); // down
+          });
+        });
       });
     });
 
@@ -290,7 +298,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           done();
         };
         document.addEventListener('keydown', handler);
-        MockInteractions.pressAndReleaseKeyOn(list, 38); // up
+        requestAnimationFrame(function() {
+          setTimeout(function() {
+            MockInteractions.pressAndReleaseKeyOn(list, 38); // up
+          });
+        });
       });
     });
 
@@ -304,7 +316,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           done();
         };
         document.addEventListener('keydown', handler);
-        MockInteractions.pressAndReleaseKeyOn(list, 40); // down
+        requestAnimationFrame(function() {
+          setTimeout(function() {
+            MockInteractions.pressAndReleaseKeyOn(list, 40); // down
+          });
+        });
       });
     });
 
