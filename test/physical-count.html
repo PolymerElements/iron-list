@@ -126,6 +126,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   'The first visible index is appropriately set.');
               container.listHeight = 300;
               list.fire('iron-resize');
+              PolymerFlush();
               flush(function() {
                 assert.equal(list.lastVisibleIndex, 199, 'Scroll is maxed out.');
                 assert.equal(
