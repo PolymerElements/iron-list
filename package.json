@@ -14,21 +14,21 @@
   "name": "@polymer/iron-list",
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "@polymer/app-layout": "^3.0.0-pre.20",
-    "@polymer/iron-ajax": "^3.0.0-pre.20",
-    "@polymer/iron-flex-layout": "^3.0.0-pre.20",
-    "@polymer/iron-icon": "^3.0.0-pre.20",
-    "@polymer/iron-icons": "^3.0.0-pre.20",
-    "@polymer/iron-image": "^3.0.0-pre.20",
-    "@polymer/iron-scroll-threshold": "^3.0.0-pre.20",
-    "@polymer/iron-test-helpers": "^3.0.0-pre.20",
-    "@polymer/paper-badge": "^3.0.0-pre.20",
-    "@polymer/paper-button": "^3.0.0-pre.20",
-    "@polymer/paper-icon-button": "^3.0.0-pre.20",
-    "@polymer/paper-item": "^3.0.0-pre.20",
-    "@polymer/paper-menu-button": "^3.0.0-pre.20",
-    "@polymer/paper-spinner": "^3.0.0-pre.20",
-    "@polymer/test-fixture": "^3.0.0-pre.20",
+    "@polymer/app-layout": "^3.0.0-pre.22",
+    "@polymer/iron-ajax": "^3.0.0-pre.22",
+    "@polymer/iron-flex-layout": "^3.0.0-pre.22",
+    "@polymer/iron-icon": "^3.0.0-pre.22",
+    "@polymer/iron-icons": "^3.0.0-pre.22",
+    "@polymer/iron-image": "^3.0.0-pre.22",
+    "@polymer/iron-scroll-threshold": "^3.0.0-pre.22",
+    "@polymer/iron-test-helpers": "^3.0.0-pre.22",
+    "@polymer/paper-badge": "^3.0.0-pre.22",
+    "@polymer/paper-button": "^3.0.0-pre.22",
+    "@polymer/paper-icon-button": "^3.0.0-pre.22",
+    "@polymer/paper-item": "^3.0.0-pre.22",
+    "@polymer/paper-menu-button": "^3.0.0-pre.22",
+    "@polymer/paper-spinner": "^3.0.0-pre.22",
+    "@polymer/test-fixture": "^4.0.0-pre.0",
     "@webcomponents/webcomponentsjs": "^2.0.0",
     "wct-browser-legacy": "^1.0.1",
     "webmat": "^0.2.1",
@@ -36,7 +36,7 @@
   },
   "scripts": {
     "format": "webmat",
-    "generate-types": "gen-typescript-declarations --deleteExisting --outDir .",
+    "generate-types": "gen-typescript-declarations --deleteExisting --outDir . --verify",
     "prepack": "npm run generate-types"
   },
   "version": "3.0.0-pre.22",
@@ -44,8 +44,8 @@
   "author": "The Polymer Authors",
   "dependencies": {
     "@polymer/polymer": "^3.0.0",
-    "@polymer/iron-resizable-behavior": "^3.0.0-pre.20",
-    "@polymer/iron-a11y-keys-behavior": "^3.0.0-pre.20",
-    "@polymer/iron-scroll-target-behavior": "^3.0.0-pre.20"
+    "@polymer/iron-resizable-behavior": "^3.0.0-pre.22",
+    "@polymer/iron-a11y-keys-behavior": "^3.0.0-pre.22",
+    "@polymer/iron-scroll-target-behavior": "^3.0.0-pre.22"
   }
 }
