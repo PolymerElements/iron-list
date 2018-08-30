@@ -14,8 +14,6 @@ thing! https://github.com/PolymerLabs/tedium/issues
 
 [![Build status](https://travis-ci.org/PolymerElements/iron-list.svg?branch=master)](https://travis-ci.org/PolymerElements/iron-list)
 
-_[Demo and API docs](https://elements.polymer-project.org/elements/iron-list)_
-
 
 ## &lt;iron-list&gt;
 
