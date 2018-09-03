@@ -1540,6 +1540,110 @@ will only render 20.
     },
 
     /**
+     * Select the array of list items provided or
+     * select the entire list.
+     *
+     * @method selectItems
+     * @param {array} items The array of item objects or indexes
+     */
+    selectItems: function(items) {
+      var indexes = [];
+      if (arguments.length > 1 || (typeof items !== 'undefined' && !Array.isArray(items))) {
+        items = !!Array.from ? Array.from(arguments) : [].slice.call(arguments);
+      }
+      items = items || this.items;
+      indexes = items.map(function(item) {
+        return (typeof item === 'number') ? item : this.items.indexOf(item);
+      }.bind(this));
+      return this.selectIndexes(indexes);
+    },
+
+    selectIndexes: function(indexes) {
+      if (this.$.selector.selectIndex) {
+        // v2
+        this.selectIndexesV2(indexes);
+      } else {
+        // v1
+        this.selectIndexesV1(indexes);
+      }
+    },
+
+    selectIndexesV1: function(indexes) {
+      var items = [];
+      var item = {};
+      var index = -1;
+      var model = {};
+      // Cast an arguments list that doesn't consist of a single array to an array
+      if (arguments.length > 1 || (typeof indexes !== 'undefined' && !Array.isArray(indexes))) {
+        indexes = !!Array.from ? Array.from(arguments) : [].slice.call(arguments);
+        items = indexes.map(function(idx) {
+          return this.items[idx];
+        }.bind(this));
+      } else {
+        items = this.items;
+      }
+      items = items.filter(function(item) {
+        return !(this.$.selector).isSelected(item);
+      }.bind(this));
+      for (var i = 0, l = items.length; i < l; i++) {
+        item = items[i];
+        index = (indexes) ? indexes[i] : i;
+        if (this._isIndexRendered(index)) {
+          model = this.modelForElement(this._physicalItems[this._getPhysicalIndex(index)]);
+          if (model) {
+            model[this.selectedAs] = true;
+          }
+          this.updateSizeForIndex(index);
+        }
+      }
+      this.$.selector.selectItems(items);
+    },
+
+    selectIndexesV2: function(indexes) {
+        this.selectedItems.map(function(item){
+          var index = this.items.indexOf(item);
+          if (this._isIndexRendered(index)) {
+            var model = this.modelForElement(this._physicalItems[this._getPhysicalIndex(index)]);
+            model[this.selectedAs] = false;
+            this.updateSizeForIndex(index);
+          }
+        }.bind(this));
+        indexes.forEach(function(index) {
+          if (this._isIndexRendered(index)) {
+            var model = this.modelForElement(this._physicalItems[this._getPhysicalIndex(index)]);
+            if (model) {
+              model[this.selectedAs] = true;
+            }
+            this.updateSizeForIndex(index);
+          }
+        }.bind(this));
+        this.$.selector.selectIndexes(indexes);
+    },
+
+    selectAll: function() {
+      if (this.$.selector.selectIndex) {
+        // v2
+        this.selectAllV2();
+      } else {
+        // v1
+        this.selectIndexes();
+      }
+    },
+
+    selectAllV2: function() {
+      this.items.forEach(function(item, index) {
+        if (this._isIndexRendered(index)) {
+          var model = this.modelForElement(this._physicalItems[this._getPhysicalIndex(index)]);
+          if (model) {
+            model[this.selectedAs] = true;
+          }
+          this.updateSizeForIndex(index);
+        }
+      }.bind(this));
+      this.$.selector.selectAll();
+    },
+
+    /**
      * Deselects the given item.
      *
      * @method deselect
