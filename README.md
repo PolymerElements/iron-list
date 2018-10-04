@@ -33,7 +33,7 @@ layout means (e.g. the `flex` or `fit` classes).
   }
 
   iron-list {
-    flex: 1 1 auto;
+    flex: 1;
   }
 </style>
 <app-toolbar>App name</app-toolbar>
@@ -69,27 +69,11 @@ layout means (e.g. the `flex` or `fit` classes).
 <head>
   <style>
     body {
-      height: 100vh;
       margin: 0;
-      display: flex;
-      flex-direction: column;
-    }
-
-    app-toolbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-    }
-
-    iron-list {
-      /* add padding since the app-toolbar is fixed at the top */
-      padding-top: 64px;
     }
   </style>
 </head>
 <body>
-  <app-toolbar>App name</app-toolbar>
   <iron-list scroll-target="document">
     <template>
       <div>
