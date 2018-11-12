@@ -8,6 +8,7 @@ found at http://polymer.github.io/CONTRIBUTORS.txt Code distributed by Google as
 part of the polymer project is also subject to an additional IP rights grant
 found at http://polymer.github.io/PATENTS.txt
 */
+// TODO(keanulee): Dummy change to poke the CI bear without touching master.
 import '@polymer/polymer/polymer-legacy.js';
 import '@polymer/iron-a11y-keys-behavior/iron-a11y-keys-behavior.js';
 
