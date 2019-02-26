@@ -13,8 +13,8 @@ import '@polymer/iron-a11y-keys-behavior/iron-a11y-keys-behavior.js';
 
 import {IronResizableBehavior} from '@polymer/iron-resizable-behavior/iron-resizable-behavior.js';
 import {IronScrollTargetBehavior} from '@polymer/iron-scroll-target-behavior/iron-scroll-target-behavior.js';
-import {OptionalMutableDataBehavior as OptionalMutableDataBehavior$0} from '@polymer/polymer/lib/legacy/mutable-data-behavior.js';
-import {Polymer as Polymer$0} from '@polymer/polymer/lib/legacy/polymer-fn.js';
+import {OptionalMutableDataBehavior} from '@polymer/polymer/lib/legacy/mutable-data-behavior.js';
+import {Polymer as PolymerFn} from '@polymer/polymer/lib/legacy/polymer-fn.js';
 import {addDebouncer, dom, flush as flush$0} from '@polymer/polymer/lib/legacy/polymer.dom.js';
 import {Templatizer} from '@polymer/polymer/lib/legacy/templatizer-behavior.js';
 import {animationFrame, idlePeriod, microTask} from '@polymer/polymer/lib/utils/async.js';
@@ -34,12 +34,6 @@ var IS_V2 = flush != null;
 var ANIMATION_FRAME = IS_V2 ? animationFrame : 0;
 var IDLE_TIME = IS_V2 ? idlePeriod : 1;
 var MICRO_TASK = IS_V2 ? microTask : 2;
-
-/* Polymer.OptionalMutableDataBehavior is only available with Polymer 2.0. */
-if (!OptionalMutableDataBehavior$0) {
-  /** @polymerBehavior */
-  Polymer.OptionalMutableDataBehavior = {};
-}
 
 /**
 
@@ -264,7 +258,7 @@ items, and iron-list will only render 20.
 @demo demo/index.html
 
 */
-Polymer$0({
+PolymerFn({
   _template: html`
     <style>
       :host {
@@ -401,7 +395,7 @@ Polymer$0({
     Templatizer,
     IronResizableBehavior,
     IronScrollTargetBehavior,
-    OptionalMutableDataBehavior$0
+    OptionalMutableDataBehavior
   ],
 
   /**
