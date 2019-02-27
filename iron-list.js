@@ -15,7 +15,7 @@ import {IronResizableBehavior} from '@polymer/iron-resizable-behavior/iron-resiz
 import {IronScrollTargetBehavior} from '@polymer/iron-scroll-target-behavior/iron-scroll-target-behavior.js';
 import {OptionalMutableDataBehavior} from '@polymer/polymer/lib/legacy/mutable-data-behavior.js';
 import {Polymer as Polymer} from '@polymer/polymer/lib/legacy/polymer-fn.js';
-import {dom, flush as flush$0} from '@polymer/polymer/lib/legacy/polymer.dom.js';
+import {dom} from '@polymer/polymer/lib/legacy/polymer.dom.js';
 import {Templatizer} from '@polymer/polymer/lib/legacy/templatizer-behavior.js';
 import {animationFrame, idlePeriod, microTask} from '@polymer/polymer/lib/utils/async.js';
 import {Debouncer} from '@polymer/polymer/lib/utils/debounce.js';
@@ -1049,7 +1049,7 @@ Polymer({
     if (typeof oldGrid === 'undefined')
       return;
     this.notifyResize();
-    flush ? flush() : flush$0();
+    flush();
     newGrid && this._updateGridMetrics();
   },
 
@@ -1249,7 +1249,7 @@ Polymer({
   _updateMetrics: function(itemSet) {
     // Make sure we distributed all the physical items
     // so we can measure them.
-    flush ? flush() : flush$0();
+    flush();
 
     var newPhysicalSize = 0;
     var oldPhysicalSize = 0;
@@ -1427,7 +1427,7 @@ Polymer({
     if (typeof idx !== 'number' || idx < 0 || idx > this.items.length - 1) {
       return;
     }
-    flush ? flush() : flush$0();
+    flush();
     // Items should have been rendered prior scrolling to an index.
     if (this._physicalCount === 0) {
       return;
