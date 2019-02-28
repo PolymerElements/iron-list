@@ -22,7 +22,7 @@ import {Debouncer} from '@polymer/polymer/lib/utils/debounce.js';
 import {enqueueDebouncer, flush} from '@polymer/polymer/lib/utils/flush.js';
 import {html} from '@polymer/polymer/lib/utils/html-tag.js';
 import {matches, translate} from '@polymer/polymer/lib/utils/path.js';
-import {TemplateInstanceBase} from '@polymer/polymer/lib/utils/templatize';
+import {TemplateInstanceBase} from '@polymer/polymer/lib/utils/templatize.js';
 
 var IOS = navigator.userAgent.match(/iP(?:hone|ad;(?: U;)? CPU) OS (\d+)/);
 var IOS_TOUCH_SCROLLING = IOS && IOS[1] >= 8;
