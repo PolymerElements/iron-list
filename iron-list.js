@@ -460,7 +460,7 @@ Polymer({
 
   /**
    * An array of DOM nodes that are currently in the tree
-   * @type {?Array<!TemplateInstanceBase>}
+   * @type {?Array<!HTMLElement>}
    */
   _physicalItems: null,
 
@@ -507,13 +507,14 @@ Polymer({
 
   /**
    * The the item that is focused if it is moved offscreen.
-   * @private {?TemplatizerNode}
+   * @private {?HTMLElement}
    */
   _offscreenFocusedItem: null,
 
   /**
    * The item that backfills the `_offscreenFocusedItem` in the physical items
    * list when that item is moved offscreen.
+   * @type {?HTMLElement}
    */
   _focusBackfillItem: null,
 
@@ -1031,7 +1032,8 @@ Polymer({
     if (this.ctor) {
       return;
     }
-    this._userTemplate = this.queryEffectiveChildren('template');
+    this._userTemplate = /** @type {!HTMLTemplateElement} */ (
+        this.queryEffectiveChildren('template'));
     if (!this._userTemplate) {
       console.warn('iron-list requires a template to be provided in light-dom');
     }
@@ -1128,7 +1130,7 @@ Polymer({
     path = path.substring(dot + 1);
     path = this.as + (path ? '.' + path : '');
     inst._setPendingPropertyOrPath(path, value, false, true);
-    inst._flushProperties && inst._flushProperties(true);
+    inst._flushProperties && inst._flushProperties();
     // TODO(blasten): V1 doesn't do this and it's a bug
     if (isIndexRendered) {
       this._updateMetrics([pidx]);
@@ -1773,7 +1775,8 @@ Polymer({
     if (!this._focusBackfillItem) {
       // Create a physical item.
       var inst = this.stamp(null);
-      this._focusBackfillItem = inst.root.querySelector('*');
+      this._focusBackfillItem =
+          /** @type {!HTMLElement} */ (inst.root.querySelector('*'));
       this._itemsParent.appendChild(inst.root);
     }
     // Set the offcreen focused physical item.
@@ -1937,7 +1940,7 @@ Polymer({
         .concat([this._offscreenFocusedItem, this._focusBackfillItem])
         .forEach(function(item) {
           if (item) {
-            this.modelForElement(item).notifyPath(path, value, true);
+            this.modelForElement(item).notifyPath(path, value);
           }
         }, this);
   },
