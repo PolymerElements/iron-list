@@ -248,12 +248,12 @@ once. Say you have a million records in the database, you want to split the data
 into pages so you can bring in a page at the time. The page could contain 500
 items, and iron-list will only render 20.
 
-@group Iron Element
 @element iron-list
 @demo demo/index.html
 
 */
 Polymer({
+  /** @override */
   _template: html`
     <style>
       :host {
@@ -736,10 +736,12 @@ Polymer({
     return this._scrollerPaddingTop + this.scrollOffset;
   },
 
+  /** @override */
   ready: function() {
     this.addEventListener('focus', this._didFocus.bind(this), true);
   },
 
+  /** @override */
   attached: function() {
     this._debounce('_render', this._render, animationFrame);
     // `iron-resize` is fired when the list is attached if the event is added
@@ -748,6 +750,7 @@ Polymer({
     this.listen(this, 'keydown', '_keydownHandler');
   },
 
+  /** @override */
   detached: function() {
     this.unlisten(this, 'iron-resize', '_resizeHandler');
     this.unlisten(this, 'keydown', '_keydownHandler');
