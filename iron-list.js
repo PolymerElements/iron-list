@@ -1323,10 +1323,17 @@ Polymer({
         }
       });
     } else {
+      let order = [];
       this._iterateItems(function(pidx, vidx) {
         this.translate3d(0, y + 'px', 0, this._physicalItems[pidx]);
         y += this._physicalSizes[pidx];
+        if (this._physicalItems[pidx].id) {
+          order.push(this._physicalItems[pidx].id);
+        }
       });
+      if (order.length) {
+        this.setAttribute('aria-owns', order.join(' '));
+      }
     }
   },
 

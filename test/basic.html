@@ -20,7 +20,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <test-fixture id="trivialList">
     <template>
-      <x-list></x-list>
+      <x-list id$="tl[[index]]"></x-list>
     </template>
   </test-fixture>
 
@@ -143,6 +143,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       PolymerFlush();
       list.scrollToIndex(99);
       assert.equal(list.firstVisibleIndex, 99);
+    });
+
+    test('expected aria-owns while scrolling', function() {
+      list.items = buildDataSet(100);
+      PolymerFlush();
+
+      const getExpectedAriaOwns = () => {
+        return
+            // Physical children.
+            Array.from(list.querySelectorAll('x-list'))
+
+            // Skip selected node.
+            .filter(child => child.getBoundingClientRect().top >= -10000)
+
+            // Sort by |top|.
+            .sort((left, right) => left.getBoundingClientRect().top - right.getBoundingClientRect().top)
+
+            // Get IDs.
+            .map(child => child.id)
+
+            // Create expected |aria-owned|.
+            .join(' ');
+      };
+
+      // Make sure we're virtualizing nodes.
+      assert.isTrue(Array.from(list.querySelectorAll('x-list')).length < list.items.length);
+
+      // Scroll by 7 because it's not a 'nice round number'.
+      for (let i = 0; i < list.items.length; i += 7) {
+        list.scrollToIndex(i);
+        assert.equal(list.getAttribute('aria-owns'), getExpectedAriaOwns());
+      }
     });
 
     test('scroll to index while not attached', function() {
