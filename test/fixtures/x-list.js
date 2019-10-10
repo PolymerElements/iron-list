@@ -41,7 +41,7 @@ Polymer({
 
     <iron-list items="[[data]]" as="item" id="list">
       <template>
-        <div class="item" selected\$="[[selected]]">
+        <div id$="xl[[index]]" class="item" selected\$="[[selected]]">
           <div style\$="[[_computedItemHeight(item)]]" tabindex\$="[[_computedTabIndex(tabIndex, useTabIndex)]]" hidden\$="[[primitive]]">[[item.index]]</div>
           <div style\$="[[_computedItemHeight(item)]]" tabindex\$="[[_computedTabIndex(tabIndex, useTabIndex)]]" hidden\$="[[!primitive]]">[[item]]</div>
         </div>

@@ -20,7 +20,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <test-fixture id="trivialList">
     <template>
-      <x-list id$="tl[[index]]"></x-list>
+      <x-list></x-list>
     </template>
   </test-fixture>
 
@@ -150,15 +150,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       PolymerFlush();
 
       const getExpectedAriaOwns = () => {
-        return
+        return Array
             // Physical children.
-            Array.from(list.querySelectorAll('x-list'))
+            .from(list.querySelectorAll('div.item'))
 
             // Skip selected node.
             .filter(child => child.getBoundingClientRect().top >= -10000)
 
             // Sort by |top|.
-            .sort((left, right) => left.getBoundingClientRect().top - right.getBoundingClientRect().top)
+            .sort((left, right) => {
+              return left.getBoundingClientRect().top -
+                  right.getBoundingClientRect().top;
+            })
 
             // Get IDs.
             .map(child => child.id)
@@ -168,7 +171,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       };
 
       // Make sure we're virtualizing nodes.
-      assert.isTrue(Array.from(list.querySelectorAll('x-list')).length < list.items.length);
+      assert.isTrue(list.querySelectorAll('div.item').length < list.items.length);
+      assert.isTrue(list.querySelectorAll('div.item').length > 0);
 
       // Scroll by 7 because it's not a 'nice round number'.
       for (let i = 0; i < list.items.length; i += 7) {
