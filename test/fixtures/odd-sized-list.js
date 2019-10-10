@@ -33,7 +33,7 @@ Polymer({
     </style>
     <iron-list id="list" items="{{items}}">
       <template>
-        <div class="item" style="height: [[item]]px;">Item [[index]] ([[item]]px)</div>
+        <div class="item" style$="height: [[item]]px;">Item [[index]] ([[item]]px)</div>
       </template>
     </iron-list>`,
   properties: {
