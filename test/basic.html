@@ -32,10 +32,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </template>
   </test-fixture>
 
+  <test-fixture id="oddSizedList">
+    <template>
+      <odd-sized-list></odd-sized-list>
+    </template>
+  </test-fixture>
 
 <script type="module">
   import './fixtures/helpers.js';
   import './fixtures/x-list.js';
+  import './fixtures/odd-sized-list.js';
   import {dom} from '@polymer/polymer/lib/legacy/polymer.dom.js';
   suite('basic features', function() {
     var list, container;
@@ -300,6 +306,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           });
         });
   });
+
+  suite('scrolling through heterogeneously-sized list', function() {
+    var list;
+
+    setup(function() {
+      list = fixture('oddSizedList').$.list;
+      PolymerFlush();
+    });
+
+    // This test catches a runaway condition where _increasePoolIfNeeded
+    // could recurse indefinitely due to the physical average becoming
+    // large enough (due to heterogeneously-sized items) to position the
+    // physical top lower than the scroll position, causing _isClientFull
+    // to return true; this 
+    test('Issue #559: scroll heterogeneously sized list', function(done) {
+      list.scrollTop = 2300;
+      requestAnimationFrame(function() {
+        list.scrollTop = 0;
+        list.fire('iron-resize');
+        requestAnimationFrame(function() {
+          // In the current implementation, there should be ~29, but
+          // being generous here to allow for changes in the algorithm;
+          // idea being to catch a runaway situation
+          assert.isAtMost(list.children.length, 50);
+          done();
+        });
+      });
+    });
+  });
+
 </script>
 
 </body>

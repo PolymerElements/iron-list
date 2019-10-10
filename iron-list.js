@@ -803,9 +803,11 @@ Polymer({
           Math.round(delta / this._physicalAverage) * this._itemsPerRow;
       this._virtualStart = this._virtualStart + idxAdjustment;
       this._physicalStart = this._physicalStart + idxAdjustment;
-      // Estimate new physical offset.
-      this._physicalTop = Math.floor(this._virtualStart / this._itemsPerRow) *
-          this._physicalAverage;
+      // Estimate new physical offset based on the virtual start (but never allow
+      // to be more than the current scrollTop)
+      this._physicalTop = Math.min(
+        Math.floor(this._virtualStart / this._itemsPerRow) *
+          this._physicalAverage, this._scrollPosition);
       this._update();
     } else if (this._physicalCount > 0) {
       var reusables = this._getReusables(isScrollingDown);
@@ -841,7 +843,8 @@ Polymer({
     var physicalCount = this._physicalCount;
     var top = this._physicalTop + this._scrollOffset;
     var bottom = this._physicalBottom + this._scrollOffset;
-    var scrollTop = this._scrollTop;
+    // This may be called outside of a scrollHandler, so use last cached position
+    var scrollTop = this._scrollPosition;
     var scrollBottom = this._scrollBottom;
 
     if (fromTop) {
@@ -1362,7 +1365,8 @@ Polymer({
     // Note: the delta can be positive or negative.
     if (deltaHeight !== 0) {
       this._physicalTop = this._physicalTop - deltaHeight;
-      var scrollTop = this._scrollTop;
+      // This may be called outside of a scrollHandler, so use last cached position
+      var scrollTop = this._scrollPosition;
       // juking scroll position during interial scrolling on iOS is no bueno
       if (!IOS_TOUCH_SCROLLING && scrollTop > 0) {
         this._resetScrollPosition(scrollTop - deltaHeight);
