@@ -806,8 +806,9 @@ Polymer({
       // Estimate new physical offset based on the virtual start (but never allow
       // to be more than the current scrollTop)
       this._physicalTop = Math.min(
-        Math.floor(this._virtualStart / this._itemsPerRow) *
-          this._physicalAverage, this._scrollPosition);
+          Math.floor(this._virtualStart / this._itemsPerRow) *
+              this._physicalAverage,
+          this._scrollPosition);
       this._update();
     } else if (this._physicalCount > 0) {
       var reusables = this._getReusables(isScrollingDown);
