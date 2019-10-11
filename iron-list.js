@@ -406,7 +406,7 @@ Polymer({
   _scrollerPaddingTop: 0,
 
   /**
-   * This value is the same as `scrollTop`.
+   * This value is a cached value of `scrollTop` from the last `scroll` event.
    */
   _scrollPosition: 0,
 
@@ -803,9 +803,16 @@ Polymer({
           Math.round(delta / this._physicalAverage) * this._itemsPerRow;
       this._virtualStart = this._virtualStart + idxAdjustment;
       this._physicalStart = this._physicalStart + idxAdjustment;
-      // Estimate new physical offset.
-      this._physicalTop = Math.floor(this._virtualStart / this._itemsPerRow) *
-          this._physicalAverage;
+      // Estimate new physical offset based on the virtual start index.
+      // adjusts the physical start position to stay in sync with the clamped
+      // virtual start index. It's critical not to let this value be
+      // more than the scroll position however, since that would result in
+      // the physical items not covering the viewport, and leading to
+      // _increasePoolIfNeeded to run away creating items to try to fill it.
+      this._physicalTop = Math.min(
+          Math.floor(this._virtualStart / this._itemsPerRow) *
+              this._physicalAverage,
+          this._scrollPosition);
       this._update();
     } else if (this._physicalCount > 0) {
       var reusables = this._getReusables(isScrollingDown);
@@ -841,7 +848,8 @@ Polymer({
     var physicalCount = this._physicalCount;
     var top = this._physicalTop + this._scrollOffset;
     var bottom = this._physicalBottom + this._scrollOffset;
-    var scrollTop = this._scrollTop;
+    // This may be called outside of a scrollHandler, so use last cached position
+    var scrollTop = this._scrollPosition;
     var scrollBottom = this._scrollBottom;
 
     if (fromTop) {
@@ -1362,7 +1370,8 @@ Polymer({
     // Note: the delta can be positive or negative.
     if (deltaHeight !== 0) {
       this._physicalTop = this._physicalTop - deltaHeight;
-      var scrollTop = this._scrollTop;
+      // This may be called outside of a scrollHandler, so use last cached position
+      var scrollTop = this._scrollPosition;
       // juking scroll position during interial scrolling on iOS is no bueno
       if (!IOS_TOUCH_SCROLLING && scrollTop > 0) {
         this._resetScrollPosition(scrollTop - deltaHeight);
