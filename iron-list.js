@@ -1323,12 +1323,14 @@ Polymer({
         }
       });
     } else {
-      let order = [];
+      const order = [];
       this._iterateItems(function(pidx, vidx) {
-        this.translate3d(0, y + 'px', 0, this._physicalItems[pidx]);
+        const item = this._physicalItems[pidx];
+        this.translate3d(0, y + 'px', 0, item);
         y += this._physicalSizes[pidx];
-        if (this._physicalItems[pidx].id) {
-          order.push(this._physicalItems[pidx].id);
+        const itemId = item.id;
+        if (itemId) {
+          order.push(itemId);
         }
       });
       if (order.length) {
