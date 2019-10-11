@@ -406,7 +406,7 @@ Polymer({
   _scrollerPaddingTop: 0,
 
   /**
-   * This value is the same as `scrollTop`.
+   * This value is a cached value of `scrollTop` from the last `scroll` event.
    */
   _scrollPosition: 0,
 
@@ -803,8 +803,12 @@ Polymer({
           Math.round(delta / this._physicalAverage) * this._itemsPerRow;
       this._virtualStart = this._virtualStart + idxAdjustment;
       this._physicalStart = this._physicalStart + idxAdjustment;
-      // Estimate new physical offset based on the virtual start (but never allow
-      // to be more than the current scrollTop)
+      // Estimate new physical offset based on the virtual start index.
+      // adjusts the physical start position to stay in sync with the clamped
+      // virtual start index. It's critical not to let this value be
+      // more than the scroll position however, since that would result in
+      // the physical items not covering the viewport, and leading to
+      // _increasePoolIfNeeded to run away creating items to try to fill it.
       this._physicalTop = Math.min(
           Math.floor(this._virtualStart / this._itemsPerRow) *
               this._physicalAverage,
