@@ -324,7 +324,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       list.scrollTop = 2300;
       requestAnimationFrame(function() {
         list.scrollTop = 0;
-        list.fire('iron-resize');
         requestAnimationFrame(function() {
           // In the current implementation, there should be ~29, but
           // being generous here to allow for changes in the algorithm;
